@@ -13,6 +13,7 @@ import LoadingOverlay from '../components/LoadingOverlay'
 import Disclaimer from '../components/Disclaimer'
 import StageBackdrop from '../components/StageBackdrop'
 import Roster from '../components/Roster'
+import Dossier from '../components/Dossier'
 import ElementParticles from '../three/ElementParticles'
 
 function Stage({ character }: { character: Character }) {
@@ -117,14 +118,14 @@ export default function ResonatorHall() {
   const { id } = useParams()
   const state = useCharacters()
 
-  const characters = state.status === 'ready' ? state.characters : []
+  const characters = state.status === 'ready' ? state.data : []
   const current = id ? characters.find((item) => item.id === id) : characters[0]
 
   return (
     <div className="wrap">
       <header>
         <h1>Hall Resonator</h1>
-        <p className="lede">Pilih karakter, putar modelnya, lalu coba animasinya.</p>
+        <p className="lede">Pilih karakter, putar modelnya, coba animasinya, lalu dengarkan suaranya.</p>
         <p className="links">
           <Link to="/" className="pill">
             ← Lobby
@@ -144,7 +145,12 @@ export default function ResonatorHall() {
         {state.status === 'ready' && !current && (
           <p className="notice">Karakter tidak ditemukan.</p>
         )}
-        {current && <Stage key={current.id} character={current} />}
+        {current && (
+          <div className="exhibit" key={current.id}>
+            <Stage character={current} />
+            <Dossier character={current} />
+          </div>
+        )}
       </main>
 
       <Disclaimer />

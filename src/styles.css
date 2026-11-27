@@ -546,6 +546,235 @@ h1 {
   transform: translate(-50%, -50%);
 }
 
+/* Below the stage: profile, voice lines and skills. */
+
+.exhibit {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  min-width: 0;
+}
+
+.dossier {
+  padding-bottom: 18px;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 14px 16px;
+  border-bottom: 1.5px solid var(--line);
+}
+
+.dossier .pill[aria-pressed='true'] {
+  border-color: var(--el-deep);
+  background: var(--el-deep);
+}
+
+.dossier .notice {
+  margin: 0;
+  padding: 18px 16px 0;
+  color: var(--mute);
+  text-align: left;
+}
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px 16px 0;
+  overflow-wrap: anywhere;
+}
+
+.panel h3,
+.panel h4,
+.panel p {
+  margin: 0;
+}
+
+.panel h3 {
+  font: italic 800 19px / 1.25 var(--display);
+}
+
+.panel h4 {
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.prose {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 68ch;
+}
+
+.panel .nickname {
+  align-self: start;
+  padding: 3px 14px;
+  border-radius: 999px;
+  background: var(--el-deep);
+  color: #fff;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 10px;
+  margin: 0;
+}
+
+.facts div {
+  padding: 8px 12px;
+  border-left: 4px solid var(--el-accent);
+  border-radius: 4px 10px 10px 4px;
+  background: var(--chip);
+}
+
+.facts dt {
+  color: var(--mute);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.facts dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.dossier details {
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+}
+
+.dossier summary {
+  padding: 10px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.dossier details .prose {
+  padding: 0 12px 14px;
+}
+
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 460px;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.line {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.line:hover:enabled {
+  border-color: var(--text);
+}
+
+.line:disabled {
+  cursor: default;
+}
+
+.line[aria-pressed='true'] {
+  border-color: var(--el-deep);
+  background: var(--el-pale);
+}
+
+.line > i {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--el-deep);
+  color: #fff;
+  font-size: 12px;
+  font-style: normal;
+}
+
+.line:disabled > i {
+  background: var(--mute);
+}
+
+.line b {
+  display: block;
+  font-size: 13px;
+}
+
+.line span span {
+  color: var(--mute);
+  font-size: 13px;
+  white-space: pre-line;
+}
+
+.line[aria-pressed='true'] span span {
+  color: var(--text);
+}
+
+.skills {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.skills summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.skills summary::after {
+  margin-left: auto;
+  content: '+';
+  font-size: 20px;
+}
+
+.skills details[open] summary::after {
+  content: '−';
+}
+
+.skills small {
+  display: block;
+  color: var(--mute);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* The icons of the game are white, so they sit on a dark tile. */
+.skill-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--el-deep);
+}
+
+.skill-icon img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
 @media (max-width: 760px) {
   .hall {
     grid-template-columns: minmax(0, 1fr);

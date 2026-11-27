@@ -28,7 +28,7 @@ export default function Lobby() {
   // One roll per visit decides who greets and what they say.
   const [roll] = useState(() => [Math.random(), Math.random()])
   const state = useCharacters()
-  const characters = state.status === 'ready' ? state.characters : []
+  const characters = state.status === 'ready' ? state.data : []
   const greeter = characters[Math.floor(roll[0] * characters.length)]
   const greeting = GREETINGS[Math.floor(roll[1] * GREETINGS.length)]
 

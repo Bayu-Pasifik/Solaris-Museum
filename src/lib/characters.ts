@@ -15,32 +15,38 @@ export type Character = {
 
 export const assetUrl = (path: string) => import.meta.env.BASE_URL + path
 
-type State =
+type Loaded<T> =
   | { status: 'loading' }
   | { status: 'error'; message: string }
-  | { status: 'ready'; characters: Character[] }
+  | { status: 'ready'; data: T }
 
-export function useCharacters(): State {
-  const [state, setState] = useState<State>({ status: 'loading' })
+/**
+ * Loads a JSON file from public/. The path must stay the same for the life of the component,
+ * and isValid must be a function defined outside of it.
+ */
+export function useJson<T>(path: string, isValid: (data: T) => boolean): Loaded<T> {
+  const [state, setState] = useState<Loaded<T>>({ status: 'loading' })
 
   useEffect(() => {
     const controller = new AbortController()
 
-    fetch(assetUrl('data/characters.json'), { signal: controller.signal })
+    fetch(assetUrl(path), { signal: controller.signal })
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
-        return response.json() as Promise<Character[]>
+        return response.json() as Promise<T>
       })
-      .then((characters) => {
-        if (!Array.isArray(characters)) throw new Error('Format data salah')
-        setState({ status: 'ready', characters })
+      .then((data) => {
+        if (!isValid(data)) throw new Error('Format data salah')
+        setState({ status: 'ready', data })
       })
       .catch((error: Error) => {
         if (!controller.signal.aborted) setState({ status: 'error', message: error.message })
       })
 
     return () => controller.abort()
-  }, [])
+  }, [path, isValid])
 
   return state
 }
+
+export const useCharacters = () => useJson<Character[]>('data/characters.json', Array.isArray)

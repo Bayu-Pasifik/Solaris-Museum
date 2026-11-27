@@ -20,6 +20,11 @@ there. `public/art/<id>.webp` is the optional splash art behind a model, with a 
 background. `public/art/faces/<id>.webp` is the optional square face picture in the character
 list; without it the list shows the first letter of the name.
 
+`public/data/profiles/<id>.json` is the optional profile below the model (introduction,
+stories, voice lines and skills), and `public/art/skills/` holds the skill icons it points to.
+The script below writes both; the format is the `Profile` type in `src/lib/profiles.ts`. The
+voice audio is not downloaded: the player streams it from encore.moe.
+
 `public/data/characters.json`:
 
 ```json
@@ -45,12 +50,14 @@ Models are GLB files with Meshopt compression. Draco is not supported by the vie
 node scripts/add-character.mjs 1202 1103
 ```
 
-To download only the splash art and the face picture, add `--art-only` before the ids.
+To download only the pictures and the profile, without the model and without Blender, add
+`--no-model` before the ids.
 
 The arguments are character ids from `https://api-v2.encore.moe/api/en/character`. The script
 downloads the model, the animations (poses, attacks and, where available, walking and
-running), the splash art, the face picture and the textures into `assets-raw/`, converts them
-with Blender, writes `public/models/<id>.glb` and updates `public/data/characters.json`.
+running) and the textures into `assets-raw/`, converts them with Blender, writes
+`public/models/<id>.glb` and updates `public/data/characters.json`. It also writes the splash
+art, the face picture, the skill icons and the profile described above.
 
 It needs Node 22.15 or newer, Blender (on `PATH`, or set `BLENDER` to the executable) and the
 [UEFormat](https://github.com/h4lfheart/UEFormat) Blender addon source in `tools/ueformat/src/`.

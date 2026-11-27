@@ -1,12 +1,14 @@
 // Adds characters to the Resonator hall.
 //
 //   node scripts/add-character.mjs <encore.moe character id> [...]
-//   node scripts/add-character.mjs --art-only <encore.moe character id> [...]
+//   node scripts/add-character.mjs --no-model <encore.moe character id> [...]
 //
-// For each id it downloads the splash art into public/art/ and the face picture into
-// public/art/faces/, and the model, the animations and the main textures into assets-raw/,
-// converts them to GLB with Blender, and updates public/data/characters.json.
-// With --art-only it stops after the two pictures.
+// For each id it downloads the splash art into public/art/, the face picture into
+// public/art/faces/ and the skill icons into public/art/skills/, and writes the profile
+// (text, voice lines, skills) to public/data/profiles/. Then it downloads the model, the
+// animations and the main textures into assets-raw/, converts them to GLB with Blender,
+// and updates public/data/characters.json. The voice audio stays on encore.moe.
+// With --no-model it stops after the pictures and the profile.
 // Needs Node 22.15+ (zstd), the UEFormat addon source in tools/ueformat/src,
 // and Blender on PATH or in the BLENDER environment variable.
 
@@ -15,6 +17,7 @@ import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'no
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { gunzipSync, zstdDecompressSync } from 'node:zlib'
+import { buildProfile, dropMissingAudio } from './profile.mjs'
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const API = 'https://api-v2.encore.moe/api/en/character/'
@@ -75,6 +78,24 @@ async function addPicture(kind, url, path) {
   }
 }
 
+/** Writes public/data/profiles/<slug>.json and downloads the skill icons it points to. */
+async function addProfile(data, slug) {
+  const profile = buildProfile(data)
+  for (const skill of profile.skills) {
+    if (!skill.icon) continue
+    // Characters share some icons, so a file that exists is not downloaded again.
+    const path = `skills/${skill.icon.split('/').pop().replace(/\.[^.]*$/, '')}`
+    const file = join(root, 'public', 'art', `${path}.webp`)
+    if (!existsSync(file)) await addPicture(`icon of ${skill.name}`, skill.icon, path)
+    skill.icon = existsSync(file) ? `art/${path}.webp` : ''
+  }
+  const removed = await dropMissingAudio(profile.voices)
+  if (removed > 0) console.warn(`  ${removed} voice files are not on the server`)
+  const file = join(root, 'public', 'data', 'profiles', `${slug}.json`)
+  mkdirSync(dirname(file), { recursive: true })
+  writeFileSync(file, JSON.stringify(profile) + '\n')
+}
+
 /** "Client/Content/Aki/x/T_A.1" becomes the download URL of that asset. */
 const assetFile = (objectPath, extension) =>
   FILES + objectPath.replace(/^(Client\/Content\/|\/Game\/)/, '').replace(/\.[^./]*$/, '') + extension
@@ -113,7 +134,8 @@ async function add(id) {
   // The splash art goes behind the model; the face goes in the list of the hall.
   await addPicture('splash art', data.FormationRoleCard, slug)
   await addPicture('face picture', data.RoleHeadIconLarge, `faces/${slug}`)
-  if (artOnly) return
+  await addProfile(data, slug)
+  if (noModel) return
 
   const model = await download(skin.Model, folder)
 
@@ -198,10 +220,10 @@ async function add(id) {
   writeFileSync(listFile, JSON.stringify(list, null, 2) + '\n')
 }
 
-const artOnly = process.argv.includes('--art-only')
-const ids = process.argv.slice(2).filter((arg) => arg !== '--art-only')
+const noModel = process.argv.includes('--no-model')
+const ids = process.argv.slice(2).filter((arg) => arg !== '--no-model')
 if (ids.length === 0) {
-  console.error('Usage: node scripts/add-character.mjs [--art-only] <character id> [...]')
+  console.error('Usage: node scripts/add-character.mjs [--no-model] <character id> [...]')
   process.exit(1)
 }
 
