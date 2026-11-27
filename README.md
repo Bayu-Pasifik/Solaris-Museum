@@ -117,6 +117,19 @@ with the name and the description of every achievement, to `public/data/gallery.
 `Gallery` type is in `src/lib/gallery.ts`) and the pictures to `public/art/gallery/`. Without
 `--force` it only downloads the pictures that are missing. It does not need Blender.
 
+## Add the map
+
+```bash
+node scripts/add-map.mjs
+node scripts/add-map.mjs --force
+```
+
+The script copies the regions, their areas and the two exploration reports of every area into
+the Map room: the list, with the full text of the reports, to `public/data/map.json` (the
+`WorldMap` type is in `src/lib/map.ts`) and the pictures to `public/art/map/`. Without
+`--force` it only downloads the pictures that are missing. It does not need Blender. The API
+has a description for some regions only.
+
 ## Deploy to shared hosting
 
 Manual: run `npm run build`, then upload the **contents** of `dist/` (including `.htaccess`)

@@ -11,4 +11,5 @@ export const rooms: Room[] = [
   { name: 'Hall Resonator', description: 'Koleksi karakter', color: '#ff5fa8', path: '/resonator' },
   { name: 'Perpustakaan', description: 'Arsip cerita', color: '#8f8df7', path: '/library' },
   { name: 'Galeri', description: 'Namecard, title, achievement', color: '#4fd1b5', path: '/gallery' },
+  { name: 'Ruang Peta', description: 'Wilayah dan laporan area', color: '#7ecb55', path: '/map' },
 ]

@@ -12,16 +12,19 @@ export const LOBBY_FOV = 40
 const SLOPE = Math.tan(MathUtils.degToRad(LOBBY_FOV / 2))
 
 /**
- * Portals stand on a curve around the visitor. On narrow screens only the middle ones fit
- * side by side, so the outer ones float behind and above them.
+ * Portals stand on a curve around the visitor. On narrow screens they do not all fit side by
+ * side, so every other one stands in front and the rest float smaller behind and above them.
  */
 function place(index: number, count: number, narrow: boolean) {
   const offset = index - (count - 1) / 2
-  const raised = narrow && Math.abs(offset) > 1
-  const position: [number, number, number] = raised
-    ? [Math.sign(offset) * 1.45, 3.9, -4.8]
-    : [offset * (narrow ? 2.3 : 2.75), 0, -1.6 + (narrow ? 0 : Math.abs(offset) * 0.6)]
-  return { position, turn: -offset * (narrow ? 0.15 : 0.34) }
+  const raised = narrow && index % 2 === 0
+  const position: [number, number, number] = !narrow
+    ? [offset * 2.35, 0, -1.6 + Math.abs(offset) * 0.35]
+    : raised
+      ? [offset * 0.9, 3.9, -4.8]
+      : [offset * 1.15, 0, -1.6]
+  const scale = !narrow ? 1 : raised ? 0.72 : 0.9
+  return { position, scale, turn: -offset * (narrow ? 0.1 : 0.2) }
 }
 
 type RigProps = {
@@ -39,12 +42,18 @@ function CameraRig({ narrow, target }: RigProps) {
   useFrame(({ camera, size, pointer }, delta) => {
     const calm = window.SakugaFX?.calm
     // Half the width that must fit on screen, at the depth of the middle portal.
-    const half = narrow ? 2.7 : 6
-    const distance = MathUtils.clamp(half / (SLOPE * (size.width / size.height)), 6.6, 10.5)
+    const half = narrow ? 2.7 : 6.5
+    const distance = MathUtils.clamp(
+      half / (SLOPE * (size.width / size.height)),
+      // Far enough that both rows of a narrow screen fit in height.
+      narrow ? 8.5 : 6.6,
+      narrow ? 10.5 : 11.5,
+    )
 
     if (target && !calm) {
-      goal.current.set(target[0] * 0.85, PORTAL_CENTER + 0.15, target[2] + 2.6)
-      aim.current.set(target[0], PORTAL_CENTER, target[2])
+      const height = target[1] + PORTAL_CENTER
+      goal.current.set(target[0] * 0.85, height + 0.15, target[2] + 2.6)
+      aim.current.set(target[0], height, target[2])
     } else {
       const sway = calm ? 0 : 1
       goal.current.set(pointer.x * 0.5 * sway, 1.95 + pointer.y * 0.25 * sway, distance - 1.6)
@@ -83,7 +92,7 @@ export default function LobbyScene({
   onSelect,
   onArrive,
 }: Props) {
-  const narrow = useThree((state) => state.size.width / state.size.height < 1.1)
+  const narrow = useThree((state) => state.size.width / state.size.height < 1.5)
   const spots = rooms.map((room, index) => ({ room, ...place(index, rooms.length, narrow) }))
   // The greeter stands by the Resonator hall, and the carpet takes its color.
   const main = spots.find((spot) => spot.room.path === '/resonator')
@@ -94,11 +103,12 @@ export default function LobbyScene({
       <directionalLight position={[-3, 5, 4]} intensity={1.8} />
       <Museum carpet={main?.room.color ?? '#8f8df7'} />
 
-      {spots.map(({ room, position, turn }) => (
+      {spots.map(({ room, position, scale, turn }) => (
         <Portal
           key={room.name}
           room={room}
           position={position}
+          scale={scale}
           turn={turn}
           active={active === room.name}
           onHover={(over) => onHover(over ? room.name : undefined)}

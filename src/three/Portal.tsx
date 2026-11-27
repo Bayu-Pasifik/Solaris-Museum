@@ -17,6 +17,8 @@ export const PORTAL_CENTER = STEP + RADIUS * SCALE
 type Props = {
   room: Room
   position: [number, number, number]
+  /** Size of the whole gate, step and name board included. */
+  scale: number
   /** Rotation around the vertical axis, so side portals face the visitor. */
   turn: number
   active: boolean
@@ -25,7 +27,15 @@ type Props = {
 }
 
 /** A gate standing on a round step. Closed ones stand still and look faded. */
-export default function Portal({ room, position, turn, active, onHover, onClick }: Props) {
+export default function Portal({
+  room,
+  position,
+  scale,
+  turn,
+  active,
+  onHover,
+  onClick,
+}: Props) {
   const open = Boolean(room.path)
   const body = useRef<Group>(null)
   const swirl = useRef<Group>(null)
@@ -53,7 +63,7 @@ export default function Portal({ room, position, turn, active, onHover, onClick 
   const line = open ? INK : '#8580b0'
 
   return (
-    <group position={position} rotation={[0, turn, 0]}>
+    <group position={position} rotation={[0, turn, 0]} scale={scale}>
       <mesh position={[0, STEP / 2, 0]}>
         <cylinderGeometry args={[1.05, 1.15, STEP, 48]} />
         <meshToonMaterial color={open ? '#ffffff' : '#e4e2f2'} />
