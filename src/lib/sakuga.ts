@@ -50,11 +50,11 @@ declare module 'react' {
   }
 }
 
-/** The big hit, for entering a room. */
-export function impact(el: Element) {
+/** The big hit, for entering a room. The point is given as a fraction of the element's size. */
+export function impact(el: Element, px = 0.5, py = 0.5) {
   const fx = window.SakugaFX
   if (!fx) return
-  const c = fx.at(el)
+  const c = fx.at(el, px, py)
   fx.burst(c.x, c.y, { r: 110, spikes: 17, life: 0.48 })
   fx.shards(c.x, c.y, { n: 11, speed: 260, size: 9, life: 0.95, arc: 6.28, grav: 300 })
   fx.sfx('don', c.x + 10, c.y - 90, { size: 176 })

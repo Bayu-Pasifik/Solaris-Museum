@@ -49,6 +49,8 @@ input {
   max-width: 1080px;
   margin: 0 auto;
   padding: 32px 16px 80px;
+  /* The effect canvases of the buttons reach past the page on narrow screens. */
+  overflow-x: clip;
 }
 
 h1 {
@@ -170,14 +172,6 @@ h1 {
   font-size: 13px;
 }
 
-.stage {
-  display: grid;
-  flex: 1;
-  place-items: center;
-  min-height: 230px;
-  padding: 24px 16px;
-}
-
 .acts {
   display: flex;
   flex-wrap: wrap;
@@ -189,13 +183,93 @@ h1 {
 
 /* Lobby */
 
-.portal {
-  width: 100%;
-  height: 220px;
+.lobby {
+  position: relative;
+  height: min(70dvh, 600px);
+  min-height: 380px;
+  margin-top: 24px;
+  overflow: hidden;
+  border: var(--ink-border);
+  border-radius: 18px;
+  box-shadow: var(--hard-shadow);
+  background: var(--chip);
+  isolation: isolate;
 }
 
-.portal.open {
+.lobby.pointing {
   cursor: pointer;
+}
+
+/* The cards under the room line up at the bottom, whatever their text length. */
+.lobby + .grid .how {
+  flex: 1;
+}
+
+/* What the greeter says, like a dialogue box in the game. */
+.dialogue {
+  position: absolute;
+  bottom: 14px;
+  left: 14px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: min(380px, calc(100% - 28px));
+  padding: 10px 16px 10px 10px;
+  border: var(--ink-border);
+  border-radius: 16px;
+  background: var(--page);
+  box-shadow: var(--hard-shadow);
+  pointer-events: none;
+  animation: dialogue-in 0.5s var(--spring) both;
+}
+
+.dialogue img {
+  flex: none;
+  width: 54px;
+  height: 54px;
+  border-radius: 12px;
+  background: var(--chip);
+  object-fit: cover;
+}
+
+.dialogue img[hidden] {
+  display: none;
+}
+
+.dialogue p {
+  margin: 0;
+}
+
+.dialogue b {
+  display: block;
+  font: italic 800 16px / 1.3 var(--display);
+}
+
+@keyframes dialogue-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.9);
+  }
+}
+
+@media (max-width: 760px) {
+  .lobby {
+    height: 460px;
+  }
+
+  .dialogue {
+    right: 14px;
+    gap: 10px;
+    padding: 6px 10px 6px 6px;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+
+  .dialogue img {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 /* Hall */
@@ -500,7 +574,8 @@ h1 {
 
   .speedlines,
   .speedlines.flare,
-  .splash {
+  .splash,
+  .dialogue {
     animation: none;
   }
 }

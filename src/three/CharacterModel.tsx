@@ -8,12 +8,20 @@ const PLAY_ONCE = /^(Jump|Dodge|Attack\d+|Burst\d+|StandChange)$/
 type Props = {
   url: string
   animation: string
+  /** Plays the current clip once, also when it could loop. */
+  playOnce?: boolean
   onClips: (names: string[]) => void
   /** Called when a clip that plays once has ended. */
   onFinished: () => void
 }
 
-export default function CharacterModel({ url, animation, onClips, onFinished }: Props) {
+export default function CharacterModel({
+  url,
+  animation,
+  playOnce = false,
+  onClips,
+  onFinished,
+}: Props) {
   const root = useRef<Group>(null)
   // Draco is off (models use Meshopt), so no decoder is fetched from a CDN.
   const { scene, animations } = useGLTF(url, false, true)
@@ -36,7 +44,7 @@ export default function CharacterModel({ url, animation, onClips, onFinished }: 
     // Crossfade only between clips: fading in the first one blends from the T-pose.
     if (previous.current && previous.current !== action) action.fadeIn(0.3)
     previous.current = action
-    const once = PLAY_ONCE.test(action.getClip().name)
+    const once = playOnce || PLAY_ONCE.test(action.getClip().name)
     action.setLoop(once ? LoopOnce : LoopRepeat, once ? 1 : Infinity)
     // Hold the last pose, so the crossfade to the next clip starts from it.
     action.clampWhenFinished = once
@@ -49,7 +57,7 @@ export default function CharacterModel({ url, animation, onClips, onFinished }: 
       mixer.removeEventListener('finished', finished)
       action.fadeOut(0.3)
     }
-  }, [actions, mixer, animations, animation, onFinished])
+  }, [actions, mixer, animations, animation, playOnce, onFinished])
 
   return (
     <group ref={root}>
