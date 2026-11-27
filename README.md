@@ -21,8 +21,9 @@ background. `public/art/faces/<id>.webp` is the optional square face picture in 
 list; without it the list shows the first letter of the name.
 
 `public/data/profiles/<id>.json` is the optional profile below the model (introduction,
-stories, voice lines, skills and resonance chain), and `public/art/skills/` and
-`public/art/chain/` hold the icons it points to. The script below writes them; the format is the `Profile` type in `src/lib/profiles.ts`. The
+stories, voice lines, skills, resonance chain and keepsakes), and `public/art/skills/`,
+`public/art/chain/` and `public/art/keepsakes/` hold the pictures it points to. The script
+below writes them; the format is the `Profile` type in `src/lib/profiles.ts`. The
 voice audio is not downloaded: the player streams it from encore.moe.
 
 `public/data/characters.json`:

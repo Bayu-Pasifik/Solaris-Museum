@@ -11,6 +11,15 @@ export type Profile = {
   skills: Skill[]
   /** In the order of the game. Absent in profiles written by an older script. */
   chain?: ChainNode[]
+  /** Personal belongings. Absent in profiles written by an older script. */
+  keepsakes?: Keepsake[]
+}
+
+export type Keepsake = {
+  name: string
+  text: string
+  /** Path inside public/, or empty. */
+  picture: string
 }
 
 export type ChainNode = {

@@ -105,6 +105,11 @@ export function buildProfile(data) {
         description: plain(node.AttributesDescription),
         icon: pictureUrl(node.NodeIcon),
       })),
+    keepsakes: [...(data.Goods ?? [])].sort(bySort).map((item) => ({
+      name: plain(item.Title),
+      text: plain(item.Content),
+      picture: pictureUrl(item.Pic),
+    })),
   }
 }
 

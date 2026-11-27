@@ -4,6 +4,7 @@ import { themeOf } from '../lib/elements'
 import { isProfile, type Profile } from '../lib/profiles'
 import { pop } from '../lib/sakuga'
 import ChainPanel from './ChainPanel'
+import KeepsakePanel from './KeepsakePanel'
 import ProfilePanel from './ProfilePanel'
 import SkillPanel from './SkillPanel'
 import VoicePanel from './VoicePanel'
@@ -13,6 +14,7 @@ const tabs = [
   { name: 'Suara', Panel: VoicePanel },
   { name: 'Skill', Panel: SkillPanel },
   { name: 'Resonance', Panel: ChainPanel },
+  { name: 'Kenangan', Panel: KeepsakePanel },
 ]
 
 /** Everything about a character apart from the model. Render it with the character id as key. */

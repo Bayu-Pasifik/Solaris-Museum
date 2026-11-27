@@ -75,6 +75,7 @@ async function addProfile(data, slug) {
   const profile = buildProfile(data)
   await addPictures(profile.skills, 'icon', 'skills')
   await addPictures(profile.chain, 'icon', 'chain')
+  await addPictures(profile.keepsakes, 'picture', 'keepsakes')
   const removed = await dropMissingAudio(profile.voices)
   if (removed > 0) console.warn(`  ${removed} voice files are not on the server`)
   const file = join(root, 'public', 'data', 'profiles', `${slug}.json`)

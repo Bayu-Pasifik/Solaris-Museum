@@ -775,6 +775,33 @@ h1 {
   object-fit: contain;
 }
 
+.keepsakes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.keepsakes li {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+}
+
+/* A soft spot of the element color behind the piece. */
+.keepsakes img {
+  width: 100%;
+  height: 160px;
+  border-radius: 10px;
+  background: radial-gradient(circle, var(--el-pale), var(--chip));
+  object-fit: contain;
+}
+
 /* Library: the 3D archive, the catalog and the reader. */
 
 .shelf {
