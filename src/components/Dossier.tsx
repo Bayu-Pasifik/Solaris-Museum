@@ -3,6 +3,7 @@ import { useJson, type Character } from '../lib/characters'
 import { themeOf } from '../lib/elements'
 import { isProfile, type Profile } from '../lib/profiles'
 import { pop } from '../lib/sakuga'
+import ChainPanel from './ChainPanel'
 import ProfilePanel from './ProfilePanel'
 import SkillPanel from './SkillPanel'
 import VoicePanel from './VoicePanel'
@@ -11,6 +12,7 @@ const tabs = [
   { name: 'Profil', Panel: ProfilePanel },
   { name: 'Suara', Panel: VoicePanel },
   { name: 'Skill', Panel: SkillPanel },
+  { name: 'Resonance', Panel: ChainPanel },
 ]
 
 /** Everything about a character apart from the model. Render it with the character id as key. */

@@ -21,8 +21,8 @@ background. `public/art/faces/<id>.webp` is the optional square face picture in 
 list; without it the list shows the first letter of the name.
 
 `public/data/profiles/<id>.json` is the optional profile below the model (introduction,
-stories, voice lines and skills), and `public/art/skills/` holds the skill icons it points to.
-The script below writes both; the format is the `Profile` type in `src/lib/profiles.ts`. The
+stories, voice lines, skills and resonance chain), and `public/art/skills/` and
+`public/art/chain/` hold the icons it points to. The script below writes them; the format is the `Profile` type in `src/lib/profiles.ts`. The
 voice audio is not downloaded: the player streams it from encore.moe.
 
 `public/data/characters.json`:
@@ -51,7 +51,8 @@ node scripts/add-character.mjs 1202 1103
 ```
 
 To download only the pictures and the profile, without the model and without Blender, add
-`--no-model` before the ids.
+`--no-model` before the ids. With `--profile` it only writes the profile and its pictures, and
+keeps the splash art and the face picture that are there.
 
 The arguments are character ids from `https://api-v2.encore.moe/api/en/character`. The script
 downloads the model, the animations (poses, attacks and, where available, walking and

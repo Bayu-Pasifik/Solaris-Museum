@@ -50,6 +50,12 @@ const LANGUAGES = [
 
 const bySort = (a, b) => a.Sort - b.Sort
 
+/** The API gives some pictures as a URL and others as a game path ("/Game/…"). */
+function pictureUrl(path) {
+  if (path?.startsWith('http')) return path
+  return path?.startsWith('/Game/') ? `https://api-v2.encore.moe/resource/Data${path}` : ''
+}
+
 export function buildProfile(data) {
   const favor = data.favorRole ?? {}
 
@@ -92,6 +98,13 @@ export function buildProfile(data) {
       ),
     })),
     skills: [...skills.values()],
+    chain: [...(data.ResonantChain ?? [])]
+      .sort((a, b) => a.GroupIndex - b.GroupIndex)
+      .map((node) => ({
+        name: plain(node.NodeName),
+        description: plain(node.AttributesDescription),
+        icon: pictureUrl(node.NodeIcon),
+      })),
   }
 }
 

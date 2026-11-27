@@ -8,7 +8,8 @@
 // (text, voice lines, skills) to public/data/profiles/. Then it downloads the model, the
 // animations and the main textures into assets-raw/, converts them to GLB with Blender,
 // and updates public/data/characters.json. The voice audio stays on encore.moe.
-// With --no-model it stops after the pictures and the profile.
+// With --no-model it stops after the pictures and the profile. With --profile it only writes
+// the profile and its pictures, and leaves the splash art and the face picture alone.
 // Needs Node 22.15+ (zstd), the UEFormat addon source in tools/ueformat/src,
 // and Blender on PATH or in the BLENDER environment variable.
 
@@ -54,17 +55,26 @@ const CLIPS = [
   common('Team_Stand3', 'Pose Tim 3', 'UiAnim/'),
 ]
 
-/** Writes public/data/profiles/<slug>.json and downloads the skill icons it points to. */
+/**
+ * Downloads the picture that each item has under key into public/art/<folder>/, and replaces
+ * the URL with the path of the file.
+ */
+async function addPictures(items, key, folder) {
+  for (const item of items) {
+    if (!item[key]) continue
+    // Characters share some pictures, so a file that exists is not downloaded again.
+    const path = `${folder}/${item[key].split('/').pop().replace(/\.[^.]*$/, '')}`
+    const file = join(root, 'public', 'art', `${path}.webp`)
+    if (!existsSync(file)) await addPicture(`picture of ${item.name}`, item[key], path)
+    item[key] = existsSync(file) ? `art/${path}.webp` : ''
+  }
+}
+
+/** Writes public/data/profiles/<slug>.json and downloads the pictures it points to. */
 async function addProfile(data, slug) {
   const profile = buildProfile(data)
-  for (const skill of profile.skills) {
-    if (!skill.icon) continue
-    // Characters share some icons, so a file that exists is not downloaded again.
-    const path = `skills/${skill.icon.split('/').pop().replace(/\.[^.]*$/, '')}`
-    const file = join(root, 'public', 'art', `${path}.webp`)
-    if (!existsSync(file)) await addPicture(`icon of ${skill.name}`, skill.icon, path)
-    skill.icon = existsSync(file) ? `art/${path}.webp` : ''
-  }
+  await addPictures(profile.skills, 'icon', 'skills')
+  await addPictures(profile.chain, 'icon', 'chain')
   const removed = await dropMissingAudio(profile.voices)
   if (removed > 0) console.warn(`  ${removed} voice files are not on the server`)
   const file = join(root, 'public', 'data', 'profiles', `${slug}.json`)
@@ -89,6 +99,8 @@ async function add(id) {
 
   const folder = join(root, 'assets-raw', slug)
   console.log(`\n== ${title} (${slug}), skin "${skin.Name}"`)
+
+  if (profileOnly) return addProfile(data, slug)
 
   // The splash art goes behind the model; the face goes in the list of the hall.
   await addPicture('splash art', data.FormationRoleCard, slug)
@@ -137,9 +149,10 @@ async function add(id) {
 }
 
 const noModel = process.argv.includes('--no-model')
-const ids = process.argv.slice(2).filter((arg) => arg !== '--no-model')
+const profileOnly = process.argv.includes('--profile')
+const ids = process.argv.slice(2).filter((arg) => !arg.startsWith('--'))
 if (ids.length === 0) {
-  console.error('Usage: node scripts/add-character.mjs [--no-model] <character id> [...]')
+  console.error('Usage: node scripts/add-character.mjs [--no-model | --profile] <character id> [...]')
   process.exit(1)
 }
 

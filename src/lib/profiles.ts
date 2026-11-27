@@ -9,6 +9,15 @@ export type Profile = {
   stories: { title: string; text: string }[]
   voices: Voice[]
   skills: Skill[]
+  /** In the order of the game. Absent in profiles written by an older script. */
+  chain?: ChainNode[]
+}
+
+export type ChainNode = {
+  name: string
+  description: string
+  /** Path inside public/, or empty. */
+  icon: string
 }
 
 export type Voice = {
