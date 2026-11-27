@@ -3,6 +3,9 @@
 A non-commercial fan project: a small 3D museum built with React, Vite and React Three Fiber.
 Wuthering Waves and its assets belong to Kuro Games. This project is not affiliated with them.
 
+The anime effects come from [Sakuga VFX](https://github.com/finktheartist/sakuga-vfx) by
+Justin Finkelman (MIT, copied from commit `c3dabb1` into `public/sakuga-vfx/`).
+
 ## Run locally
 
 ```bash

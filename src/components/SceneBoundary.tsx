@@ -15,7 +15,7 @@ export default class SceneBoundary extends Component<Props, { failed: boolean }>
     return (
       <div className="notice" role="alert">
         <p>{this.props.message}</p>
-        <button type="button" onClick={() => window.location.reload()}>
+        <button type="button" className="button" onClick={() => window.location.reload()}>
           Muat ulang
         </button>
       </div>
