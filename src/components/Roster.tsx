@@ -51,14 +51,16 @@ function Chips<T extends string | number>({
   )
 }
 
+type FaceProps = { character: Character; current: boolean; base: string }
+
 /** One character: the face, or the first letter when there is no picture. */
-function Face({ character, current }: { character: Character; current: boolean }) {
+function Face({ character, current, base }: FaceProps) {
   const [missing, setMissing] = useState(false)
 
   return (
     <li>
       <Link
-        to={`/resonator/${character.id}`}
+        to={`${base}/${character.id}`}
         className={character.rarity === 5 ? 'face five' : 'face'}
         style={{ '--el-accent': themeOf(character.element).accent } as CSSProperties}
         title={`${character.name} · ${character.element} · ${character.weapon} · ${character.rarity}★`}
@@ -86,10 +88,12 @@ function Face({ character, current }: { character: Character; current: boolean }
 type Props = {
   characters: Character[]
   currentId?: string
+  /** Path of the room; a character id is added to it. */
+  base?: string
 }
 
-/** The character list of the hall: search, filters and a grid of faces. */
-export default function Roster({ characters, currentId }: Props) {
+/** The character list of a room: search, filters and a grid of faces. */
+export default function Roster({ characters, currentId, base = '/resonator' }: Props) {
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState(none)
   const input = useRef<SakugaInput | null>(null)
@@ -167,7 +171,7 @@ export default function Roster({ characters, currentId }: Props) {
 
       <ul>
         {matches.map((item) => (
-          <Face key={item.id} character={item} current={item.id === currentId} />
+          <Face key={item.id} character={item} current={item.id === currentId} base={base} />
         ))}
       </ul>
       {characters.length > 0 && matches.length === 0 && <p>Tidak ditemukan.</p>}

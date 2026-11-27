@@ -9,5 +9,5 @@ export type Room = {
 export const rooms: Room[] = [
   { name: 'Armory', description: 'Koleksi senjata', color: '#ffb86b' },
   { name: 'Hall Resonator', description: 'Koleksi karakter', color: '#ff5fa8', path: '/resonator' },
-  { name: 'Perpustakaan', description: 'Arsip cerita', color: '#8f8df7' },
+  { name: 'Perpustakaan', description: 'Arsip cerita', color: '#8f8df7', path: '/library' },
 ]

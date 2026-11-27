@@ -775,6 +775,83 @@ h1 {
   object-fit: contain;
 }
 
+/* Library: the stories of one character. */
+
+.book {
+  padding-bottom: 18px;
+}
+
+.book .notice {
+  margin: 0;
+  padding: 18px 16px 0;
+  color: var(--mute);
+  text-align: left;
+}
+
+.chapters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  /* Room for the outline of a focused chapter button. */
+  padding-bottom: 14px;
+  border-bottom: 1.5px solid var(--line);
+}
+
+/* Long chapter titles wrap instead of widening the page. */
+.chapters .pill {
+  height: auto;
+  min-height: 32px;
+  padding-block: 4px;
+  text-align: left;
+}
+
+.chapters b {
+  color: var(--mute);
+}
+
+.book .pill[aria-pressed='true'] {
+  border-color: var(--el-deep);
+  background: var(--el-deep);
+}
+
+.book .pill[aria-pressed='true'] b {
+  color: inherit;
+}
+
+.book article {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.book article .prose {
+  gap: 12px;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.turn {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 14px;
+  border-top: 1.5px solid var(--line);
+  color: var(--mute);
+  font-size: 13px;
+}
+
+.turn .pill {
+  color: var(--text);
+}
+
+.turn .pill:disabled {
+  border-color: var(--line);
+  opacity: 0.45;
+  cursor: default;
+}
+
 @media (max-width: 760px) {
   .hall {
     grid-template-columns: minmax(0, 1fr);
