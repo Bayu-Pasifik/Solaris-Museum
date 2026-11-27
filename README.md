@@ -43,7 +43,8 @@ node scripts/add-character.mjs 1202 1103
 ```
 
 The arguments are character ids from `https://api-v2.encore.moe/api/en/character`. The script
-downloads the model, three idle animations and the textures into `assets-raw/`, converts them
+downloads the model, the animations (poses, attacks and, where available, walking and
+running) and the textures into `assets-raw/`, converts them
 with Blender, writes `public/models/<id>.glb` and updates `public/data/characters.json`.
 
 It needs Node 22.15 or newer, Blender (on `PATH`, or set `BLENDER` to the executable) and the

@@ -17,11 +17,30 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 const API = 'https://api-v2.encore.moe/api/en/character/'
 const FILES = 'https://s3-storage-api.encore.moe/resource/Data/Game/'
 
-// Clip name, path under CommonAnim/, and the label shown in the hall.
+// Clip name, label shown in the hall, and the possible file paths (first match wins).
+// Not every character has every clip; walking and running exist for only some of them.
+const clip = (name, label, ...paths) => ({ name, label, paths })
+const common = (name, label, folder = '') => clip(name, label, `CommonAnim/${folder}${name}`)
+
 const CLIPS = [
-  { name: 'Stand2', path: 'Stand2', label: 'Santai' },
-  { name: 'Stand1_Action01', path: 'Stand1_Action01', label: 'Aksi' },
-  { name: 'Team_Stand1', path: 'UiAnim/Team_Stand1', label: 'Pose Tim' },
+  common('Stand2', 'Santai'),
+  clip('Walk', 'Jalan', 'Body/Walk_F', 'Body/fuyong/Walk_F'),
+  clip('Run', 'Lari', 'Body/Run_F', 'Body/fuyong/Run_F'),
+  clip('Sprint', 'Sprint', 'Body/Sprint_F'),
+  clip('Jump', 'Lompat', 'Body/Jump02', 'CommonAnim/AM_Jump_Second_F'),
+  clip('Dodge', 'Menghindar', 'CommonAnim/AM_Move_F'),
+  common('Attack01', 'Serang 1'),
+  common('Attack02', 'Serang 2'),
+  common('Attack03', 'Serang 3'),
+  common('Attack04', 'Serang 4'),
+  common('Burst01', 'Jurus'),
+  common('Stand1_Action01', 'Aksi 1'),
+  common('Stand1_Action02', 'Aksi 2'),
+  common('Stand1_Action03', 'Aksi 3'),
+  common('StandChange', 'Ganti Gaya'),
+  common('Team_Stand1', 'Pose Tim 1', 'UiAnim/'),
+  common('Team_Stand2', 'Pose Tim 2', 'UiAnim/'),
+  common('Team_Stand3', 'Pose Tim 3', 'UiAnim/'),
 ]
 
 async function get(url) {
@@ -70,10 +89,14 @@ async function add(id) {
   const model = await download(skin.Model, folder)
 
   const animations = []
-  for (const clip of CLIPS) {
-    const url = skin.Animations.find((item) => item.endsWith(`/CommonAnim/${clip.path}.ueanim`))
-    if (url) animations.push({ name: clip.name, file: await download(url, folder) })
-    else console.warn(`  animation not found: ${clip.name}`)
+  for (const { name: clipName, paths } of CLIPS) {
+    // The API is not consistent about the case of folder names ("fuyong", "Fuyong").
+    const url = paths
+      .map((path) => `/${path}.ueanim`.toLowerCase())
+      .map((end) => skin.Animations.find((item) => item.toLowerCase().endsWith(end)))
+      .find(Boolean)
+    if (url) animations.push({ name: clipName, file: await download(url, folder) })
+    else console.warn(`  animation not found: ${clipName}`)
   }
   if (animations.length === 0) throw new Error(`${name}: no idle animation`)
 

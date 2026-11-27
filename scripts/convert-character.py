@@ -51,6 +51,16 @@ def fcurves(action):
     ]
 
 
+def remove_root_motion(action):
+    """Keeps the character on the podium: attacks and jumps move the root bone metres away."""
+    for layer in action.layers:
+        for strip in layer.strips:
+            for bag in strip.channelbags:
+                for curve in list(bag.fcurves):
+                    if curve.data_path.lower() == 'pose.bones["root"].location':
+                        bag.fcurves.remove(curve)
+
+
 def web_texture(source_path, folder):
     """Downscales a texture and drops alpha, which these textures use as a data mask."""
     source = bpy.data.images.load(source_path, check_existing=True)
@@ -121,6 +131,7 @@ def main():
         action = UEFormatImport(UEAnimOptions(override_skeleton=armature)).import_file(item["file"])
         action.name = item["name"]
         action.use_fake_user = True
+        remove_root_motion(action)
         names.append((item["name"], action))
 
     keys = mesh.data.shape_keys

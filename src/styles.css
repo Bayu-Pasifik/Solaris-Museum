@@ -103,6 +103,12 @@ h1 {
   border-color: var(--text);
 }
 
+.pill[aria-pressed='true'] {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--page);
+}
+
 .button {
   display: inline-block;
   padding: 9px 30px;
@@ -210,12 +216,6 @@ h1 {
 .roster sakuga-input {
   --sk-input-width: 100%;
   display: block;
-}
-
-/* Room for the raised tab and the shadow; scrolls when a model has many clips. */
-.tabs-row {
-  padding-bottom: 20px;
-  overflow-x: auto;
 }
 
 .roster ul {

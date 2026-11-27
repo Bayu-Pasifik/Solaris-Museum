@@ -15,6 +15,11 @@ function Stage({ character }: { character: Character }) {
   const [clips, setClips] = useState<string[]>([])
   const [selected, setSelected] = useState(character.defaultAnimation ?? '')
   const onClips = useCallback((names: string[]) => setClips(names), [])
+  const onFinished = useCallback(
+    () => setSelected(character.defaultAnimation ?? ''),
+    [character.defaultAnimation],
+  )
+  // The model plays its first clip when the default one is missing.
   const active = clips.includes(selected) ? selected : clips[0]
 
   return (
@@ -39,6 +44,7 @@ function Stage({ character }: { character: Character }) {
                 url={assetUrl(character.model)}
                 animation={selected}
                 onClips={onClips}
+                onFinished={onFinished}
               />
             </Suspense>
             <OrbitControls
@@ -54,15 +60,12 @@ function Stage({ character }: { character: Character }) {
       </div>
 
       {clips.length > 0 && (
-        <div className="acts tabs-row">
-          <AnimationTabs
-            key={clips.join('|')}
-            clips={clips}
-            labels={character.animationLabels}
-            initial={active}
-            onPick={setSelected}
-          />
-        </div>
+        <AnimationTabs
+          clips={clips}
+          labels={character.animationLabels}
+          selected={active}
+          onPick={setSelected}
+        />
       )}
     </section>
   )

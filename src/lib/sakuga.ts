@@ -36,7 +36,6 @@ declare module 'react' {
         placeholder?: string
       }
       'sakuga-progress': Element_<SakugaProgress> & { label?: string; 'done-label'?: string }
-      'sakuga-tabs': Element_ & { label?: string; selected?: number }
     }
   }
 }
