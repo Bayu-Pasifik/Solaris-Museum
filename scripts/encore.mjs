@@ -10,6 +10,8 @@ import { gunzipSync, zstdDecompressSync } from 'node:zlib'
 
 export const root = join(dirname(fileURLToPath(import.meta.url)), '..')
 export const API = 'https://api-v2.encore.moe/api/en/'
+/** Where the API serves the pictures that it names by their path in the game. */
+export const RESOURCES = 'https://api-v2.encore.moe/resource/Data'
 const FILES = 'https://s3-storage-api.encore.moe/resource/Data/Game/'
 const TRIES = 4
 

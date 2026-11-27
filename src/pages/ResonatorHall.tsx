@@ -1,4 +1,12 @@
-import { Suspense, useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { Link, useParams } from 'react-router'
@@ -14,9 +22,16 @@ import Disclaimer from '../components/Disclaimer'
 import StageBackdrop from '../components/StageBackdrop'
 import Roster from '../components/Roster'
 import Dossier from '../components/Dossier'
+import FlatArt from '../components/FlatArt'
 import ElementParticles from '../three/ElementParticles'
 
-function Stage({ character }: { character: Character }) {
+// The Spine player is big, so it is only loaded when the visitor asks for the art.
+const Live2dArt = lazy(() => import('../components/Live2dArt'))
+
+type View = 'model' | 'art'
+
+/** The backdrop, the character and the buttons that change what the character does. */
+function Stage({ character, view }: { character: Character; view: View }) {
   const outfits = [
     { ...character, name: character.skinName ?? 'Bawaan' },
     ...(character.skins ?? []),
@@ -67,126 +82,205 @@ function Stage({ character }: { character: Character }) {
   const active = clips.includes(selected) ? selected : clips[0]
 
   return (
-    <section
-      className="card viewer"
-      aria-label={`Model 3D ${character.name}`}
-      style={
-        {
-          '--el-deep': theme.deep,
-          '--el-pale': theme.pale,
-          '--el-accent': theme.accent,
-        } as CSSProperties
-      }
-    >
-      <h2>
-        {character.name}
-        <span>{'★'.repeat(character.rarity)}</span>
-      </h2>
-      <p className="how">
-        {character.element} · {character.weapon}
-      </p>
-
-      {outfits.length > 1 && (
-        <div className="outfits" role="group" aria-label="Kostum">
-          {outfits.map((item, index) => (
-            <button
-              key={item.model}
-              type="button"
-              className="pill"
-              aria-pressed={index === worn}
-              onClick={(event) => {
-                pop(event.currentTarget)
-                wear(index)
-              }}
-            >
-              {item.name}
-            </button>
-          ))}
-        </div>
-      )}
+    <>
+      {/* The faded splash art would only double the picture in the art view. */}
+      <StageBackdrop
+        key={view}
+        characterId={view === 'model' ? character.id : undefined}
+        hits={hits}
+      />
 
       <div className="viewport" ref={viewport}>
-        <StageBackdrop characterId={character.id} hits={hits} />
-        <SceneBoundary message={`Model ${character.name} gagal dimuat.`}>
-          {/* flat: no tone mapping, so unlit anime textures keep their colors. */}
-          <Canvas flat camera={{ position: [0, 0.98, 3.65], fov: 35 }} dpr={[1, 2]}>
-            <ambientLight intensity={0.8} />
-            <directionalLight position={[2, 4, 3]} intensity={1.6} />
-            <Podium theme={theme} />
-            <ElementParticles element={character.element} theme={theme} />
-            <Suspense fallback={null}>
-              <CharacterModel
-                key={outfit.model}
-                url={assetUrl(outfit.model)}
-                animation={selected}
-                onClips={onClips}
-                onFinished={onFinished}
+        {view === 'model' && (
+          <SceneBoundary message={`Model ${character.name} gagal dimuat.`}>
+            {/* flat: no tone mapping, so unlit anime textures keep their colors. */}
+            <Canvas flat camera={{ position: [0, 0.98, 3.65], fov: 35 }} dpr={[1, 2]}>
+              <ambientLight intensity={0.8} />
+              <directionalLight position={[2, 4, 3]} intensity={1.6} />
+              <Podium theme={theme} />
+              <ElementParticles element={character.element} theme={theme} />
+              <Suspense fallback={null}>
+                <CharacterModel
+                  key={outfit.model}
+                  url={assetUrl(outfit.model)}
+                  animation={selected}
+                  onClips={onClips}
+                  onFinished={onFinished}
+                />
+              </Suspense>
+              <OrbitControls
+                target={[0, 0.62, 0]}
+                enablePan={false}
+                minDistance={1.2}
+                maxDistance={5}
+                maxPolarAngle={Math.PI / 1.9}
               />
-            </Suspense>
-            <OrbitControls
-              target={[0, 0.62, 0]}
-              enablePan={false}
-              minDistance={1.2}
-              maxDistance={5}
-              maxPolarAngle={Math.PI / 1.9}
-            />
-          </Canvas>
-          <LoadingOverlay />
-        </SceneBoundary>
+            </Canvas>
+            <LoadingOverlay />
+          </SceneBoundary>
+        )}
+        {view === 'art' &&
+          (character.l2d ? (
+            <SceneBoundary message={`L2D ${character.name} gagal dimuat.`}>
+              <Suspense fallback={<p className="notice">Memuat L2D…</p>}>
+                <Live2dArt art={character.l2d} label={`Ilustrasi bergerak ${character.name}`} />
+              </Suspense>
+            </SceneBoundary>
+          ) : (
+            <FlatArt id={character.id} name={character.name} />
+          ))}
       </div>
 
-      {clips.length > 0 && (
-        <AnimationTabs
-          clips={clips}
-          labels={outfit.animationLabels}
-          selected={active}
-          onPick={pick}
-        />
+      {view === 'model' && (
+        <div className="controls">
+          {outfits.length > 1 && (
+            <div className="outfits" role="group" aria-label="Kostum">
+              {outfits.map((item, index) => (
+                <button
+                  key={item.model}
+                  type="button"
+                  className="pill"
+                  aria-pressed={index === worn}
+                  onClick={(event) => {
+                    pop(event.currentTarget)
+                    wear(index)
+                  }}
+                >
+                  {item.name}
+                </button>
+              ))}
+            </div>
+          )}
+          {clips.length > 0 && (
+            <AnimationTabs
+              clips={clips}
+              labels={outfit.animationLabels}
+              selected={active}
+              onPick={pick}
+            />
+          )}
+        </div>
       )}
-    </section>
+    </>
   )
 }
 
 export default function ResonatorHall() {
   const { id } = useParams()
   const state = useCharacters()
+  const [view, setView] = useState<View>('model')
+  const [reading, setReading] = useState(false)
 
   const characters = state.status === 'ready' ? state.data : []
   const current = id ? characters.find((item) => item.id === id) : characters[0]
+  const theme = themeOf(current?.element ?? '')
+
+  useEffect(() => {
+    if (!reading) return
+    const onKey = (event: KeyboardEvent) => event.key === 'Escape' && setReading(false)
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [reading])
+
+  const views: { id: View; label: string }[] = [
+    { id: 'model', label: '3D' },
+    { id: 'art', label: current?.l2d ? 'L2D' : 'Ilustrasi' },
+  ]
 
   return (
-    <div className="wrap">
-      <header>
-        <h1>Hall Resonator</h1>
-        <p className="lede">Pilih karakter, putar modelnya, coba animasinya, lalu dengarkan suaranya.</p>
-        <p className="links">
+    <>
+      <main
+        className={reading && current ? 'gallery reading' : 'gallery'}
+        style={
+          {
+            '--el-deep': theme.deep,
+            '--el-pale': theme.pale,
+            '--el-accent': theme.accent,
+          } as CSSProperties
+        }
+      >
+        <header className="topbar">
           <Link to="/" className="pill">
             ← Lobby
           </Link>
-        </p>
-      </header>
+          <div className="plate">
+            <h1>
+              {current?.name ?? 'Hall Resonator'}
+              {current && <span>{'★'.repeat(current.rarity)}</span>}
+            </h1>
+            {current && (
+              <p>
+                {current.element} · {current.weapon}
+              </p>
+            )}
+          </div>
+          {current && (
+            <div className="switches">
+              <div role="group" aria-label="Tampilan">
+                {views.map((item) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    className="pill"
+                    aria-pressed={view === item.id}
+                    onClick={(event) => {
+                      pop(event.currentTarget)
+                      setView(item.id)
+                    }}
+                  >
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="pill"
+                aria-expanded={reading}
+                onClick={(event) => {
+                  pop(event.currentTarget)
+                  setReading(!reading)
+                }}
+              >
+                Dossier
+              </button>
+            </div>
+          )}
+        </header>
 
-      <main className="hall">
+        {current ? (
+          <Stage key={current.id} character={current} view={view} />
+        ) : (
+          <div className="viewport">
+            {state.status === 'loading' && <p className="notice">Memuat data…</p>}
+            {state.status === 'error' && (
+              <p className="notice" role="alert">
+                Data karakter gagal dimuat ({state.message}). Pastikan file data/characters.json
+                ada.
+              </p>
+            )}
+            {state.status === 'ready' && <p className="notice">Karakter tidak ditemukan.</p>}
+          </div>
+        )}
+
         <Roster characters={characters} currentId={current?.id} />
 
-        {state.status === 'loading' && <p className="notice">Memuat data…</p>}
-        {state.status === 'error' && (
-          <p className="notice" role="alert">
-            Data karakter gagal dimuat ({state.message}). Pastikan file data/characters.json ada.
-          </p>
-        )}
-        {state.status === 'ready' && !current && (
-          <p className="notice">Karakter tidak ditemukan.</p>
-        )}
-        {current && (
-          <div className="exhibit" key={current.id}>
-            <Stage character={current} />
-            <Dossier character={current} />
+        {reading && current && (
+          <div className="drawer">
+            <button type="button" className="pill close" onClick={() => setReading(false)}>
+              Tutup ✕
+            </button>
+            <Dossier key={current.id} character={current} />
           </div>
         )}
       </main>
 
-      <Disclaimer />
-    </div>
+      <div className="gallery-foot">
+        <Disclaimer />
+        <p className="disclaimer">
+          L2D diputar dengan Spine Runtimes © Esoteric Software (
+          <a href={assetUrl('spine-license.txt')}>lisensi</a>).
+        </p>
+      </div>
+    </>
   )
 }

@@ -10,14 +10,16 @@
 // and updates public/data/characters.json. The voice audio stays on encore.moe.
 // With --no-model it stops after the pictures and the profile. With --profile it only writes
 // the profile and its pictures, and leaves the splash art and the face picture alone. With
-// --skins it only converts the alternate outfits of characters that are listed already.
+// --skins it only converts the alternate outfits of characters that are listed already, and
+// with --l2d it only downloads their animated art into public/art/l2d/.
 // Needs Node 22.15+ (zstd), the UEFormat addon source in tools/ueformat/src,
 // and Blender on PATH or in the BLENDER environment variable.
 
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import {
   API,
+  RESOURCES,
   addAll,
   addMaterials,
   addPicture,
@@ -132,6 +134,41 @@ async function addOutfits(skins, folder, slug) {
   return outfits
 }
 
+// The API gives Verina the art of Jiyan, and Jianxin the art of Hsin.
+const BORROWED_ART = [1503, 1405]
+
+/**
+ * Downloads the animated gacha art (a Spine skeleton, its atlas and the atlas pictures) into
+ * public/art/l2d/<slug>/. Returns what characters.json says about it, or nothing for a
+ * character without that art.
+ */
+async function addLive2d(data, slug) {
+  if (BORROWED_ART.includes(data.Id)) return
+  const skeletonPath = data.Luckdraw?.LuckdrawSpineSkeletonData
+  const atlasPath = data.Luckdraw?.LuckdrawSpineAtlas
+  if (!skeletonPath?.startsWith('/Game/') || !atlasPath?.startsWith('/Game/')) return
+
+  const folder = join(root, 'public', 'art', 'l2d', slug)
+  mkdirSync(folder, { recursive: true })
+  /** Downloads a file of the game once. */
+  const save = async (path) => {
+    const name = path.split('/').pop()
+    const file = join(folder, name)
+    if (!existsSync(file)) writeFileSync(file, (await get(`${RESOURCES}${path}`)).buffer)
+    return name
+  }
+
+  const atlas = await save(atlasPath)
+  const pages = readFileSync(join(folder, atlas), 'utf8').match(/^.+\.(?:png|webp)(?=\r?$)/gm)
+  if (!pages) throw new Error(`${slug}: the atlas names no picture`)
+  for (const page of pages) await save(atlasPath.replace(/[^/]+$/, page))
+
+  return {
+    skeleton: `art/l2d/${slug}/${await save(skeletonPath)}`,
+    atlas: `art/l2d/${slug}/${atlas}`,
+  }
+}
+
 async function add(id) {
   const data = (await get(`${API}character/${id}`)).json()
   const name = data.Name.Content
@@ -152,6 +189,14 @@ async function add(id) {
   console.log(`\n== ${title} (${slug}), skin "${skin.Name}"`)
 
   if (profileOnly) return addProfile(data, slug)
+
+  if (live2dOnly) {
+    const l2d = await addLive2d(data, slug)
+    if (!l2d) return console.log('  no animated art')
+    const entry = readList('characters.json').find((item) => item.id === slug)
+    if (!entry) throw new Error(`${title}: not in characters.json yet`)
+    return saveEntry('characters.json', { ...entry, l2d })
+  }
 
   if (outfitsOnly) {
     if (others.length === 0) return
@@ -174,6 +219,7 @@ async function add(id) {
     weapon: data.WeaponTypeName,
     rarity: data.QualityId,
     ...(await addModel(skin, folder, slug)),
+    l2d: await addLive2d(data, slug),
   }
   if (others.length > 0) {
     entry.skinName = skin.Name
@@ -187,9 +233,10 @@ async function add(id) {
 const noModel = process.argv.includes('--no-model')
 const profileOnly = process.argv.includes('--profile')
 const outfitsOnly = process.argv.includes('--skins')
+const live2dOnly = process.argv.includes('--l2d')
 const ids = process.argv.slice(2).filter((arg) => !arg.startsWith('--'))
 if (ids.length === 0) {
-  console.error('Usage: node scripts/add-character.mjs [--no-model | --profile | --skins] <character id> [...]')
+  console.error('Usage: node scripts/add-character.mjs [--no-model | --profile | --skins | --l2d] <character id> [...]')
   process.exit(1)
 }
 

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type CSSProperties } from 'react'
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link } from 'react-router'
 import { assetUrl, type Character } from '../lib/characters'
 import { elementNames, themeOf } from '../lib/elements'
@@ -14,9 +14,15 @@ type FaceProps = { character: Character; current: boolean }
 /** One character: the face, or the first letter when there is no picture. */
 function Face({ character, current }: FaceProps) {
   const [missing, setMissing] = useState(false)
+  const item = useRef<HTMLLIElement>(null)
+
+  // The strip is long, so the chosen face is brought into sight.
+  useEffect(() => {
+    if (current) item.current?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [current])
 
   return (
-    <li>
+    <li ref={item}>
       <Link
         to={`/resonator/${character.id}`}
         className={character.rarity === 5 ? 'face five' : 'face'}
@@ -45,10 +51,23 @@ function Face({ character, current }: FaceProps) {
 
 type Props = { characters: Character[]; currentId?: string }
 
-/** The character list of the Resonator hall: search, filters and a grid of faces. */
+/** Turns the wheel of a mouse into sideways scrolling. */
+function wheel(list: HTMLUListElement | null) {
+  if (!list) return
+  const onWheel = (event: WheelEvent) => {
+    if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
+    event.preventDefault()
+    list.scrollLeft += event.deltaY
+  }
+  list.addEventListener('wheel', onWheel, { passive: false })
+  return () => list.removeEventListener('wheel', onWheel)
+}
+
+/** The character list of the Resonator hall: search, filters and a strip of faces. */
 export default function Roster({ characters, currentId }: Props) {
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState(none)
+  const [open, setOpen] = useState(false)
   const input = useRef<SakugaInput | null>(null)
 
   const search = useCallback((element: SakugaInput | null) => {
@@ -73,7 +92,8 @@ export default function Roster({ characters, currentId }: Props) {
       allows(filters.weapon, item.weapon) &&
       allows(filters.rarity, item.rarity),
   )
-  const filtering = text !== '' || Object.values(filters).some((chosen) => chosen.length > 0)
+  const chosen = Object.values(filters).flat().length
+  const filtering = text !== '' || chosen > 0
 
   // Known elements keep a fixed order; unknown ones come last.
   const elements = unique(characters.map((item) => item.element)).sort(
@@ -81,11 +101,31 @@ export default function Roster({ characters, currentId }: Props) {
   )
 
   return (
-    <aside className="card roster">
-      <sakuga-input type="search" placeholder="Cari karakter" label="Cari karakter" ref={search} />
+    <nav className="strip" aria-label="Daftar karakter">
+      <div className="finder">
+        <sakuga-input type="search" placeholder="Cari karakter" label="Cari karakter" ref={search} />
+        <p className="count">
+          <button
+            type="button"
+            className="pill"
+            aria-expanded={open}
+            onClick={() => setOpen(!open)}
+          >
+            Filter{chosen > 0 && ` (${chosen})`}
+          </button>
+          <span role="status">
+            {matches.length}/{characters.length}
+          </span>
+          {filtering && (
+            <button type="button" className="pill" onClick={reset}>
+              Reset
+            </button>
+          )}
+        </p>
+      </div>
 
-      {characters.length > 0 && (
-        <>
+      {open && characters.length > 0 && (
+        <div className="filters">
           <Chips
             label="Elemen"
             options={elements}
@@ -108,26 +148,15 @@ export default function Roster({ characters, currentId }: Props) {
             text={(rarity) => `${rarity}★`}
             onToggle={(value) => setFilters({ ...filters, rarity: toggled(filters.rarity, value) })}
           />
-
-          <p className="count">
-            <span role="status">
-              {matches.length} dari {characters.length} karakter
-            </span>
-            {filtering && (
-              <button type="button" className="pill" onClick={reset}>
-                Reset
-              </button>
-            )}
-          </p>
-        </>
+        </div>
       )}
 
-      <ul>
+      <ul ref={wheel}>
         {matches.map((item) => (
           <Face key={item.id} character={item} current={item.id === currentId} />
         ))}
+        {characters.length > 0 && matches.length === 0 && <li>Tidak ditemukan.</li>}
       </ul>
-      {characters.length > 0 && matches.length === 0 && <p>Tidak ditemukan.</p>}
-    </aside>
+    </nav>
   )
 }

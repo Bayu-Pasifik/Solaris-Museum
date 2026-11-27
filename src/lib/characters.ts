@@ -18,7 +18,11 @@ export type Character = Outfit & {
   /** Name of the starting outfit. Needed only when there are others. */
   skinName?: string
   skins?: (Outfit & { name: string })[]
+  /** The animated splash art (Spine), as paths inside public/. Not every character has it. */
+  l2d?: Live2d
 }
+
+export type Live2d = { skeleton: string; atlas: string }
 
 export const assetUrl = (path: string) => import.meta.env.BASE_URL + path
 

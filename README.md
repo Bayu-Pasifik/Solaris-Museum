@@ -59,6 +59,12 @@ Some characters have more than one outfit. The script converts all of them, and 
 a button for each. With `--skins` it only converts the alternate outfits of characters that
 `characters.json` lists already.
 
+Characters with animated gacha art in the API also get it in `public/art/l2d/<id>/`, and the
+hall offers it next to the 3D model; the others show the splash art. With `--l2d` the script
+only downloads that art. The hall plays it with the
+[Spine Runtimes](http://esotericsoftware.com/spine-runtimes-license), whose license asks for
+a Spine Editor license when you add them to your own software.
+
 The arguments are character ids from `https://api-v2.encore.moe/api/en/character`. The script
 downloads the model, the animations (poses, attacks and, where available, walking and
 running) and the textures into `assets-raw/`, converts them with Blender, writes
