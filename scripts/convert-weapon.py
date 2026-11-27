@@ -43,15 +43,18 @@ TURNS = {
 }
 
 
-def import_part(path, rotation):
-    """Imports one model file and returns its most detailed mesh, without the skeleton."""
+def import_part(path):
+    """Imports one model file and returns its most detailed mesh, without the skeleton.
+
+    The vertices stay where the game has them, relative to the point that the hand holds.
+    """
     scene = bpy.context.scene
     before = set(scene.objects)
     UEFormatImport(UEModelOptions()).import_file(path)
     bpy.context.view_layer.update()
     added = [o for o in scene.objects if o not in before]
     mesh = max((o for o in added if o.type == "MESH"), key=lambda o: len(o.data.vertices))
-    matrix = rotation @ mesh.matrix_world
+    matrix = mesh.matrix_world.copy()
     mesh.parent = None
     mesh.modifiers.clear()
     mesh.data.transform(matrix)
@@ -77,7 +80,7 @@ def main():
 
     parts = []
     for path in manifest["models"]:
-        mesh = import_part(path, TURNS.get(manifest["type"], Matrix.Identity(4)))
+        mesh = import_part(path)
         apply_materials(mesh, manifest["materials"], manifest["textures"])
         if not mesh.data.vertices:
             log("empty part", mesh.name)
@@ -86,6 +89,21 @@ def main():
         parts.append(mesh)
     if not parts:
         raise RuntimeError("no textured geometry")
+
+    # The copy for the hand of a character keeps the axes of the skeleton, which are the
+    # axes of Blender, so that it can be a child of a hand bone as it is.
+    export_glb(
+        manifest["held"],
+        export_yup=False,
+        export_animations=False,
+        export_skins=False,
+        export_morph=False,
+    )
+    log("exported", os.path.basename(manifest["held"]), "for the hand")
+
+    turned = TURNS.get(manifest["type"], Matrix.Identity(4))
+    for mesh in parts:
+        mesh.data.transform(turned)
 
     # The parts share one origin in the game files, so they are lined up next to each other.
     right = None

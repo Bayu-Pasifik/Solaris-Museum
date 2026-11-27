@@ -8,6 +8,8 @@ export type Weapon = {
   rarity: number
   /** Path inside public/, for example "models/weapons/lustrous-razor.glb". */
   model: string
+  /** The model in the size and place that it has in the hand. Absent in older lists. */
+  held?: string
   description: string
   /** The value at the first and at the last level. */
   stats: { name: string; min: string; max: string }[]

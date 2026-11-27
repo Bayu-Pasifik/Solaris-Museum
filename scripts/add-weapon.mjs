@@ -58,9 +58,11 @@ async function add(id) {
   const materials = await addMaterials(models, folder)
 
   const output = join(root, 'public', 'models', 'weapons', `${slug}.glb`)
+  // The same weapon in the size and place that it has in the hand of a character.
+  const held = join(root, 'public', 'models', 'weapons', `${slug}.held.glb`)
   const textures = join(root, 'work', 'textures', 'weapons', slug)
   const type = data.WeaponTypeName
-  convert('convert-weapon.py', { type, models, materials, textures, output }, folder)
+  convert('convert-weapon.py', { type, models, materials, textures, output, held }, folder)
 
   saveEntry('weapons.json', {
     id: slug,
@@ -69,6 +71,7 @@ async function add(id) {
     type,
     rarity: data.QualityId,
     model: `models/weapons/${slug}.glb`,
+    held: `models/weapons/${slug}.held.glb`,
     description: plain(data.BgDescription),
     // The first and the last level; the levels in between are not shown.
     stats: (data.Properties ?? []).map((stat) => ({

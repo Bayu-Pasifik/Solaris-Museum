@@ -1,6 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 import { useAnimations, useGLTF } from '@react-three/drei'
 import { LoopOnce, LoopRepeat, type AnimationAction, type Group } from 'three'
+import HeldWeapon from './HeldWeapon'
 
 // These clips end in another pose than they start in, so repeating them makes a visible jump.
 const PLAY_ONCE = /^(Jump|Dodge|Attack\d+|Burst\d+|StandChange)$/
@@ -13,6 +14,8 @@ type Props = {
   onClips: (names: string[]) => void
   /** Called when a clip that plays once has ended. */
   onFinished: () => void
+  /** The weapon in the hands, when the visitor chose one. */
+  weapon?: { url: string; type: string }
 }
 
 export default function CharacterModel({
@@ -21,6 +24,7 @@ export default function CharacterModel({
   playOnce = false,
   onClips,
   onFinished,
+  weapon,
 }: Props) {
   const root = useRef<Group>(null)
   // Draco is off (models use Meshopt), so no decoder is fetched from a CDN.
@@ -62,6 +66,12 @@ export default function CharacterModel({
   return (
     <group ref={root}>
       <primitive object={scene} />
+      {weapon && (
+        // Its own boundary, so the character stays on stage while the weapon loads.
+        <Suspense fallback={null}>
+          <HeldWeapon key={weapon.url} body={scene} {...weapon} />
+        </Suspense>
+      )}
     </group>
   )
 }

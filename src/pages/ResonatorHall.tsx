@@ -13,6 +13,7 @@ import { Link, useParams } from 'react-router'
 import { assetUrl, useCharacters, type Character } from '../lib/characters'
 import { themeOf } from '../lib/elements'
 import { entrance, pop, strike, tint, ultimate } from '../lib/sakuga'
+import { useWeapons, type Weapon } from '../lib/weapons'
 import AnimationTabs from '../components/AnimationTabs'
 import CharacterModel from '../three/CharacterModel'
 import Podium from '../three/Podium'
@@ -30,8 +31,17 @@ const Live2dArt = lazy(() => import('../components/Live2dArt'))
 
 type View = 'model' | 'art'
 
+type StageProps = {
+  character: Character
+  view: View
+  /** The weapons that this character can hold. */
+  weapons: Weapon[]
+}
+
 /** The backdrop, the character and the buttons that change what the character does. */
-function Stage({ character, view }: { character: Character; view: View }) {
+function Stage({ character, view, weapons }: StageProps) {
+  const [armed, setArmed] = useState('')
+  const weapon = weapons.find((item) => item.id === armed)
   const outfits = [
     { ...character, name: character.skinName ?? 'Bawaan' },
     ...(character.skins ?? []),
@@ -106,6 +116,9 @@ function Stage({ character, view }: { character: Character; view: View }) {
                   animation={selected}
                   onClips={onClips}
                   onFinished={onFinished}
+                  weapon={
+                    weapon?.held ? { url: assetUrl(weapon.held), type: weapon.type } : undefined
+                  }
                 />
               </Suspense>
               <OrbitControls
@@ -133,22 +146,44 @@ function Stage({ character, view }: { character: Character; view: View }) {
 
       {view === 'model' && (
         <div className="controls">
-          {outfits.length > 1 && (
-            <div className="outfits" role="group" aria-label="Kostum">
-              {outfits.map((item, index) => (
-                <button
-                  key={item.model}
-                  type="button"
+          {(outfits.length > 1 || weapons.length > 0) && (
+            <div className="outfits">
+              {outfits.length > 1 && (
+                <div role="group" aria-label="Kostum">
+                  {outfits.map((item, index) => (
+                    <button
+                      key={item.model}
+                      type="button"
+                      className="pill"
+                      aria-pressed={index === worn}
+                      onClick={(event) => {
+                        pop(event.currentTarget)
+                        wear(index)
+                      }}
+                    >
+                      {item.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+              {weapons.length > 0 && (
+                <select
                   className="pill"
-                  aria-pressed={index === worn}
-                  onClick={(event) => {
+                  aria-label="Senjata di tangan"
+                  value={armed}
+                  onChange={(event) => {
                     pop(event.currentTarget)
-                    wear(index)
+                    setArmed(event.target.value)
                   }}
                 >
-                  {item.name}
-                </button>
-              ))}
+                  <option value="">Tanpa senjata</option>
+                  {weapons.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name} {item.rarity}★
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           )}
           {clips.length > 0 && (
@@ -174,6 +209,14 @@ export default function ResonatorHall() {
   const characters = state.status === 'ready' ? state.data : []
   const current = id ? characters.find((item) => item.id === id) : characters[0]
   const theme = themeOf(current?.element ?? '')
+  // The hall also works without the Armory data; there is then no weapon to choose.
+  const armory = useWeapons()
+  const weapons =
+    armory.status === 'ready'
+      ? armory.data
+          .filter((item) => item.held && item.type === current?.weapon)
+          .sort((a, b) => b.rarity - a.rarity || a.name.localeCompare(b.name))
+      : []
 
   useEffect(() => {
     if (!reading) return
@@ -248,7 +291,7 @@ export default function ResonatorHall() {
         </header>
 
         {current ? (
-          <Stage key={current.id} character={current} view={view} />
+          <Stage key={current.id} character={current} view={view} weapons={weapons} />
         ) : (
           <div className="viewport">
             {state.status === 'loading' && <p className="notice">Memuat data…</p>}
