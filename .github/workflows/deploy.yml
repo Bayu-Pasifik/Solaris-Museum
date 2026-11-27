@@ -1,0 +1,54 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      # Uploading is skipped until the FTP secrets exist, so early pushes do not fail.
+      - name: Check FTP secrets
+        id: ftp
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        run: if [ -n "$FTP_SERVER" ]; then echo "ready=true" >> "$GITHUB_OUTPUT"; fi
+
+      # Pinned to a commit SHA because this third-party action receives the FTP password.
+      - name: Upload to hosting
+        if: steps.ftp.outputs.ready == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@110f9186c050f71550953127052e77650219c287 # v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./dist/
+          # Use ./ instead if the FTP account already starts inside the web folder.
+          server-dir: public_html/
+          # models/ and data/ are not in Git. Upload them by hand and keep them here.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            models/**
+            data/**

@@ -1,0 +1,30 @@
+Options -Indexes
+
+<IfModule mod_mime.c>
+  AddType model/gltf-binary .glb
+  AddType application/wasm .wasm
+</IfModule>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # Change this (and base in vite.config.ts) if the site lives in a subfolder.
+  RewriteBase /
+
+  # A missing file in these folders must return 404, not index.html.
+  RewriteRule ^(assets|models|data)/ - [L]
+
+  # Everything else that is not a real file or folder goes to the React app.
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . index.html [L]
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Always revalidate the entry page and data so new deploys show up immediately.
+  <FilesMatch "\.(html|json)$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+  <FilesMatch "\.glb$">
+    Header set Cache-Control "public, max-age=86400"
+  </FilesMatch>
+</IfModule>

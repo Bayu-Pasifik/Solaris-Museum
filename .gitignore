@@ -1,0 +1,28 @@
+# Dependencies and build output
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Secrets and local settings
+.env*
+*.local
+
+# Game assets and data (owned by Kuro Games, never commit)
+assets-raw/
+work/
+tools/
+public/models/
+public/data/
+*.zip
+*.uemodel
+*.ueanim
+*.uepose
+*.blend
+*.blend1
+*.glb
+
+# Tool leftovers
+.playwright-mcp/
+*.log
+.DS_Store
+Thumbs.db
