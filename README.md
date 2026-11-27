@@ -78,6 +78,19 @@ in `src/lib/weapons.ts`). It needs the same tools as the character script. A wea
 3D model in the API is reported as failed. Effects of the game that have no main texture are
 left out.
 
+## Add stories
+
+```bash
+node scripts/add-story.mjs
+node scripts/add-story.mjs --force
+```
+
+The script copies the story archive of `https://encore.moe/story` into the Library: the list to
+`public/data/story.json`, the script of each story to `public/data/story/<id>.json` and the
+pictures to `public/art/story/` (the `Story` types are in `src/lib/stories.ts`). Without
+`--force` it only downloads what is missing. It does not need Blender. The scenes of the event
+"Second Coming of Solaris" are not in the API response, so only its summary is shown.
+
 ## Deploy to shared hosting
 
 Manual: run `npm run build`, then upload the **contents** of `dist/` (including `.htaccess`)

@@ -775,59 +775,177 @@ h1 {
   object-fit: contain;
 }
 
-/* Library: the stories of one character. */
+/* Library: the 3D archive, the catalog and the reader. */
 
-.book {
-  padding-bottom: 18px;
-}
-
-.book .notice {
-  margin: 0;
-  padding: 18px 16px 0;
-  color: var(--mute);
-  text-align: left;
-}
-
-.chapters {
+.shelf {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  /* Room for the outline of a focused chapter button. */
-  padding-bottom: 14px;
-  border-bottom: 1.5px solid var(--line);
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-/* Long chapter titles wrap instead of widening the page. */
-.chapters .pill {
+.shelf p {
+  min-width: 0;
+  margin: 0;
+  color: var(--mute);
+  font-size: 13px;
+  text-align: center;
+}
+
+.shelf b {
+  display: block;
+  color: var(--text);
+  font: italic 800 18px / 1.25 var(--display);
+}
+
+.shelf .button {
+  flex: none;
+}
+
+.shelf .button:disabled {
+  box-shadow: none;
+  opacity: 0.35;
+  cursor: default;
+  transform: none;
+}
+
+.catalog a.pill[aria-current] {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--page);
+}
+
+/* Long category names wrap instead of widening the list. */
+.catalog .chips .pill {
   height: auto;
-  min-height: 32px;
-  padding-block: 4px;
+  min-height: 28px;
+  padding-block: 3px;
+}
+
+.catalog .count {
+  justify-content: flex-start;
+}
+
+.entries {
+  max-height: 560px;
+  padding: 2px 6px 6px 2px;
+  overflow-y: auto;
+}
+
+.entries h3 {
+  margin: 12px 0 6px;
+  color: var(--mute);
+  font-size: 12px;
+}
+
+.entries section:first-child h3 {
+  margin-top: 0;
+}
+
+.roster .entries ul {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: none;
+  padding: 0;
+  overflow: visible;
+}
+
+.entries a {
+  display: block;
+  padding: 8px 11px;
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  text-decoration: none;
+}
+
+.entries a:hover {
+  border-color: var(--text);
+}
+
+.entries a[aria-current='page'] {
+  border-color: var(--el-deep);
+  background: var(--el-pale);
+  box-shadow: 3px 4px 0 var(--el-accent);
+}
+
+.entries b {
+  display: block;
+  font-size: 13px;
+}
+
+.entries span {
+  color: var(--mute);
+  font-size: 12px;
+}
+
+.reader .panel > img {
+  width: 100%;
+  height: auto;
+  border: var(--ink-border);
+  border-radius: 14px;
+}
+
+.reader .notice {
   text-align: left;
 }
 
-.chapters b {
-  color: var(--mute);
+.script {
+  gap: 22px;
+  /* A page turn scrolls here. */
+  scroll-margin-top: 8px;
 }
 
-.book .pill[aria-pressed='true'] {
-  border-color: var(--el-deep);
-  background: var(--el-deep);
-}
-
-.book .pill[aria-pressed='true'] b {
-  color: inherit;
-}
-
-.book article {
+.script section {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.book article .prose {
-  gap: 12px;
-  font-size: 16px;
-  line-height: 1.7;
+.script h3 {
+  padding: 6px 12px;
+  border-left: 5px solid var(--el-accent);
+  border-radius: 4px 10px 10px 4px;
+  background: var(--chip);
+  font-size: 15px;
+}
+
+.say {
+  max-width: 68ch;
+  font-size: 15.5px;
+  line-height: 1.6;
+}
+
+.say > b {
+  color: var(--el-deep);
+  font-size: 13px;
+}
+
+.say.note {
+  color: var(--mute);
+  font-style: italic;
+}
+
+.say ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.say li {
+  padding: 3px 12px;
+  border: 1.5px solid var(--el-accent);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.say li::before {
+  content: '▸ ';
 }
 
 .turn {
@@ -852,6 +970,15 @@ h1 {
   cursor: default;
 }
 
+.turn select {
+  padding: 2px 6px;
+  border: 1.5px solid var(--line);
+  border-radius: 8px;
+  background: var(--page);
+  font: inherit;
+  color: var(--text);
+}
+
 /* Armory: the note under a weapon skill. */
 .panel .ranks {
   color: var(--mute);
@@ -865,6 +992,15 @@ h1 {
 
   .roster {
     order: 2;
+  }
+
+  /* Only the arrows stay beside the story name. */
+  .shelf span {
+    display: none;
+  }
+
+  .shelf .button {
+    padding-inline: 18px;
   }
 
   /* Shorter viewer on narrow screens, so the podium fits the width. */

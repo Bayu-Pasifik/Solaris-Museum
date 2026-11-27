@@ -9,16 +9,16 @@ type Filters = { element: string[]; weapon: string[]; rarity: number[] }
 
 const none: Filters = { element: [], weapon: [], rarity: [] }
 
-type FaceProps = { character: Character; current: boolean; base: string }
+type FaceProps = { character: Character; current: boolean }
 
 /** One character: the face, or the first letter when there is no picture. */
-function Face({ character, current, base }: FaceProps) {
+function Face({ character, current }: FaceProps) {
   const [missing, setMissing] = useState(false)
 
   return (
     <li>
       <Link
-        to={`${base}/${character.id}`}
+        to={`/resonator/${character.id}`}
         className={character.rarity === 5 ? 'face five' : 'face'}
         style={{ '--el-accent': themeOf(character.element).accent } as CSSProperties}
         title={`${character.name} · ${character.element} · ${character.weapon} · ${character.rarity}★`}
@@ -43,15 +43,10 @@ function Face({ character, current, base }: FaceProps) {
   )
 }
 
-type Props = {
-  characters: Character[]
-  currentId?: string
-  /** Path of the room; a character id is added to it. */
-  base?: string
-}
+type Props = { characters: Character[]; currentId?: string }
 
-/** The character list of a room: search, filters and a grid of faces. */
-export default function Roster({ characters, currentId, base = '/resonator' }: Props) {
+/** The character list of the Resonator hall: search, filters and a grid of faces. */
+export default function Roster({ characters, currentId }: Props) {
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState(none)
   const input = useRef<SakugaInput | null>(null)
@@ -129,7 +124,7 @@ export default function Roster({ characters, currentId, base = '/resonator' }: P
 
       <ul>
         {matches.map((item) => (
-          <Face key={item.id} character={item} current={item.id === currentId} base={base} />
+          <Face key={item.id} character={item} current={item.id === currentId} />
         ))}
       </ul>
       {characters.length > 0 && matches.length === 0 && <p>Tidak ditemukan.</p>}
