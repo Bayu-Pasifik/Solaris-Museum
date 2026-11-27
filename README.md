@@ -17,7 +17,8 @@ npm run dev
 
 `public/models/`, `public/data/` and `public/art/` are ignored on purpose. Put your own files
 there. `public/art/<id>.webp` is the optional splash art behind a model, with a transparent
-background.
+background. `public/art/faces/<id>.webp` is the optional square face picture in the character
+list; without it the list shows the first letter of the name.
 
 `public/data/characters.json`:
 
@@ -44,11 +45,11 @@ Models are GLB files with Meshopt compression. Draco is not supported by the vie
 node scripts/add-character.mjs 1202 1103
 ```
 
-To download only the splash art, add `--art-only` before the ids.
+To download only the splash art and the face picture, add `--art-only` before the ids.
 
 The arguments are character ids from `https://api-v2.encore.moe/api/en/character`. The script
 downloads the model, the animations (poses, attacks and, where available, walking and
-running), the splash art and the textures into `assets-raw/`, converts them
+running), the splash art, the face picture and the textures into `assets-raw/`, converts them
 with Blender, writes `public/models/<id>.glb` and updates `public/data/characters.json`.
 
 It needs Node 22.15 or newer, Blender (on `PATH`, or set `BLENDER` to the executable) and the

@@ -4,7 +4,7 @@ import { OrbitControls } from '@react-three/drei'
 import { Link, useParams } from 'react-router'
 import { assetUrl, useCharacters, type Character } from '../lib/characters'
 import { themeOf } from '../lib/elements'
-import { entrance, pop, strike, tint, ultimate } from '../lib/sakuga'
+import { entrance, strike, tint, ultimate } from '../lib/sakuga'
 import AnimationTabs from '../components/AnimationTabs'
 import CharacterModel from '../three/CharacterModel'
 import Podium from '../three/Podium'
@@ -12,6 +12,7 @@ import SceneBoundary from '../components/SceneBoundary'
 import LoadingOverlay from '../components/LoadingOverlay'
 import Disclaimer from '../components/Disclaimer'
 import StageBackdrop from '../components/StageBackdrop'
+import Roster from '../components/Roster'
 import ElementParticles from '../three/ElementParticles'
 
 function Stage({ character }: { character: Character }) {
@@ -115,13 +116,9 @@ function Stage({ character }: { character: Character }) {
 export default function ResonatorHall() {
   const { id } = useParams()
   const state = useCharacters()
-  const [query, setQuery] = useState('')
 
   const characters = state.status === 'ready' ? state.characters : []
   const current = id ? characters.find((item) => item.id === id) : characters[0]
-  const matches = characters.filter((item) =>
-    item.name.toLowerCase().includes(query.trim().toLowerCase()),
-  )
 
   return (
     <div className="wrap">
@@ -136,34 +133,7 @@ export default function ResonatorHall() {
       </header>
 
       <main className="hall">
-        <aside className="card roster">
-          <sakuga-input
-            type="search"
-            placeholder="Cari karakter"
-            label="Cari karakter"
-            ref={(element) => {
-              if (!element) return
-              const onInput = () => setQuery(element.value)
-              element.addEventListener('input', onInput)
-              return () => element.removeEventListener('input', onInput)
-            }}
-          />
-          <ul>
-            {matches.map((item) => (
-              <li key={item.id}>
-                <Link
-                  to={`/resonator/${item.id}`}
-                  aria-current={item.id === current?.id ? 'page' : undefined}
-                  onClick={(event) => pop(event.currentTarget)}
-                >
-                  {item.name}
-                  <small>{item.element}</small>
-                </Link>
-              </li>
-            ))}
-          </ul>
-          {state.status === 'ready' && matches.length === 0 && <p>Tidak ditemukan.</p>}
-        </aside>
+        <Roster characters={characters} currentId={current?.id} />
 
         {state.status === 'loading' && <p className="notice">Memuat data…</p>}
         {state.status === 'error' && (

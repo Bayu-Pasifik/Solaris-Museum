@@ -3,9 +3,10 @@
 //   node scripts/add-character.mjs <encore.moe character id> [...]
 //   node scripts/add-character.mjs --art-only <encore.moe character id> [...]
 //
-// For each id it downloads the splash art into public/art/, and the model, the animations and
-// the main textures into assets-raw/, converts them to GLB with Blender, and updates
-// public/data/characters.json. With --art-only it stops after the splash art.
+// For each id it downloads the splash art into public/art/ and the face picture into
+// public/art/faces/, and the model, the animations and the main textures into assets-raw/,
+// converts them to GLB with Blender, and updates public/data/characters.json.
+// With --art-only it stops after the two pictures.
 // Needs Node 22.15+ (zstd), the UEFormat addon source in tools/ueformat/src,
 // and Blender on PATH or in the BLENDER environment variable.
 
@@ -61,16 +62,16 @@ async function download(url, folder) {
   return file
 }
 
-/** Saves the splash art that the hall shows behind the model. A character can lack it. */
-async function addArt(url, slug) {
-  if (!url) return console.warn('  no splash art')
+/** Saves a picture as public/art/<path>.webp. A character can lack it. */
+async function addPicture(kind, url, path) {
+  if (!url) return console.warn(`  no ${kind}`)
   try {
     const data = Buffer.from(await (await get(url)).arrayBuffer())
-    const file = join(root, 'public', 'art', `${slug}.webp`)
+    const file = join(root, 'public', 'art', `${path}.webp`)
     mkdirSync(dirname(file), { recursive: true })
     writeFileSync(file, data)
   } catch (error) {
-    console.warn(`  splash art: ${error.message}`)
+    console.warn(`  ${kind}: ${error.message}`)
   }
 }
 
@@ -109,7 +110,9 @@ async function add(id) {
   const folder = join(root, 'assets-raw', slug)
   console.log(`\n== ${title} (${slug}), skin "${skin.Name}"`)
 
-  await addArt(data.FormationRoleCard, slug)
+  // The splash art goes behind the model; the face goes in the list of the hall.
+  await addPicture('splash art', data.FormationRoleCard, slug)
+  await addPicture('face picture', data.RoleHeadIconLarge, `faces/${slug}`)
   if (artOnly) return
 
   const model = await download(skin.Model, folder)

@@ -17,6 +17,8 @@ const themes: Record<string, ElementTheme> = {
   Havoc: { deep: '#43103a', pale: '#f4b6cd', accent: '#e0407c' },
 }
 
+export const elementNames = Object.keys(themes)
+
 const fallback: ElementTheme = { deep: '#5a4fd8', pale: '#f4f3fc', accent: '#ff5fa8' }
 
 export const themeOf = (element: string) => themes[element] ?? fallback
