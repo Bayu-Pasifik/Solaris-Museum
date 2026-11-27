@@ -5,6 +5,7 @@ const Lobby = lazy(() => import('./pages/Lobby'))
 const ResonatorHall = lazy(() => import('./pages/ResonatorHall'))
 const Library = lazy(() => import('./pages/Library'))
 const Armory = lazy(() => import('./pages/Armory'))
+const Gallery = lazy(() => import('./pages/Gallery'))
 
 export default function App() {
   return (
@@ -17,6 +18,8 @@ export default function App() {
         <Route path="/library/:id" element={<Library />} />
         <Route path="/armory" element={<Armory />} />
         <Route path="/armory/:id" element={<Armory />} />
+        <Route path="/gallery" element={<Gallery />} />
+        <Route path="/gallery/:section" element={<Gallery />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>

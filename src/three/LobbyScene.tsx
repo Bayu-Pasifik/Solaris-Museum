@@ -11,15 +11,17 @@ import Portal, { PORTAL_CENTER } from './Portal'
 export const LOBBY_FOV = 40
 const SLOPE = Math.tan(MathUtils.degToRad(LOBBY_FOV / 2))
 
-/** Portals stand on a curve around the visitor. Narrow screens push the side ones back. */
+/**
+ * Portals stand on a curve around the visitor. On narrow screens only the middle ones fit
+ * side by side, so the outer ones float behind and above them.
+ */
 function place(index: number, count: number, narrow: boolean) {
   const offset = index - (count - 1) / 2
-  const position: [number, number, number] = [
-    offset * (narrow ? 2.05 : 3.2),
-    0,
-    -1.6 + Math.abs(offset) * (narrow ? -3.2 : 0.6),
-  ]
-  return { position, turn: -offset * 0.38 }
+  const raised = narrow && Math.abs(offset) > 1
+  const position: [number, number, number] = raised
+    ? [Math.sign(offset) * 1.45, 3.9, -4.8]
+    : [offset * (narrow ? 2.3 : 2.75), 0, -1.6 + (narrow ? 0 : Math.abs(offset) * 0.6)]
+  return { position, turn: -offset * (narrow ? 0.15 : 0.34) }
 }
 
 type RigProps = {
@@ -37,7 +39,7 @@ function CameraRig({ narrow, target }: RigProps) {
   useFrame(({ camera, size, pointer }, delta) => {
     const calm = window.SakugaFX?.calm
     // Half the width that must fit on screen, at the depth of the middle portal.
-    const half = narrow ? 2.15 : 5.1
+    const half = narrow ? 2.7 : 6
     const distance = MathUtils.clamp(half / (SLOPE * (size.width / size.height)), 6.6, 10.5)
 
     if (target && !calm) {
@@ -46,8 +48,8 @@ function CameraRig({ narrow, target }: RigProps) {
     } else {
       const sway = calm ? 0 : 1
       goal.current.set(pointer.x * 0.5 * sway, 1.95 + pointer.y * 0.25 * sway, distance - 1.6)
-      // Narrow screens aim lower, which lifts the greeter above the dialogue box.
-      aim.current.set(0, narrow ? 0.75 : 1.3, -1.6)
+      // Narrow screens aim higher, so the raised portals fit too.
+      aim.current.set(0, narrow ? 2.4 : 1.3, -1.6)
     }
 
     // 1 jumps straight to the goal.
@@ -112,9 +114,9 @@ export default function LobbyScene({
           key={greeter.id}
           character={greeter}
           position={[
-            main.position[0] + (narrow ? 0.95 : 1.6),
+            main.position[0] + (narrow ? 1.15 : 1.4),
             0,
-            main.position[2] + (narrow ? 1.7 : 2.2),
+            main.position[2] + (narrow ? 0.7 : 2.2),
           ]}
           turn={-0.3}
           onArrive={onArrive}

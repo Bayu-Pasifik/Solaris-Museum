@@ -105,6 +105,19 @@ pictures to `public/art/story/` (the `Story` types are in `src/lib/stories.ts`).
 `--force` it only downloads what is missing. It does not need Blender. The scenes of the event
 "Second Coming of Solaris" are not in the API response, so only its summary is shown.
 
+## Add the gallery
+
+```bash
+node scripts/add-gallery.mjs
+node scripts/add-gallery.mjs --force
+```
+
+The script copies the pictures of the namecards, the titles and the achievement groups into the
+Gallery: the list to `public/data/gallery.json` (the `Gallery` type is in `src/lib/gallery.ts`)
+and the pictures to `public/art/gallery/`. Without `--force` it only downloads what is missing.
+It does not need Blender. The single achievements are not copied, only their number in each
+group.
+
 ## Deploy to shared hosting
 
 Manual: run `npm run build`, then upload the **contents** of `dist/` (including `.htaccess`)
