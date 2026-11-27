@@ -16,14 +16,29 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools", "ueformat", "src"))
 
 import io_scene_ueformat  # noqa: E402
+from io_scene_ueformat.importer.create import anim  # noqa: E402
 from io_scene_ueformat.importer.import_context import UEFormatImport  # noqa: E402
 from io_scene_ueformat.options import UEAnimOptions, UEModelOptions  # noqa: E402
+from io_scene_gltf2.io.exp import meshopt  # noqa: E402
 
 TEXTURE_SIZE = 1024
+# Blender's meshopt defaults (8 bits for rotations, 12 for the rest) make bones move in
+# visible steps and shift keyframe times, so the animation stutters.
+QUAT_BITS = 16
+EXP_BITS = 18
 
 
 def log(*parts):
     print("[convert]", *parts, flush=True)
+
+
+def exact_match(items, key, goal, default=None):
+    return next((item for item in items or () if key(item) == goal), default)
+
+
+# The addon also matches a face curve to any shape key whose name is part of the curve
+# name ("keepweaponout" drives the mouth shape "A"), which distorts the face.
+anim.best = exact_match
 
 
 def fcurves(action):
@@ -124,13 +139,15 @@ def main():
         keys = mesh.data.shape_keys
         log("shape keys", len(keys.key_blocks) - 1 if keys else 0)
 
-    def push(owner, action, name):
+    def push(owner, action, name, end):
         track = owner.nla_tracks.new()
         track.name = name
         strip = track.strips.new(name, 0, action)
         strip.name = name
         if action.slots:
             strip.action_slot = action.slots[0]
+        # Face curves can run one frame past the bones, which stalls the loop.
+        strip.action_frame_end = end
 
     owners = [armature.animation_data] + ([keys.animation_data] if keys and keys.animation_data else [])
     for owner in owners:
@@ -138,11 +155,14 @@ def main():
         for track in list(owner.nla_tracks):
             owner.nla_tracks.remove(track)
     for name, action in names:
-        push(armature.animation_data, action, name)
+        end = action.frame_range[1]
+        push(armature.animation_data, action, name, end)
         if keys and keys.animation_data and curves_of[name]:
-            push(keys.animation_data, curves_of[name], name)
+            push(keys.animation_data, curves_of[name], name, end)
 
     scene.frame_set(0)
+    meshopt.QUAT_FILTER_BITS = QUAT_BITS
+    meshopt.EXP_FILTER_BITS = EXP_BITS
     bpy.ops.export_scene.gltf(
         filepath=manifest["output"],
         export_format="GLB",

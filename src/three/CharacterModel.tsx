@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useAnimations, useGLTF } from '@react-three/drei'
-import type { Group } from 'three'
+import type { AnimationAction, Group } from 'three'
 
 type Props = {
   url: string
@@ -22,10 +22,16 @@ export default function CharacterModel({ url, animation, onClips }: Props) {
     onClips(animations.map((clip) => clip.name))
   }, [scene, animations, onClips])
 
+  const previous = useRef<AnimationAction>(null)
+
   useEffect(() => {
     const action = actions[animation] ?? actions[animations[0]?.name]
     if (!action) return
-    action.reset().fadeIn(0.3).play()
+    action.reset()
+    // Crossfade only between clips: fading in the first one blends from the T-pose.
+    if (previous.current && previous.current !== action) action.fadeIn(0.3)
+    previous.current = action
+    action.play()
     return () => {
       action.fadeOut(0.3)
     }
