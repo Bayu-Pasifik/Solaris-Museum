@@ -23,7 +23,16 @@ export default function Live2dArt({ art, label }: { art: Live2d; label: string }
       showLoading: false,
       // The picture is wide, so it gets the whole stage.
       viewport: { padLeft: '0%', padRight: '0%', padTop: '0%', padBottom: '0%' },
-      success: () => setState('ready'),
+      success: (loaded) => {
+        // Without a chosen animation the player shows the setup pose and stands still.
+        const { animations } = loaded.skeleton!.data
+        const idle = animations.find((item) => item.name === 'idle') ?? animations[0]
+        if (idle) {
+          loaded.setAnimation(idle.name)
+          loaded.play()
+        }
+        setState('ready')
+      },
       error: (_, message) => {
         console.error(message)
         setState('failed')
