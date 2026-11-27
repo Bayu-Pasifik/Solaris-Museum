@@ -13,6 +13,7 @@ work/
 tools/
 public/models/
 public/data/
+public/art/
 *.zip
 *.uemodel
 *.ueanim

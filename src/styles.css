@@ -254,6 +254,120 @@ h1 {
   position: relative;
   height: min(68dvh, 620px);
   min-height: 360px;
+  margin: 12px 18px 0 12px;
+  overflow: hidden;
+  border: var(--ink-border);
+  border-radius: 14px;
+  box-shadow: 6px 7px 0 var(--el-accent);
+  isolation: isolate;
+}
+
+.viewer .acts {
+  margin-top: 18px;
+}
+
+.viewer .pill[aria-pressed='true'] {
+  border-color: var(--el-deep);
+  background: var(--el-deep);
+}
+
+/* Stage backdrop, from back to front: sky, halftone, speed lines, splash art. */
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 48% at 50% 62%, #ffffffcc, transparent 72%),
+    linear-gradient(
+      168deg,
+      var(--el-deep) 0%,
+      var(--el-accent) 44%,
+      var(--el-pale) 78%,
+      #fff 100%
+    );
+}
+
+.halftone,
+.speedlines {
+  position: absolute;
+  inset: 0;
+}
+
+/* Two screens of dots: light ones from the top, dark ones from the floor. */
+.halftone::before,
+.halftone::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+}
+
+.halftone::before {
+  background: radial-gradient(circle, #ffffff66 32%, transparent 34%) 0 0 / 14px 14px;
+  mask-image: linear-gradient(150deg, #000, transparent 55%);
+}
+
+.halftone::after {
+  background: radial-gradient(circle, var(--el-deep) 30%, transparent 33%) 0 0 / 9px 9px;
+  opacity: 0.4;
+  mask-image: linear-gradient(to top left, #000, transparent 45%);
+}
+
+/* Uneven wedges around a point behind the character, hidden near that point. */
+.speedlines {
+  inset: -20%;
+  background: repeating-conic-gradient(
+    from 3deg at 50% 52%,
+    #fff 0deg 0.5deg,
+    transparent 0.9deg 5deg,
+    #fff 5.2deg 6.4deg,
+    transparent 6.8deg 11deg,
+    #fff 11.1deg 11.4deg,
+    transparent 11.8deg 17deg
+  );
+  mask-image: radial-gradient(ellipse at 50% 52%, transparent 24%, #000 62%);
+  opacity: 0.55;
+  animation: lines-in 0.7s steps(8) both;
+}
+
+.speedlines.flare {
+  animation: lines-flare 0.8s steps(10) both;
+}
+
+@keyframes lines-in {
+  from {
+    opacity: 1;
+    transform: scale(1.5) rotate(8deg);
+  }
+}
+
+@keyframes lines-flare {
+  0% {
+    opacity: 1;
+    transform: scale(0.8) rotate(-6deg);
+  }
+
+  60% {
+    opacity: 1;
+    transform: scale(1.06) rotate(4deg);
+  }
+}
+
+.splash {
+  position: absolute;
+  top: 2%;
+  right: -9%;
+  height: 112%;
+  opacity: 0.5;
+  mask-image: linear-gradient(to bottom, #000 62%, transparent 90%);
+  animation: splash-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes splash-in {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
 }
 
 .loading {
@@ -278,10 +392,21 @@ h1 {
   .viewer .viewport {
     height: 420px;
   }
+
+  .splash {
+    right: -34%;
+    height: 104%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .button {
     transition: none;
+  }
+
+  .speedlines,
+  .speedlines.flare,
+  .splash {
+    animation: none;
   }
 }

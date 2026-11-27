@@ -1,9 +1,11 @@
 // Adds characters to the Resonator hall.
 //
 //   node scripts/add-character.mjs <encore.moe character id> [...]
+//   node scripts/add-character.mjs --art-only <encore.moe character id> [...]
 //
-// For each id it downloads the model, three idle animations and the main textures into
-// assets-raw/, converts them to GLB with Blender, and updates public/data/characters.json.
+// For each id it downloads the splash art into public/art/, and the model, the animations and
+// the main textures into assets-raw/, converts them to GLB with Blender, and updates
+// public/data/characters.json. With --art-only it stops after the splash art.
 // Needs Node 22.15+ (zstd), the UEFormat addon source in tools/ueformat/src,
 // and Blender on PATH or in the BLENDER environment variable.
 
@@ -59,6 +61,19 @@ async function download(url, folder) {
   return file
 }
 
+/** Saves the splash art that the hall shows behind the model. A character can lack it. */
+async function addArt(url, slug) {
+  if (!url) return console.warn('  no splash art')
+  try {
+    const data = Buffer.from(await (await get(url)).arrayBuffer())
+    const file = join(root, 'public', 'art', `${slug}.webp`)
+    mkdirSync(dirname(file), { recursive: true })
+    writeFileSync(file, data)
+  } catch (error) {
+    console.warn(`  splash art: ${error.message}`)
+  }
+}
+
 /** "Client/Content/Aki/x/T_A.1" becomes the download URL of that asset. */
 const assetFile = (objectPath, extension) =>
   FILES + objectPath.replace(/^(Client\/Content\/|\/Game\/)/, '').replace(/\.[^./]*$/, '') + extension
@@ -93,6 +108,9 @@ async function add(id) {
 
   const folder = join(root, 'assets-raw', slug)
   console.log(`\n== ${title} (${slug}), skin "${skin.Name}"`)
+
+  await addArt(data.FormationRoleCard, slug)
+  if (artOnly) return
 
   const model = await download(skin.Model, folder)
 
@@ -177,9 +195,10 @@ async function add(id) {
   writeFileSync(listFile, JSON.stringify(list, null, 2) + '\n')
 }
 
-const ids = process.argv.slice(2)
+const artOnly = process.argv.includes('--art-only')
+const ids = process.argv.slice(2).filter((arg) => arg !== '--art-only')
 if (ids.length === 0) {
-  console.error('Usage: node scripts/add-character.mjs <character id> [...]')
+  console.error('Usage: node scripts/add-character.mjs [--art-only] <character id> [...]')
   process.exit(1)
 }
 

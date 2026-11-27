@@ -1,20 +1,49 @@
-import { Suspense, useCallback, useState } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import { Link, useParams } from 'react-router'
 import { assetUrl, useCharacters, type Character } from '../lib/characters'
-import { pop } from '../lib/sakuga'
+import { themeOf } from '../lib/elements'
+import { entrance, pop, strike, tint, ultimate } from '../lib/sakuga'
 import AnimationTabs from '../components/AnimationTabs'
 import CharacterModel from '../three/CharacterModel'
 import Podium from '../three/Podium'
 import SceneBoundary from '../components/SceneBoundary'
 import LoadingOverlay from '../components/LoadingOverlay'
 import Disclaimer from '../components/Disclaimer'
+import StageBackdrop from '../components/StageBackdrop'
+import ElementParticles from '../three/ElementParticles'
 
 function Stage({ character }: { character: Character }) {
   const [clips, setClips] = useState<string[]>([])
   const [selected, setSelected] = useState(character.defaultAnimation ?? '')
-  const onClips = useCallback((names: string[]) => setClips(names), [])
+  const theme = themeOf(character.element)
+  const viewport = useRef<HTMLDivElement>(null)
+  const [hits, setHits] = useState(0)
+
+  useEffect(() => tint(theme), [theme])
+
+  // The entrance plays once, when the model has loaded.
+  const arrived = useRef(false)
+  const onClips = useCallback(
+    (names: string[]) => {
+      setClips(names)
+      if (arrived.current || !viewport.current) return
+      arrived.current = true
+      entrance(viewport.current, theme)
+    },
+    [theme],
+  )
+
+  const pick = (clip: string) => {
+    setSelected(clip)
+    const stage = viewport.current
+    const attack = /^Attack(\d+)$/.exec(clip)
+    if (!stage || (!attack && !clip.startsWith('Burst'))) return
+    if (attack) strike(stage, theme, Number(attack[1]))
+    else ultimate(stage, theme)
+    setHits((count) => count + 1)
+  }
   const onFinished = useCallback(
     () => setSelected(character.defaultAnimation ?? ''),
     [character.defaultAnimation],
@@ -23,7 +52,17 @@ function Stage({ character }: { character: Character }) {
   const active = clips.includes(selected) ? selected : clips[0]
 
   return (
-    <section className="card viewer" aria-label={`Model 3D ${character.name}`}>
+    <section
+      className="card viewer"
+      aria-label={`Model 3D ${character.name}`}
+      style={
+        {
+          '--el-deep': theme.deep,
+          '--el-pale': theme.pale,
+          '--el-accent': theme.accent,
+        } as CSSProperties
+      }
+    >
       <h2>
         {character.name}
         <span>{'★'.repeat(character.rarity)}</span>
@@ -32,13 +71,15 @@ function Stage({ character }: { character: Character }) {
         {character.element} · {character.weapon}
       </p>
 
-      <div className="viewport">
+      <div className="viewport" ref={viewport}>
+        <StageBackdrop characterId={character.id} hits={hits} />
         <SceneBoundary message={`Model ${character.name} gagal dimuat.`}>
           {/* flat: no tone mapping, so unlit anime textures keep their colors. */}
           <Canvas flat camera={{ position: [0, 0.98, 3.65], fov: 35 }} dpr={[1, 2]}>
             <ambientLight intensity={0.8} />
             <directionalLight position={[2, 4, 3]} intensity={1.6} />
-            <Podium />
+            <Podium theme={theme} />
+            <ElementParticles element={character.element} theme={theme} />
             <Suspense fallback={null}>
               <CharacterModel
                 url={assetUrl(character.model)}
@@ -64,7 +105,7 @@ function Stage({ character }: { character: Character }) {
           clips={clips}
           labels={character.animationLabels}
           selected={active}
-          onPick={setSelected}
+          onPick={pick}
         />
       )}
     </section>

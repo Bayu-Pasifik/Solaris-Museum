@@ -45,10 +45,11 @@ jobs:
           local-dir: ./dist/
           # Use ./ instead if the FTP account already starts inside the web folder.
           server-dir: public_html/
-          # models/ and data/ are not in Git. Upload them by hand and keep them here.
+          # models/, data/ and art/ are not in Git. Upload them by hand and keep them here.
           exclude: |
             **/.git*
             **/.git*/**
             **/node_modules/**
             models/**
             data/**
+            art/**
