@@ -172,6 +172,15 @@ def main():
             push(keys.animation_data, curves_of[name], name, end)
 
     scene.frame_set(0)
+    # Without this the face keeps the first frame of the last clip, which clips without
+    # face curves (walk, run, jump) then show.
+    if keys:
+        if keys.animation_data:
+            keys.animation_data.use_nla = False
+        for key in keys.key_blocks[1:]:
+            key.value = 0.0
+        bpy.context.view_layer.update()
+        log("neutral face", sum(abs(k.value) for k in keys.key_blocks[1:]))
     meshopt.QUAT_FILTER_BITS = QUAT_BITS
     meshopt.EXP_FILTER_BITS = EXP_BITS
     bpy.ops.export_scene.gltf(

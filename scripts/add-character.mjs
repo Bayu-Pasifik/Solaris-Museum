@@ -79,12 +79,20 @@ function materialPaths(file) {
 async function add(id) {
   const data = await (await get(API + id)).json()
   const name = data.Name.Content
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
   const skin = data.Model3D?.find((item) => item.Kind === 'skin')
   if (!skin) throw new Error(`${name}: no 3D model`)
 
+  // The Rover has a female and a male version under the same name.
+  const gender = skin.Model.includes('PlayerFemale')
+    ? 'Wanita'
+    : skin.Model.includes('PlayerMale')
+      ? 'Pria'
+      : null
+  const title = gender ? `${name} (${gender})` : name
+  const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+
   const folder = join(root, 'assets-raw', slug)
-  console.log(`\n== ${name} (${slug}), skin "${skin.Name}"`)
+  console.log(`\n== ${title} (${slug}), skin "${skin.Name}"`)
 
   const model = await download(skin.Model, folder)
 
@@ -147,7 +155,7 @@ async function add(id) {
   const list = existsSync(listFile) ? JSON.parse(readFileSync(listFile, 'utf8')) : []
   const entry = {
     id: slug,
-    name,
+    name: title,
     element: data.ElementName,
     weapon: data.WeaponTypeName,
     rarity: data.QualityId,
