@@ -14,12 +14,29 @@ export type Title = {
   right?: string
 }
 
+export type Achievement = {
+  id: number
+  name: string
+  description: string
+  /** From 1 to 3; a higher one gives a bigger reward in the game. */
+  level: number
+  /** The game does not show these before they are reached. */
+  hidden?: boolean
+}
+
+export type AchievementGroup = {
+  id: number
+  name: string
+  icon?: string
+  achievements: Achievement[]
+}
+
 export type AchievementCategory = {
   id: number
   name: string
   /** Tall key art of the category. */
   picture?: string
-  groups: { id: number; name: string; icon?: string; count: number }[]
+  groups: AchievementGroup[]
 }
 
 export type Gallery = {
@@ -28,7 +45,11 @@ export type Gallery = {
   achievements: AchievementCategory[]
 }
 
+// A list from before the single achievements were copied counts as wrong.
 const isGallery = (data: Gallery) =>
-  [data.cards, data.titles, data.achievements].every(Array.isArray)
+  [data.cards, data.titles, data.achievements].every(Array.isArray) &&
+  data.achievements.every((category) =>
+    category.groups.every((group) => Array.isArray(group.achievements)),
+  )
 
 export const useGallery = () => useJson<Gallery>('data/gallery.json', isGallery)

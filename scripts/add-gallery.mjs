@@ -1,5 +1,5 @@
-// Copies the pictures of the namecards, titles and achievement groups of
-// https://encore.moe into the Gallery.
+// Copies the namecards, the titles and the achievements of https://encore.moe into the
+// Gallery.
 //
 //   node scripts/add-gallery.mjs            only the pictures that are not on the site yet
 //   node scripts/add-gallery.mjs --force    every picture again
@@ -53,7 +53,13 @@ const gallery = {
       id: group.Id,
       name: plain(group.Name),
       icon: picture(group.Icon),
-      count: group.Achievements.length,
+      achievements: group.Achievements.map((item) => ({
+        id: item.Id,
+        name: plain(item.Name),
+        description: plain(item.Desc),
+        level: item.Level,
+        ...(item.Hidden && { hidden: true }),
+      })),
     })),
   })),
 }

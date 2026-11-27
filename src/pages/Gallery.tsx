@@ -1,7 +1,13 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { assetUrl } from '../lib/characters'
-import { useGallery, type AchievementCategory, type Namecard, type Title } from '../lib/gallery'
+import {
+  useGallery,
+  type AchievementCategory,
+  type AchievementGroup,
+  type Namecard,
+  type Title,
+} from '../lib/gallery'
 import Disclaimer from '../components/Disclaimer'
 
 const SECTIONS = [
@@ -48,7 +54,41 @@ function Titles({ titles }: { titles: Title[] }) {
   )
 }
 
-function Achievements({ categories }: { categories: AchievementCategory[] }) {
+/** One group: the icon and the name, and below them the list that a click opens. */
+function Group({ group, open }: { group: AchievementGroup; open: boolean }) {
+  return (
+    <li>
+      {/* Without "open", the visitor decides; a search opens every group that it finds. */}
+      <details open={open || undefined}>
+        <summary>
+          <Picture path={group.icon} />
+          <p>
+            <b>{group.name}</b>
+            {group.achievements.length} achievement
+          </p>
+        </summary>
+        <ul>
+          {group.achievements.map((item) => (
+            <li key={item.id}>
+              <h3>
+                {item.name}
+                <span role="img" aria-label={`Tingkat ${item.level}`}>
+                  {'★'.repeat(item.level)}
+                </span>
+                {item.hidden && <small>Tersembunyi</small>}
+              </h3>
+              <p>{item.description}</p>
+            </li>
+          ))}
+        </ul>
+      </details>
+    </li>
+  )
+}
+
+type AchievementsProps = { categories: AchievementCategory[]; searching: boolean }
+
+function Achievements({ categories, searching }: AchievementsProps) {
   return (
     <>
       {categories.map((category) => (
@@ -58,13 +98,7 @@ function Achievements({ categories }: { categories: AchievementCategory[] }) {
             <h2>{category.name}</h2>
             <ul className="collection groups">
               {category.groups.map((group) => (
-                <li key={group.id}>
-                  <Picture path={group.icon} />
-                  <p>
-                    <b>{group.name}</b>
-                    {group.count} achievement
-                  </p>
-                </li>
+                <Group key={group.id} group={group} open={searching} />
               ))}
             </ul>
           </div>
@@ -86,15 +120,33 @@ export default function Gallery() {
   const data = state.status === 'ready' ? state.data : undefined
   const cards = matching(data?.cards ?? [])
   const titles = matching(data?.titles ?? [])
-  // A category stays when one of its groups matches.
+  // A group whose name matches keeps its whole list; another one keeps the achievements
+  // that have the text in their name or description. Empty groups and categories go.
   const achievements = (data?.achievements ?? [])
-    .map((category) => ({ ...category, groups: matching(category.groups) }))
+    .map((category) => ({
+      ...category,
+      groups: category.groups
+        .map((group) =>
+          group.name.toLowerCase().includes(text)
+            ? group
+            : {
+                ...group,
+                achievements: group.achievements.filter((item) =>
+                  `${item.name}\n${item.description}`.toLowerCase().includes(text),
+                ),
+              },
+        )
+        .filter((group) => group.achievements.length > 0),
+    }))
     .filter((category) => category.groups.length > 0)
   const view =
     section === 'title'
       ? { found: titles.length, list: <Titles titles={titles} /> }
       : section === 'achievement'
-        ? { found: achievements.length, list: <Achievements categories={achievements} /> }
+        ? {
+            found: achievements.length,
+            list: <Achievements categories={achievements} searching={text !== ''} />,
+          }
         : { found: cards.length, list: <Cards cards={cards} /> }
 
   return (
@@ -125,8 +177,8 @@ export default function Gallery() {
           </nav>
           <input
             type="search"
-            aria-label="Cari nama"
-            placeholder="Cari nama"
+            aria-label={section === 'achievement' ? 'Cari nama atau deskripsi' : 'Cari nama'}
+            placeholder={section === 'achievement' ? 'Cari nama atau deskripsi' : 'Cari nama'}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />

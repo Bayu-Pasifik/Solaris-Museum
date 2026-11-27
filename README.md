@@ -112,11 +112,10 @@ node scripts/add-gallery.mjs
 node scripts/add-gallery.mjs --force
 ```
 
-The script copies the pictures of the namecards, the titles and the achievement groups into the
-Gallery: the list to `public/data/gallery.json` (the `Gallery` type is in `src/lib/gallery.ts`)
-and the pictures to `public/art/gallery/`. Without `--force` it only downloads what is missing.
-It does not need Blender. The single achievements are not copied, only their number in each
-group.
+The script copies the namecards, the titles and the achievements into the Gallery: the list,
+with the name and the description of every achievement, to `public/data/gallery.json` (the
+`Gallery` type is in `src/lib/gallery.ts`) and the pictures to `public/art/gallery/`. Without
+`--force` it only downloads the pictures that are missing. It does not need Blender.
 
 ## Deploy to shared hosting
 
