@@ -2,20 +2,21 @@ import { useState } from 'react'
 import { assetUrl } from '../lib/characters'
 
 type Props = {
-  characterId: string
+  /** Whose splash art is shown. Stages without a character have none. */
+  characterId?: string
   /** Goes up on every hit, which plays the speed line flare again. */
-  hits: number
+  hits?: number
 }
 
 /** The painted layers behind the 3D scene: sky, halftone, speed lines and splash art. */
-export default function StageBackdrop({ characterId, hits }: Props) {
+export default function StageBackdrop({ characterId, hits = 0 }: Props) {
   const [hasArt, setHasArt] = useState(true)
 
   return (
     <div className="backdrop" aria-hidden="true">
       <div className="halftone" />
       <div key={hits} className={hits ? 'speedlines flare' : 'speedlines'} />
-      {hasArt && (
+      {characterId && hasArt && (
         <img
           className="splash"
           src={assetUrl(`art/${characterId}.webp`)}

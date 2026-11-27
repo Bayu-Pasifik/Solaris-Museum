@@ -4,16 +4,16 @@ Run by scripts/add-character.mjs:
     blender --background --factory-startup --python convert-character.py -- manifest.json
 """
 
-import json
 import os
 import sys
 
-import bmesh
 import bpy
-import numpy as np
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.join(ROOT, "tools", "ueformat", "src"))
+# Blender does not put the folder of the script on the import path.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# Importing blender_common also puts the UEFormat addon on the path.
+from blender_common import apply_materials, export_glb, log, read_manifest  # noqa: E402
 
 import io_scene_ueformat  # noqa: E402
 from io_scene_ueformat.importer.create import anim  # noqa: E402
@@ -21,15 +21,10 @@ from io_scene_ueformat.importer.import_context import UEFormatImport  # noqa: E4
 from io_scene_ueformat.options import UEAnimOptions, UEModelOptions  # noqa: E402
 from io_scene_gltf2.io.exp import meshopt  # noqa: E402
 
-TEXTURE_SIZE = 1024
 # Blender's meshopt defaults (8 bits for rotations, 12 for the rest) make bones move in
 # visible steps and shift keyframe times, so the animation stutters.
 QUAT_BITS = 16
 EXP_BITS = 18
-
-
-def log(*parts):
-    print("[convert]", *parts, flush=True)
 
 
 def exact_match(items, key, goal, default=None):
@@ -61,30 +56,8 @@ def remove_root_motion(action):
                         bag.fcurves.remove(curve)
 
 
-def web_texture(source_path, folder):
-    """Downscales a texture and drops alpha, which these textures use as a data mask."""
-    source = bpy.data.images.load(source_path, check_existing=True)
-    name = os.path.splitext(os.path.basename(source_path))[0] + "_web"
-    if name in bpy.data.images:
-        return bpy.data.images[name]
-    copy = source.copy()
-    copy.alpha_mode = "CHANNEL_PACKED"
-    copy.scale(TEXTURE_SIZE, TEXTURE_SIZE)
-    pixels = np.empty(TEXTURE_SIZE * TEXTURE_SIZE * 4, dtype=np.float32)
-    copy.pixels.foreach_get(pixels)
-    pixels[3::4] = 1.0
-    image = bpy.data.images.new(name, TEXTURE_SIZE, TEXTURE_SIZE, alpha=False)
-    image.pixels.foreach_set(pixels)
-    image.filepath_raw = os.path.join(folder, name + ".png")
-    image.file_format = "PNG"
-    image.save()
-    bpy.data.images.remove(copy)
-    return image
-
-
 def main():
-    with open(sys.argv[sys.argv.index("--") + 1], encoding="utf-8") as handle:
-        manifest = json.load(handle)
+    manifest = read_manifest()
 
     bpy.ops.wm.read_factory_settings(use_empty=True)
     io_scene_ueformat.register()
@@ -98,30 +71,7 @@ def main():
         bpy.data.objects.remove(other)
     log("mesh", mesh.name, len(mesh.data.vertices), "vertices,", len(armature.data.bones), "bones")
 
-    # Materials: one unlit image texture each. Overlays without a texture are removed.
-    # Slot names and file names can differ in case ("Bailian" and "BaiLian").
-    textures = {item["name"].lower(): item["texture"] for item in manifest["materials"]}
-    os.makedirs(manifest["textures"], exist_ok=True)
-    for index in reversed(range(len(mesh.data.materials))):
-        material = mesh.data.materials[index]
-        path = textures.get(material.name.lower())
-        if not path:
-            log("removing untextured material", material.name)
-            data = bmesh.new()
-            data.from_mesh(mesh.data)
-            faces = [f for f in data.faces if f.material_index == index]
-            bmesh.ops.delete(data, geom=faces, context="FACES")
-            data.to_mesh(mesh.data)
-            data.free()
-            mesh.data.materials.pop(index=index)
-            continue
-        material.use_nodes = True
-        tree = material.node_tree
-        tree.nodes.clear()
-        node = tree.nodes.new("ShaderNodeTexImage")
-        node.image = web_texture(path, manifest["textures"])
-        output = tree.nodes.new("ShaderNodeOutputMaterial")
-        tree.links.new(node.outputs["Color"], output.inputs["Surface"])
+    apply_materials(mesh, manifest["materials"], manifest["textures"])
     log("materials", len(mesh.data.materials))
 
     names = []
@@ -183,21 +133,13 @@ def main():
         log("neutral face", sum(abs(k.value) for k in keys.key_blocks[1:]))
     meshopt.QUAT_FILTER_BITS = QUAT_BITS
     meshopt.EXP_FILTER_BITS = EXP_BITS
-    bpy.ops.export_scene.gltf(
-        filepath=manifest["output"],
-        export_format="GLB",
-        use_active_scene=True,
+    export_glb(
+        manifest["output"],
         export_animation_mode="NLA_TRACKS",
-        export_image_format="WEBP",
-        export_image_quality=85,
         export_morph=True,
         export_morph_normal=False,
         export_try_sparse_sk=True,
-        export_vertex_color="NONE",
         export_optimize_animation_size=True,
-        export_apply=False,
-        export_meshopt_compression_enable=True,
-        export_meshopt_extension="EXT_meshopt_compression",
     )
     size = os.path.getsize(manifest["output"]) / 1e6
     log("exported", os.path.basename(manifest["output"]), f"{size:.2f} MB,", len(names), "clips")

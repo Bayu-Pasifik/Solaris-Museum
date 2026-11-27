@@ -83,13 +83,14 @@ export default function LobbyScene({
 }: Props) {
   const narrow = useThree((state) => state.size.width / state.size.height < 1.1)
   const spots = rooms.map((room, index) => ({ room, ...place(index, rooms.length, narrow) }))
-  const open = spots.find((spot) => spot.room.path)
+  // The greeter stands by the Resonator hall, and the carpet takes its color.
+  const main = spots.find((spot) => spot.room.path === '/resonator')
 
   return (
     <>
       <ambientLight intensity={1.4} />
       <directionalLight position={[-3, 5, 4]} intensity={1.8} />
-      <Museum carpet={open?.room.color ?? '#8f8df7'} />
+      <Museum carpet={main?.room.color ?? '#8f8df7'} />
 
       {spots.map(({ room, position, turn }) => (
         <Portal
@@ -106,14 +107,14 @@ export default function LobbyScene({
         />
       ))}
 
-      {greeter && open && (
+      {greeter && main && (
         <Greeter
           key={greeter.id}
           character={greeter}
           position={[
-            open.position[0] + (narrow ? 0.95 : 1.6),
+            main.position[0] + (narrow ? 0.95 : 1.6),
             0,
-            open.position[2] + (narrow ? 1.7 : 2.2),
+            main.position[2] + (narrow ? 1.7 : 2.2),
           ]}
           turn={-0.3}
           onArrive={onArrive}

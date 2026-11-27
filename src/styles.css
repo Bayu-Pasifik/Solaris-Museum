@@ -852,6 +852,12 @@ h1 {
   cursor: default;
 }
 
+/* Armory: the note under a weapon skill. */
+.panel .ranks {
+  color: var(--mute);
+  font-size: 12px;
+}
+
 @media (max-width: 760px) {
   .hall {
     grid-template-columns: minmax(0, 1fr);

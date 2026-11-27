@@ -61,7 +61,22 @@ art, the face picture, the skill icons and the profile described above.
 
 It needs Node 22.15 or newer, Blender (on `PATH`, or set `BLENDER` to the executable) and the
 [UEFormat](https://github.com/h4lfheart/UEFormat) Blender addon source in `tools/ueformat/src/`.
-Weapons and props are not included.
+The character models come without weapons and props.
+
+## Add weapons
+
+```bash
+node scripts/add-weapon.mjs --all
+node scripts/add-weapon.mjs 21010015 21020015
+```
+
+The arguments are weapon ids from `https://api-v2.encore.moe/api/en/weapon`; `--all` takes
+every weapon that `public/data/weapons.json` does not list yet. For each one the script writes
+a still model to `public/models/weapons/<slug>.glb`, a picture to
+`public/art/weapons/<slug>.webp` and an entry to `public/data/weapons.json` (the `Weapon` type
+in `src/lib/weapons.ts`). It needs the same tools as the character script. A weapon without a
+3D model in the API is reported as failed. Effects of the game that have no main texture are
+left out.
 
 ## Deploy to shared hosting
 

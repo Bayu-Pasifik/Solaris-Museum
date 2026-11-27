@@ -4,6 +4,7 @@ import { Navigate, Route, Routes } from 'react-router'
 const Lobby = lazy(() => import('./pages/Lobby'))
 const ResonatorHall = lazy(() => import('./pages/ResonatorHall'))
 const Library = lazy(() => import('./pages/Library'))
+const Armory = lazy(() => import('./pages/Armory'))
 
 export default function App() {
   return (
@@ -14,6 +15,8 @@ export default function App() {
         <Route path="/resonator/:id" element={<ResonatorHall />} />
         <Route path="/library" element={<Library />} />
         <Route path="/library/:id" element={<Library />} />
+        <Route path="/armory" element={<Armory />} />
+        <Route path="/armory/:id" element={<Armory />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
