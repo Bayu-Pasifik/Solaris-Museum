@@ -55,6 +55,10 @@ To download only the pictures and the profile, without the model and without Ble
 `--no-model` before the ids. With `--profile` it only writes the profile and its pictures, and
 keeps the splash art and the face picture that are there.
 
+Some characters have more than one outfit. The script converts all of them, and the hall shows
+a button for each. With `--skins` it only converts the alternate outfits of characters that
+`characters.json` lists already.
+
 The arguments are character ids from `https://api-v2.encore.moe/api/en/character`. The script
 downloads the model, the animations (poses, attacks and, where available, walking and
 running) and the textures into `assets-raw/`, converts them with Blender, writes

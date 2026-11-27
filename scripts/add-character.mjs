@@ -9,7 +9,8 @@
 // animations and the main textures into assets-raw/, converts them to GLB with Blender,
 // and updates public/data/characters.json. The voice audio stays on encore.moe.
 // With --no-model it stops after the pictures and the profile. With --profile it only writes
-// the profile and its pictures, and leaves the splash art and the face picture alone.
+// the profile and its pictures, and leaves the splash art and the face picture alone. With
+// --skins it only converts the alternate outfits of characters that are listed already.
 // Needs Node 22.15+ (zstd), the UEFormat addon source in tools/ueformat/src,
 // and Blender on PATH or in the BLENDER environment variable.
 
@@ -23,6 +24,7 @@ import {
   convert,
   download,
   get,
+  readList,
   root,
   saveEntry,
   slugOf,
@@ -83,10 +85,58 @@ async function addProfile(data, slug) {
   writeFileSync(file, JSON.stringify(profile) + '\n')
 }
 
+/**
+ * Converts one outfit to public/models/<file>.glb. Returns what characters.json says about it.
+ */
+async function addModel(skin, folder, file) {
+  const model = await download(skin.Model, folder)
+
+  const animations = []
+  for (const { name: clipName, paths } of CLIPS) {
+    // The API is not consistent about the case of folder names ("fuyong", "Fuyong").
+    const url = paths
+      .map((path) => `/${path}.ueanim`.toLowerCase())
+      .map((end) => skin.Animations.find((item) => item.toLowerCase().endsWith(end)))
+      .find(Boolean)
+    if (url) animations.push({ name: clipName, file: await download(url, folder) })
+    else console.warn(`  animation not found: ${clipName}`)
+  }
+  if (animations.length === 0) throw new Error(`${file}: no idle animation`)
+
+  const materials = await addMaterials([model], folder)
+
+  const output = join(root, 'public', 'models', `${file}.glb`)
+  const textures = join(root, 'work', 'textures', file)
+  convert('convert-character.py', { model, animations, materials, textures, output }, folder)
+
+  return {
+    model: `models/${file}.glb`,
+    defaultAnimation: animations[0].name,
+    animationLabels: Object.fromEntries(
+      CLIPS.filter((clip) => animations.some((item) => item.name === clip.name)).map((clip) => [
+        clip.name,
+        clip.label,
+      ]),
+    ),
+  }
+}
+
+/** The alternate outfits as characters.json lists them. */
+async function addOutfits(skins, folder, slug) {
+  const outfits = []
+  for (const skin of skins) {
+    console.log(`  outfit "${skin.Name}"`)
+    const outfit = await addModel(skin, folder, `${slug}-${slugOf(skin.Name)}`)
+    outfits.push({ name: skin.Name, ...outfit })
+  }
+  return outfits
+}
+
 async function add(id) {
   const data = (await get(`${API}character/${id}`)).json()
   const name = data.Name.Content
-  const skin = data.Model3D?.find((item) => item.Kind === 'skin')
+  // The first outfit is the one that the character starts with.
+  const [skin, ...others] = data.Model3D?.filter((item) => item.Kind === 'skin') ?? []
   if (!skin) throw new Error(`${name}: no 3D model`)
 
   // The Rover has a female and a male version under the same name.
@@ -103,31 +153,19 @@ async function add(id) {
 
   if (profileOnly) return addProfile(data, slug)
 
+  if (outfitsOnly) {
+    if (others.length === 0) return
+    const entry = readList('characters.json').find((item) => item.id === slug)
+    if (!entry) throw new Error(`${title}: not in characters.json yet`)
+    const skins = await addOutfits(others, folder, slug)
+    return saveEntry('characters.json', { ...entry, skinName: skin.Name, skins })
+  }
+
   // The splash art goes behind the model; the face goes in the list of the hall.
   await addPicture('splash art', data.FormationRoleCard, slug)
   await addPicture('face picture', data.RoleHeadIconLarge, `faces/${slug}`)
   await addProfile(data, slug)
   if (noModel) return
-
-  const model = await download(skin.Model, folder)
-
-  const animations = []
-  for (const { name: clipName, paths } of CLIPS) {
-    // The API is not consistent about the case of folder names ("fuyong", "Fuyong").
-    const url = paths
-      .map((path) => `/${path}.ueanim`.toLowerCase())
-      .map((end) => skin.Animations.find((item) => item.toLowerCase().endsWith(end)))
-      .find(Boolean)
-    if (url) animations.push({ name: clipName, file: await download(url, folder) })
-    else console.warn(`  animation not found: ${clipName}`)
-  }
-  if (animations.length === 0) throw new Error(`${name}: no idle animation`)
-
-  const materials = await addMaterials([model], folder)
-
-  const output = join(root, 'public', 'models', `${slug}.glb`)
-  const textures = join(root, 'work', 'textures', slug)
-  convert('convert-character.py', { model, animations, materials, textures, output }, folder)
 
   const entry = {
     id: slug,
@@ -135,14 +173,11 @@ async function add(id) {
     element: data.ElementName,
     weapon: data.WeaponTypeName,
     rarity: data.QualityId,
-    model: `models/${slug}.glb`,
-    defaultAnimation: animations[0].name,
-    animationLabels: Object.fromEntries(
-      CLIPS.filter((clip) => animations.some((item) => item.name === clip.name)).map((clip) => [
-        clip.name,
-        clip.label,
-      ]),
-    ),
+    ...(await addModel(skin, folder, slug)),
+  }
+  if (others.length > 0) {
+    entry.skinName = skin.Name
+    entry.skins = await addOutfits(others, folder, slug)
   }
   // The API wraps some fields as { Content }, others are plain strings.
   for (const key of ['element', 'weapon']) entry[key] = entry[key]?.Content ?? entry[key]
@@ -151,9 +186,10 @@ async function add(id) {
 
 const noModel = process.argv.includes('--no-model')
 const profileOnly = process.argv.includes('--profile')
+const outfitsOnly = process.argv.includes('--skins')
 const ids = process.argv.slice(2).filter((arg) => !arg.startsWith('--'))
 if (ids.length === 0) {
-  console.error('Usage: node scripts/add-character.mjs [--no-model | --profile] <character id> [...]')
+  console.error('Usage: node scripts/add-character.mjs [--no-model | --profile | --skins] <character id> [...]')
   process.exit(1)
 }
 

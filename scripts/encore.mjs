@@ -113,10 +113,16 @@ export function convert(script, manifest, folder) {
   for (const line of log.split('\n')) if (line.startsWith('[convert]')) console.log(' ', line.trim())
 }
 
+/** Reads a list in public/data/. A missing file counts as an empty list. */
+export function readList(name) {
+  const file = join(root, 'public', 'data', name)
+  return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : []
+}
+
 /** Adds an entry to a list in public/data/, or replaces the one with the same id. */
 export function saveEntry(name, entry) {
   const file = join(root, 'public', 'data', name)
-  const list = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : []
+  const list = readList(name)
   const index = list.findIndex((item) => item.id === entry.id)
   if (index >= 0) list[index] = entry
   else list.push(entry)

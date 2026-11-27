@@ -1,16 +1,23 @@
 import { useEffect, useState } from 'react'
 
-export type Character = {
-  id: string
-  name: string
-  element: string
-  weapon: string
-  rarity: number
+export type Outfit = {
   /** Path inside public/, for example "models/yangyang.glb". */
   model: string
   defaultAnimation?: string
   /** Optional friendly labels, keyed by animation clip name. */
   animationLabels?: Record<string, string>
+}
+
+/** The fields of Outfit describe the outfit that the character starts with. */
+export type Character = Outfit & {
+  id: string
+  name: string
+  element: string
+  weapon: string
+  rarity: number
+  /** Name of the starting outfit. Needed only when there are others. */
+  skinName?: string
+  skins?: (Outfit & { name: string })[]
 }
 
 export const assetUrl = (path: string) => import.meta.env.BASE_URL + path

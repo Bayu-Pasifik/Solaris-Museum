@@ -433,6 +433,13 @@ h1 {
   margin-top: 18px;
 }
 
+.outfits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 18px 0 12px;
+}
+
 .viewer .pill[aria-pressed='true'] {
   border-color: var(--el-deep);
   background: var(--el-deep);

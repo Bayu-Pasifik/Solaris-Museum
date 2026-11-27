@@ -4,7 +4,7 @@ import { OrbitControls } from '@react-three/drei'
 import { Link, useParams } from 'react-router'
 import { assetUrl, useCharacters, type Character } from '../lib/characters'
 import { themeOf } from '../lib/elements'
-import { entrance, strike, tint, ultimate } from '../lib/sakuga'
+import { entrance, pop, strike, tint, ultimate } from '../lib/sakuga'
 import AnimationTabs from '../components/AnimationTabs'
 import CharacterModel from '../three/CharacterModel'
 import Podium from '../three/Podium'
@@ -17,6 +17,12 @@ import Dossier from '../components/Dossier'
 import ElementParticles from '../three/ElementParticles'
 
 function Stage({ character }: { character: Character }) {
+  const outfits = [
+    { ...character, name: character.skinName ?? 'Bawaan' },
+    ...(character.skins ?? []),
+  ]
+  const [worn, setWorn] = useState(0)
+  const outfit = outfits[worn] ?? outfits[0]
   const [clips, setClips] = useState<string[]>([])
   const [selected, setSelected] = useState(character.defaultAnimation ?? '')
   const theme = themeOf(character.element)
@@ -25,7 +31,7 @@ function Stage({ character }: { character: Character }) {
 
   useEffect(() => tint(theme), [theme])
 
-  // The entrance plays once, when the model has loaded.
+  // The entrance plays once for each outfit, when its model has loaded.
   const arrived = useRef(false)
   const onClips = useCallback(
     (names: string[]) => {
@@ -47,9 +53,16 @@ function Stage({ character }: { character: Character }) {
     setHits((count) => count + 1)
   }
   const onFinished = useCallback(
-    () => setSelected(character.defaultAnimation ?? ''),
-    [character.defaultAnimation],
+    () => setSelected(outfit.defaultAnimation ?? ''),
+    [outfit.defaultAnimation],
   )
+  const wear = (index: number) => {
+    if (index === worn) return
+    arrived.current = false
+    setWorn(index)
+    setClips([])
+    setSelected(outfits[index].defaultAnimation ?? '')
+  }
   // The model plays its first clip when the default one is missing.
   const active = clips.includes(selected) ? selected : clips[0]
 
@@ -73,6 +86,25 @@ function Stage({ character }: { character: Character }) {
         {character.element} · {character.weapon}
       </p>
 
+      {outfits.length > 1 && (
+        <div className="outfits" role="group" aria-label="Kostum">
+          {outfits.map((item, index) => (
+            <button
+              key={item.model}
+              type="button"
+              className="pill"
+              aria-pressed={index === worn}
+              onClick={(event) => {
+                pop(event.currentTarget)
+                wear(index)
+              }}
+            >
+              {item.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       <div className="viewport" ref={viewport}>
         <StageBackdrop characterId={character.id} hits={hits} />
         <SceneBoundary message={`Model ${character.name} gagal dimuat.`}>
@@ -84,7 +116,8 @@ function Stage({ character }: { character: Character }) {
             <ElementParticles element={character.element} theme={theme} />
             <Suspense fallback={null}>
               <CharacterModel
-                url={assetUrl(character.model)}
+                key={outfit.model}
+                url={assetUrl(outfit.model)}
                 animation={selected}
                 onClips={onClips}
                 onFinished={onFinished}
@@ -105,7 +138,7 @@ function Stage({ character }: { character: Character }) {
       {clips.length > 0 && (
         <AnimationTabs
           clips={clips}
-          labels={character.animationLabels}
+          labels={outfit.animationLabels}
           selected={active}
           onPick={pick}
         />
