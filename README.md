@@ -117,6 +117,20 @@ with the name and the description of every achievement, to `public/data/gallery.
 `Gallery` type is in `src/lib/gallery.ts`) and the pictures to `public/art/gallery/`. Without
 `--force` it only downloads the pictures that are missing. It does not need Blender.
 
+## Add the glossary
+
+```bash
+node scripts/add-glossary.mjs
+```
+
+The script copies the term explanations of the game to `public/data/glossary.json` (the `Term`
+type is in `src/lib/glossary.ts`). It does not need Blender. The page `/glossary`, linked from
+the Library, lists every term. In the stories, the character profiles and keepsakes, the area
+reports and the Bestiary, the first mention of a term in a block of text gets a tooltip;
+`isStoryTerm` in `src/lib/glossary.ts` leaves out the combat terms and the names that the texts
+mostly use as ordinary words. The tooltip stands next to its word in browsers with CSS
+anchor positioning, and in the middle of the screen in the others.
+
 ## The exhibition hall
 
 The Gallery room shows each collection on a curved wall inside a round colonnade. The hall is

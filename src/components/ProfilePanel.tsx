@@ -1,7 +1,9 @@
+import { useTerms } from '../lib/glossary'
 import type { Profile } from '../lib/profiles'
 import GameText, { Struck } from './GameText'
 
 export default function ProfilePanel({ profile }: { profile: Profile }) {
+  const terms = useTerms()
   const facts = [
     ['Ulang tahun', profile.birthday],
     ['Asal', profile.country],
@@ -11,7 +13,7 @@ export default function ProfilePanel({ profile }: { profile: Profile }) {
   return (
     <div className="panel">
       {profile.nickname && <h3 className="nickname">{profile.nickname}</h3>}
-      <GameText text={profile.introduction} />
+      <GameText text={terms.link(profile.introduction, new Set())} terms={terms.byId} />
 
       <dl className="facts">
         {facts.map(([label, value]) => (
@@ -29,7 +31,8 @@ export default function ProfilePanel({ profile }: { profile: Profile }) {
       {profile.stories.map((story) => (
         <details key={story.title}>
           <summary>{story.title}</summary>
-          <GameText text={story.text} />
+          {/* A story opens on its own, so it explains its own terms. */}
+          <GameText text={terms.link(story.text, new Set())} terms={terms.byId} />
         </details>
       ))}
     </div>

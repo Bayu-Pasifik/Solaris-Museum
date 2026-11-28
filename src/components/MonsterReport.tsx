@@ -1,4 +1,5 @@
 import { rankColor, type Monster } from '../lib/bestiary'
+import { useTerms } from '../lib/glossary'
 import GameText from './GameText'
 
 const number = new Intl.NumberFormat('id-ID')
@@ -6,6 +7,8 @@ const number = new Intl.NumberFormat('id-ID')
 /** The drawer of the Bestiary: what is known about the chosen monster. */
 export default function MonsterReport({ monster }: { monster: Monster }) {
   const height = monster.model?.size[1]
+  const terms = useTerms()
+  const seen = new Set<number>()
   return (
     <div className="report">
       <h2>{monster.name}</h2>
@@ -20,13 +23,13 @@ export default function MonsterReport({ monster }: { monster: Monster }) {
       {monster.description && (
         <article>
           <h3>Catatan</h3>
-          <GameText text={monster.description} />
+          <GameText text={terms.link(monster.description, seen)} terms={terms.byId} />
         </article>
       )}
       {monster.rumor && (
         <article>
           <h3>Sebelum diteliti</h3>
-          <GameText text={monster.rumor} />
+          <GameText text={terms.link(monster.rumor, seen)} terms={terms.byId} />
         </article>
       )}
 
