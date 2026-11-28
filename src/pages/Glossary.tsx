@@ -1,17 +1,19 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
+import { useCharacters } from '../lib/characters'
 import { useGlossary, type Term } from '../lib/glossary'
 import { reveal } from '../lib/insets'
+import { letterOf } from '../lib/popup'
 import { categoryTheme } from '../lib/stories'
 import { useTitle } from '../lib/title'
+import { useWalkChoice } from '../lib/walkChoice'
 import { unique } from '../components/Chips'
 import GameText from '../components/GameText'
+import GlossaryWalk from '../components/GlossaryWalk'
+import ModeSwitch from '../components/ModeSwitch'
 import RingHall from '../components/RingHall'
 import RingStrip from '../components/RingStrip'
 import GlossaryScene from '../three/GlossaryScene'
-
-/** Names that start with a digit or a quote stand under "#". */
-const letterOf = (term: Term) => term.name.match(/^[A-Z]/i)?.[0].toUpperCase() ?? '#'
 
 const NONE: Term[] = []
 
@@ -19,15 +21,18 @@ export default function Glossary() {
   const { id } = useParams()
   const state = useGlossary()
   const [query, setQuery] = useState('')
+  const characters = useCharacters()
+  const walk = useWalkChoice(characters.status === 'ready' ? characters.data : [])
+  const walking = walk.mode !== 'tour' && state.status !== 'error'
 
   const terms = state.status === 'ready' ? state.data : NONE
-  const letters = unique(terms.map(letterOf)).sort()
+  const letters = unique(terms.map((term) => letterOf(term.name))).sort()
   const current = id
     ? terms.find((term) => String(term.id) === id)
-    : (terms.find((term) => letterOf(term) === 'A') ?? terms[0])
+    : (terms.find((term) => letterOf(term.name) === 'A') ?? terms[0])
   useTitle((id && current?.name) || 'Glossary')
-  const letter = current ? letterOf(current) : ''
-  const shelf = terms.filter((term) => letterOf(term) === letter)
+  const letter = current ? letterOf(current.name) : ''
+  const shelf = terms.filter((term) => letterOf(term.name) === letter)
   const index = shelf.findIndex((term) => term.id === current?.id)
   const theme = categoryTheme(letters, letter)
 
@@ -41,6 +46,11 @@ export default function Glossary() {
       ]
     : shelf
 
+  if (walking) {
+    if (state.status === 'loading') return <p className="notice">Loading data…</p>
+    return <GlossaryWalk terms={terms} currentId={id} walk={walk} />
+  }
+
   return (
     <RingHall
       name="star-hall"
@@ -49,10 +59,11 @@ export default function Glossary() {
       back={{ to: '/', label: 'Lobby' }}
       title="Glossary"
       subtitle={current ? `${terms.length} Solaris terms` : 'Terms of Solaris'}
+      links={<ModeSwitch walk={walk} onChoose={walk.choose} still="Ring" />}
       switches={{
         label: 'Letter',
         children: letters.map((item) => {
-          const first = terms.find((term) => letterOf(term) === item)!
+          const first = terms.find((term) => letterOf(term.name) === item)!
           return (
             <Link
               key={item}

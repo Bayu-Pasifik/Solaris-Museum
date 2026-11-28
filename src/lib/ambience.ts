@@ -173,6 +173,43 @@ export function playClang(level: number) {
   }
 }
 
+let leaf: AudioBuffer | undefined
+
+/** A big page that swings over: a hiss that swells and sinks, and a soft slap when it lands. */
+export function playRustle(seconds: number) {
+  if (!audio || !wanted() || audio.context.state !== 'running') return
+  const { context, power } = audio
+  const now = context.currentTime
+  if (!leaf) {
+    leaf = context.createBuffer(1, context.sampleRate, context.sampleRate)
+    const samples = leaf.getChannelData(0)
+    // Noise with small crackles, as paper has.
+    for (let index = 0; index < samples.length; index++) {
+      samples[index] = (Math.random() * 2 - 1) * (Math.random() < 0.004 ? 1 : 0.45)
+    }
+  }
+  for (const [after, length, level, from, to] of [
+    [0, seconds, 0.12, 700, 2600],
+    [seconds * 0.9, 0.3, 0.2, 500, 180],
+  ]) {
+    const source = context.createBufferSource()
+    const filter = context.createBiquadFilter()
+    const envelope = context.createGain()
+    source.buffer = leaf
+    source.loop = true
+    filter.type = 'bandpass'
+    filter.Q.value = 0.7
+    filter.frequency.setValueAtTime(from, now + after)
+    filter.frequency.linearRampToValueAtTime(to, now + after + length)
+    envelope.gain.setValueAtTime(0, now + after)
+    envelope.gain.linearRampToValueAtTime(level, now + after + length * 0.35)
+    envelope.gain.linearRampToValueAtTime(0, now + after + length)
+    source.connect(filter).connect(envelope).connect(power)
+    source.start(now + after)
+    source.stop(now + after + length)
+  }
+}
+
 /** Turns the room sound down while a voice line plays. */
 export function duck(value: boolean) {
   ducked = value

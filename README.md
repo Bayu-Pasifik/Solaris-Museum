@@ -336,7 +336,7 @@ npm run upload
 
 ## Walking in the Armory, the Resonator Hall and the Library
 
-The Gallery can be walked through as well, and is described further below.
+The Gallery and the Glossary can be walked through as well, and are described further below.
 
 These rooms have the same three ways to look around. The one without walking is "List" in the
 Armory, with one weapon on the stage, "Stage" in the Resonator Hall and "Ring" in the Library.
@@ -405,6 +405,31 @@ stands and the floor are laid out in `src/lib/foundry.ts`; the scene is drawn by
 `src/three/FoundryScene.tsx`, and the cavern, the smith and the lava by
 `src/three/FoundryMap.tsx`. A new kind of weapon needs a forge in the script and a name in
 `FORGE_NAMES`; until then its weapons share the Arcane Kiln.
+
+## The Pop-up Lexicon: walking in the Glossary
+
+The view of the Glossary without walking is "Ring". Walking, the visitor is as small as a
+bookmark and walks on a dictionary that lies open on a desk at night. Every spread explains up to
+eight terms, printed on its pages and on cards that stand up as the spread opens. For every first
+letter a paper scene unfolds from the back of the book: the letter, a landscape and a thing whose
+name starts with it. A walk over an outer edge turns the page, which carries the visitor over the
+spine to the next spread. The letter buttons and the thumb index at the edges of the book open
+the first spread of a letter.
+
+Only one spread is drawn at a time. On the walk the spreads lie far apart along "z", so that a
+place says which spread it is on. That layout is in `src/lib/popup.ts`, the turn is in
+`src/three/PopupScene.tsx`, the book and the desk are drawn by `src/three/PopupMap.tsx`, and the
+print of the pages by `src/three/popupPrint.ts`.
+
+The model is original low-poly work that is in Git, in `src/assets/glossary/popup.glb`, with its
+layout in `popup.json` beside it. The bend of the turning page is stored as shape keys. To change
+the model, edit `scripts/build-popup.py`, which writes both files:
+
+```bash
+blender --background --factory-startup --python scripts/build-popup.py
+```
+
+It also runs inside an open Blender, where it only makes its own `Solaris_Popup` scene.
 
 ## The Endless Salon: walking in the Gallery
 

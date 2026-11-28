@@ -1258,7 +1258,8 @@ h1 {
   padding: 18px;
 }
 
-.ring-hall .term-report h2 {
+.ring-hall .term-report h2,
+.wing-hall .term-report h2 {
   padding: 0;
   font: italic 800 24px / 1.25 var(--display);
 }
