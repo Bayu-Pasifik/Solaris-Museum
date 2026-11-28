@@ -118,6 +118,36 @@ export function playNote(note: number) {
   }
 }
 
+let rail: AudioBuffer | undefined
+
+/** The wheels of a train over a joint of the rails: two low knocks, one after the other. */
+export function playClack() {
+  if (!audio || !wanted() || audio.context.state !== 'running') return
+  const { context, power } = audio
+  if (!rail) {
+    // A short burst of noise that dies away.
+    rail = context.createBuffer(1, Math.floor(context.sampleRate * 0.09), context.sampleRate)
+    const samples = rail.getChannelData(0)
+    for (let index = 0; index < samples.length; index++) {
+      samples[index] = (Math.random() * 2 - 1) * (1 - index / samples.length) ** 3
+    }
+  }
+  for (const [after, level] of [
+    [0, 0.3],
+    [0.16, 0.2],
+  ]) {
+    const source = context.createBufferSource()
+    const filter = context.createBiquadFilter()
+    const volume = context.createGain()
+    source.buffer = rail
+    filter.type = 'lowpass'
+    filter.frequency.value = 420
+    volume.gain.value = level
+    source.connect(filter).connect(volume).connect(power)
+    source.start(context.currentTime + after)
+  }
+}
+
 /** Turns the room sound down while a voice line plays. */
 export function duck(value: boolean) {
   ducked = value

@@ -1,9 +1,11 @@
 import { Suspense, useCallback, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
+import { useGLTF } from '@react-three/drei'
 import type { Group } from 'three'
 import { assetUrl, type Character } from '../lib/characters'
 import CharacterModel from './CharacterModel'
 import Optional from './Optional'
+import { useShared } from './shared'
 
 type Props = {
   character: Character
@@ -15,6 +17,9 @@ type Props = {
 }
 
 function Body({ character, position, turn, active }: Props) {
+  const url = assetUrl(`models/guards/${character.id}.glb`)
+  // Draco is off (models use Meshopt), so no decoder is fetched from a CDN.
+  useShared(url, useGLTF(url, false, true).scene)
   const body = useRef<Group>(null)
   const idle = character.defaultAnimation ?? ''
   const [clips, setClips] = useState<string[]>([])
@@ -48,7 +53,7 @@ function Body({ character, position, turn, active }: Props) {
       </mesh>
       <group ref={body}>
         <CharacterModel
-          url={assetUrl(`models/guards/${character.id}.glb`)}
+          url={url}
           animation={animation}
           playOnce={animation !== idle}
           onClips={onClips}

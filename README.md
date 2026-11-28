@@ -324,8 +324,10 @@ A Resonator stands by every door and says hello when the visitor comes near. Who
 what they say is set per room in `src/lib/rooms.ts`; the words are our own, not lines of the
 game. The guards use light models with only two clips, in `public/models/guards/`, and only
 those within two doors are shown. The walk through the Resonator Hall uses the same light
-models, one for every Resonator. After adding or converting a Resonator, make them again and
-upload them:
+models, one for every Resonator. A light model also leaves out the shapes of the face (its
+morph targets) when neither clip moves them, because they take tens of megabytes of graphics
+memory and the walk stutters while they load. After adding or converting a Resonator, make the
+light models again and upload them:
 
 ```bash
 node scripts/build-guards.mjs
@@ -336,19 +338,46 @@ npm run upload
 
 These rooms have the same three ways to look around. The one without walking is "List" in the
 Armory, with one weapon on the stage, "Stage" in the Resonator Hall and "Ring" in the Library.
-When walking, every kind of weapon and every element has its own wing, with a stand at both
-sides of every bay. The Library is one aisle between bookcases, with one book for every story:
+When walking in the Armory, every kind of weapon has its own wing, with a stand at both sides
+of every bay; the Resonator Hall is a train (see below). The Library is one aisle between bookcases, with one book for every story:
 the book that the visitor looks at comes out of the shelf and shows its cover. The categories
 follow each other, each one under a board with its name, and their buttons jump to them. The
 key E opens the report of the weapon,
 the dossier of the Resonator or the script of the story. Only what is close by is loaded. The
 walk through the Library starts at the story that was read last. The aisle is laid out in
 `src/lib/shelves.ts` and drawn by `src/three/ShelfScene.tsx`. The address ending `?stage` shows a Resonator on the stage also to a
-visitor who walks. The shared layout is in `src/lib/wings.ts`, the scene in
-`src/three/WingScene.tsx` and the page around it in `src/components/WingWalk.tsx`. All walks
+visitor who walks. The layout of the wings is in `src/lib/wings.ts`, their scene in
+`src/three/WingScene.tsx` and the page around every walk in `src/components/WingWalk.tsx`. All walks
 use `src/three/Roamer.tsx`, which takes the floor of a room: its portals, what is in the way,
 and where it ends, or for ground of another shape, which points can be stood on and, where it
 is not flat, how high they are.
+
+## The Express: walking in the Resonator Hall
+
+Walking, the hall is a train that crosses the sky country, with one carriage for every element:
+a frost lounge, a forge diner, a dynamo car, a garden car, a prism parlor and a void car, each
+with its own furniture and something that turns below its roof. The Resonators stand beside the
+windows, and a carriage is as long as its Resonators need. The way starts on the open deck at
+the end of the train, where the portal leads back to the lobby, and ends at the engine. Outside,
+the land, the sky and the rings that the train drives through are those of the carriage that the
+visitor is in: after a new one is entered, the old land sinks away and the new one rises. A
+whale of the sky swims beside the train, and the wheels knock on the rails; the sound button
+silences them too. The buttons of the elements jump to a carriage.
+
+The model is original low-poly work that is in Git, in `src/assets/express/express.glb`, with
+its layout (the lengths of the parts, where the Resonators stand and what turns) in
+`express.json` beside it. To change it, edit `scripts/build-express.py`, which writes both
+files, and run it:
+
+```bash
+blender --background --factory-startup --python scripts/build-express.py
+```
+
+It also runs inside an open Blender, where it only makes its own `Solaris_Express` scene. The
+train is put together in `src/lib/express.ts`; the scene is drawn by
+`src/three/ExpressScene.tsx`, and the train and the country by `src/three/ExpressMap.tsx`.
+A new element needs a carriage in the script and a name in `CAR_NAMES`; until then its
+Resonators ride in the parlor.
 
 ## The search box
 

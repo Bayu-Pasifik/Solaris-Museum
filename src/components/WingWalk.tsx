@@ -60,7 +60,7 @@ export type Hall<T> = {
    * For a room that holds all its wings in one, one after another. The button of a wing then
    * brings the visitor to its first item, and shows where the visitor is.
    */
-  jump?: (index: number) => Spot
+  jump?: (index: number, list: T[]) => Spot
   /** Where the walk starts when no item is chosen; without it, at the entrance of a corridor. */
   start?: Spot
   Scene: ComponentType<HallProps<T>>
@@ -203,7 +203,7 @@ export default function WingWalk<T extends Exhibit>({
     setNearId(undefined)
     setRow(hall.jump ? hall.rowOf(start) : 0)
     here.current = undefined
-    Object.assign(roam.current, hall.jump?.(start) ?? hall.start ?? spotBefore(0))
+    Object.assign(roam.current, hall.jump?.(start, list) ?? hall.start ?? spotBefore(0))
     if (current) close()
   }
 

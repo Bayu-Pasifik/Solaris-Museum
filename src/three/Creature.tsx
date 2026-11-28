@@ -1,52 +1,17 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { useAnimations, useGLTF } from '@react-three/drei'
-import { LoopOnce, LoopRepeat, MathUtils, Mesh, Texture, type Group, type Object3D } from 'three'
+import { LoopOnce, LoopRepeat, MathUtils, type Group } from 'three'
 import { clone } from 'three/examples/jsm/utils/SkeletonUtils.js'
 import { assetUrl } from '../lib/characters'
 import type { MonsterModel } from '../lib/bestiary'
 import type { Roam } from '../lib/roam'
 import type { Den } from '../lib/wilds'
 import { fit } from './MonsterStand'
+import { useShared } from './shared'
 
 /** How close a walker must be before a monster turns to look. */
 const NOTICE = 13
-
-/** How many monsters on the map use a model. */
-const users = new Map<string, number>()
-
-function dispose(scene: Object3D) {
-  scene.traverse((object) => {
-    if (!(object instanceof Mesh)) return
-    object.geometry.dispose()
-    for (const material of [object.material].flat()) {
-      for (const value of Object.values(material)) {
-        if (value instanceof Texture) value.dispose()
-      }
-      material.dispose()
-    }
-  })
-}
-
-/**
- * A walk passes hundreds of monsters, so a model is dropped when the last one that uses it is
- * out of sight.
- */
-function useShared(url: string, scene: Object3D) {
-  useEffect(() => {
-    users.set(url, (users.get(url) ?? 0) + 1)
-    return () => {
-      users.set(url, users.get(url)! - 1)
-      // Later, because a new user can come in the same moment.
-      setTimeout(() => {
-        if (users.get(url) !== 0) return
-        users.delete(url)
-        dispose(scene)
-        useGLTF.clear(url)
-      })
-    }
-  }, [url, scene])
-}
 
 type Props = {
   model: MonsterModel
