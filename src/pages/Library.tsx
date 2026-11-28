@@ -1,30 +1,13 @@
 import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useParams } from 'react-router'
 import { reveal } from '../lib/insets'
 import { categoryTheme, useStories } from '../lib/stories'
 import { unique } from '../components/Chips'
+import GroupSelect from '../components/GroupSelect'
 import RingHall from '../components/RingHall'
 import RingStrip from '../components/RingStrip'
 import StoryReader from '../components/StoryReader'
 import LibraryScene from '../three/LibraryScene'
-
-type ChapterProps = { groups: string[]; value?: string; first: (group: string) => string }
-
-/** Jumps to the first story of a chapter. */
-function ChapterSelect({ groups, value, first }: ChapterProps) {
-  const navigate = useNavigate()
-  return (
-    <select
-      aria-label="Bab"
-      value={value}
-      onChange={(event) => navigate(`/library/${first(event.target.value)}`, { replace: true })}
-    >
-      {groups.map((group) => (
-        <option key={group}>{group}</option>
-      ))}
-    </select>
-  )
-}
 
 export default function Library() {
   const { id } = useParams()
@@ -62,6 +45,9 @@ export default function Library() {
           </Link>
           <Link to="/messages" className="pill">
             Pesan
+          </Link>
+          <Link to="/documents" className="pill">
+            Dokumen
           </Link>
         </>
       }
@@ -129,10 +115,11 @@ export default function Library() {
           hint="Seret atau gulir untuk menyusuri · klik panel untuk membaca"
         >
           {!text && groups.length > 1 && (
-            <ChapterSelect
+            <GroupSelect
+              label="Bab"
               groups={groups}
               value={current?.group}
-              first={(group) => shelf.find((story) => story.group === group)!.id}
+              to={(group) => `/library/${shelf.find((story) => story.group === group)!.id}`}
             />
           )}
         </RingStrip>

@@ -1095,7 +1095,7 @@ h1 {
   object-fit: contain;
 }
 
-/* The ring halls (Library, Glossary and Messages): a 3D hall fills the screen, with every
+/* The ring halls (Library, Glossary, Messages and Documents): a 3D hall fills the screen, with every
    entry in the strip below it and the chosen one in the drawer. */
 
 .ring-hall .backdrop.sky {

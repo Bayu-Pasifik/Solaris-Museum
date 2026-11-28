@@ -11,6 +11,7 @@ const Bestiary = lazy(() => import('./pages/Bestiary'))
 const EchoRoom = lazy(() => import('./pages/EchoRoom'))
 const Glossary = lazy(() => import('./pages/Glossary'))
 const Messages = lazy(() => import('./pages/Messages'))
+const Documents = lazy(() => import('./pages/Documents'))
 
 export default function App() {
   return (
@@ -25,6 +26,8 @@ export default function App() {
         <Route path="/glossary/:id" element={<Glossary />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/messages/:id" element={<Messages />} />
+        <Route path="/documents" element={<Documents />} />
+        <Route path="/documents/:id" element={<Documents />} />
         <Route path="/armory" element={<Armory />} />
         <Route path="/armory/:id" element={<Armory />} />
         <Route path="/gallery" element={<Gallery />} />

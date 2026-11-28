@@ -145,6 +145,20 @@ and photos to `public/art/chat/`. Without `--force` it only downloads the pictur
 missing. It does not need Blender. Conversations without any message are left out. A few
 messages have only their text key in the API; the page shows them as not available.
 
+## Add the documents
+
+```bash
+node scripts/add-document.mjs
+node scripts/add-document.mjs --force
+```
+
+The script copies the documents, notes, photos and recordings that can be found in the game to
+the page `/documents`, linked from the Library: the list, with the full texts, to
+`public/data/documents.json` (the types are in `src/lib/documents.ts`) and the pictures to
+`public/art/documents/`. Without `--force` it only downloads the pictures that are missing. It
+does not need Blender. Entries that the game has not filled in are left out. Most documents do
+not record where they can be found, and the sound of the recordings is not copied.
+
 ## The exhibition hall
 
 The Gallery room shows each collection on a curved wall inside a round colonnade. The hall is
