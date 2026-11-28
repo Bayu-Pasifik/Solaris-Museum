@@ -3,7 +3,7 @@
 
 import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { dirname, join, relative } from 'node:path'
 import { setTimeout as sleep } from 'node:timers/promises'
 import { fileURLToPath } from 'node:url'
 import { gunzipSync, zstdDecompressSync } from 'node:zlib'
@@ -74,20 +74,30 @@ function materialPaths(file) {
   return [...new Set(found ?? [])]
 }
 
+/** Downloads the main texture of one material. Some materials have none. */
+async function mainTexture(path, folder) {
+  try {
+    const info = (await get(assetFile(path + '.json', '.json'))).json()
+    const main = info.Textures?.MainTex?.ObjectPath
+    return main ? await download(assetFile(main, '.png'), folder) : null
+  } catch (error) {
+    console.warn(`  ${path.split('/').pop()}: ${error.message}`)
+    return null
+  }
+}
+
 /** Downloads the main texture of every material of the downloaded models. */
 export async function addMaterials(models, folder) {
   const materials = []
   for (const path of new Set(models.flatMap(materialPaths))) {
-    const material = path.split('/').pop()
-    let texture = null
-    try {
-      const info = (await get(assetFile(path + '.json', '.json'))).json()
-      const main = info.Textures?.MainTex?.ObjectPath
-      if (main) texture = await download(assetFile(main, '.png'), folder)
-    } catch (error) {
-      console.warn(`  ${material}: ${error.message}`)
-    }
-    materials.push({ name: material, texture })
+    materials.push({ name: path.split('/').pop(), texture: await mainTexture(path, folder) })
+  }
+  // The game gives some models their material at run time, so the file only names "MI_Empty".
+  // That material is next to the model and is named after it.
+  const empty = materials.find((item) => item.name === 'MI_Empty')
+  if (empty && !materials.some((item) => item.texture)) {
+    const body = relative(folder, models[0]).replaceAll('\\', '/')
+    empty.texture = await mainTexture(body.replace(/([^/]+)\.uemodel$/, 'MI_$1'), folder)
   }
   if (!materials.some((item) => item.texture)) throw new Error('no textures found')
   return materials
