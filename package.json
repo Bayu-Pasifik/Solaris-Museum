@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "upload": "node scripts/upload-assets.mjs"
   },
   "dependencies": {
     "@esotericsoftware/spine-player": "~4.1.56",

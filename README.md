@@ -269,8 +269,35 @@ Manual: run `npm run build`, then upload the **contents** of `dist/` (including 
 to the web folder, usually `public_html/`.
 
 Automatic: add the repository secrets `FTP_SERVER`, `FTP_USERNAME` and `FTP_PASSWORD`.
-Pushing to `main` then builds and uploads the site over FTPS. Upload `models/`, `data/` and
-`art/` by hand, because they are not in Git.
+Pushing to `main` then builds and uploads the site over FTPS. `models/`, `data/` and `art/`
+are not in Git, so upload them from your computer with the script below.
+
+### Upload the assets
+
+Put the same three values in `.env.local`, which Git ignores:
+
+```
+FTP_SERVER=ftp.example.com
+FTP_USERNAME=name
+FTP_PASSWORD=secret
+```
+
+```bash
+npm run upload -- --check
+npm run upload -- --dry-run
+npm run upload
+```
+
+`--check` only looks for files that the data names but that are not in `public/`, and needs
+no server. `--dry-run` lists what would be uploaded. Without an option the script uploads the
+new and changed files, the lists in `data/` last, and then checks that every file is on the
+server with the right size. It never deletes a file on the server. Run it again after a lost
+connection to continue.
+
+`FTP_DIR` is the web folder (default `public_html`; use `./` if the account starts there) and
+`FTP_PORT` is only needed for an unusual port. The script remembers the uploaded files in
+`work/upload-assets.json`. A file that it has no record of, and that has the right size on the
+server, counts as uploaded, except for the data files, which it sends again.
 
 If the site lives in a subfolder, change `base` in `vite.config.ts`, `RewriteBase` in
 `public/.htaccess`, and `server-dir` in `.github/workflows/deploy.yml`.
