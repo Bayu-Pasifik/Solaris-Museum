@@ -9,6 +9,7 @@ const Gallery = lazy(() => import('./pages/Gallery'))
 const MapRoom = lazy(() => import('./pages/MapRoom'))
 const Bestiary = lazy(() => import('./pages/Bestiary'))
 const Glossary = lazy(() => import('./pages/Glossary'))
+const Messages = lazy(() => import('./pages/Messages'))
 
 export default function App() {
   return (
@@ -20,6 +21,8 @@ export default function App() {
         <Route path="/library" element={<Library />} />
         <Route path="/library/:id" element={<Library />} />
         <Route path="/glossary" element={<Glossary />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/messages/:id" element={<Messages />} />
         <Route path="/armory" element={<Armory />} />
         <Route path="/armory/:id" element={<Armory />} />
         <Route path="/gallery" element={<Gallery />} />

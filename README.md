@@ -131,6 +131,20 @@ reports and the Bestiary, the first mention of a term in a block of text gets a 
 mostly use as ordinary words. The tooltip stands next to its word in browsers with CSS
 anchor positioning, and in the middle of the screen in the others.
 
+## Add the phone chats
+
+```bash
+node scripts/add-chat.mjs
+node scripts/add-chat.mjs --force
+```
+
+The script copies the phone chats of the game to the page `/messages`, linked from the
+Library: the list to `public/data/chat.json`, the messages of each conversation to
+`public/data/chat/<id>.json` (the types are in `src/lib/chats.ts`) and the avatars, stickers
+and photos to `public/art/chat/`. Without `--force` it only downloads the pictures that are
+missing. It does not need Blender. Conversations without any message are left out. A few
+messages have only their text key in the API; the page shows them as not available.
+
 ## The exhibition hall
 
 The Gallery room shows each collection on a curved wall inside a round colonnade. The hall is

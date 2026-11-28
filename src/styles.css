@@ -2071,3 +2071,323 @@ h1 {
   margin: 0;
   font-size: 14px;
 }
+
+/* Messages: the contacts beside a phone. */
+
+.messages .hall {
+  --el-deep: #4a47b8;
+  --el-pale: #e6e5ff;
+  --el-accent: #8f8df7;
+  margin-top: 18px;
+}
+
+.messages .contacts,
+.messages .phone {
+  height: min(760px, calc(100dvh - 32px));
+  min-height: 460px;
+}
+
+.messages .contacts ul {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 0;
+  max-height: none;
+  padding: 4px 6px 6px 4px;
+}
+
+.contacts a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 9px;
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  text-decoration: none;
+}
+
+.contacts a:hover {
+  border-color: var(--text);
+}
+
+.contacts a[aria-current='page'] {
+  border-color: var(--el-deep);
+  background: var(--el-pale);
+}
+
+/* The list is long, so rows outside of its view are not laid out. */
+.contacts li {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 58px;
+}
+
+.contacts a > span {
+  min-width: 0;
+}
+
+.contacts b,
+.contacts a > span > span {
+  display: block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.contacts a > span > span {
+  color: var(--mute);
+  font-size: 12px;
+}
+
+.messages .avatar {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: var(--el-pale);
+  color: var(--el-deep);
+  font-style: normal;
+  font-weight: 800;
+}
+
+.messages .avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.phone {
+  overflow: hidden;
+  border: var(--ink-border);
+  box-shadow: var(--hard-shadow);
+}
+
+.phone > header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: var(--ink-border);
+}
+
+.phone > header > div {
+  min-width: 0;
+}
+
+.messages .phone h2 {
+  padding: 0;
+  font: italic 800 18px / 1.25 var(--display);
+}
+
+.phone header p {
+  margin: 0;
+  color: var(--mute);
+  font-size: 12px;
+}
+
+.messages .phone .back {
+  display: none;
+}
+
+.phone .turn {
+  padding: 8px 14px;
+  border-top: 0;
+  border-bottom: 1.5px solid var(--line);
+}
+
+.phone > .notice {
+  flex: 1;
+}
+
+.log {
+  flex: 1;
+  min-height: 0;
+  padding: 16px 14px;
+  overflow-y: auto;
+  background: var(--chip);
+}
+
+.log ol {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* One step of the chat that shows nothing, such as an unspoken opening, takes no room. */
+.log .turn-of:not(:has(li)) {
+  display: none;
+}
+
+.bubble {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  animation: bubble-in 0.3s ease-out both;
+}
+
+.bubble > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  max-width: min(75%, 46ch);
+}
+
+.bubble.mine {
+  flex-direction: row-reverse;
+}
+
+.bubble.mine > div {
+  align-items: flex-end;
+}
+
+.bubble b {
+  color: var(--el-deep);
+  font-size: 12px;
+}
+
+.bubble p {
+  margin: 0;
+  padding: 8px 13px;
+  border: 1.5px solid var(--line);
+  border-radius: 4px 16px 16px;
+  background: var(--page);
+  font-size: 14.5px;
+  line-height: 1.5;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+
+.bubble.mine p {
+  border-color: var(--el-deep);
+  border-radius: 16px 4px 16px 16px;
+  background: var(--el-deep);
+  color: #fff;
+}
+
+.bubble p.gone {
+  border: 1.5px dashed var(--mute);
+  background: none;
+  color: var(--mute);
+  font-style: italic;
+}
+
+/* The name of the sender is only read aloud where it does not need to be seen. */
+.hidden-name {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.sticker {
+  width: 112px;
+  height: 112px;
+  object-fit: contain;
+}
+
+.bubble a {
+  display: block;
+}
+
+.photo {
+  display: block;
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  min-height: 60px;
+  border: 1.5px solid var(--line);
+  border-radius: 14px;
+  background: var(--page);
+}
+
+.log .system {
+  align-self: center;
+  max-width: 90%;
+  padding: 3px 12px;
+  border-radius: 999px;
+  background: var(--page);
+  color: var(--mute);
+  font-size: 12px;
+  text-align: center;
+}
+
+.replies {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+  max-height: 40%;
+  padding: 10px 14px;
+  overflow-y: auto;
+  border-top: var(--ink-border);
+}
+
+.replies .pill {
+  height: auto;
+  min-height: 34px;
+  padding-block: 6px;
+  border-color: var(--el-deep);
+  text-align: left;
+}
+
+.replies .pill:hover {
+  background: var(--el-pale);
+}
+
+.replies .again {
+  border-color: var(--line);
+}
+
+.replies p {
+  margin: 0 auto 0 0;
+  align-self: center;
+  color: var(--mute);
+  font-size: 13px;
+}
+
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+@media (max-width: 760px) {
+  /* The list and a chat take turns on the screen. */
+  .messages .contacts {
+    order: 0;
+  }
+
+  .messages:not(.picked) .phone,
+  .messages.picked .contacts,
+  .messages.picked > header {
+    display: none;
+  }
+
+  .messages.picked {
+    padding-top: 12px;
+  }
+
+  .messages .phone .back {
+    display: inline-flex;
+  }
+
+  .phone .long {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bubble {
+    animation: none;
+  }
+}

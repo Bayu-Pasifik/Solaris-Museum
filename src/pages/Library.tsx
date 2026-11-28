@@ -49,6 +49,9 @@ export default function Library() {
           </Link>{' '}
           <Link to="/glossary" className="pill">
             Glosarium
+          </Link>{' '}
+          <Link to="/messages" className="pill">
+            Pesan
           </Link>
         </p>
       </header>
