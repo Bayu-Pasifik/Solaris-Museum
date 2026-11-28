@@ -201,6 +201,36 @@ stands on a pin of its island, in the order of `map.json`. A new region needs an
 script and an entry in `ISLANDS` in `src/three/WorldScene.tsx`; until then it is only in the
 strip under the map.
 
+## The Armillary Atlas: walking in the Map room
+
+The view of the Map room without walking is "Atlas", the floating islands. Walking, every region
+is a small planet inside a giant armillary sphere. The visitor can walk in every direction: the
+planet turns underfoot, the horizon curves, and the far side of the planet lies in the night, with
+stars and fireflies. Every area has a landmark of its own, chosen from its name, with its picture
+on an easel before it. An area that the visitor stands before is surveyed: a flag goes up, the
+route to it turns golden, and a needle on the ground points to the next one. Flags stay until the
+page is closed. The walk draws a line of ink onto the planet. A dragon winds around Huanglong,
+survey drones circle the Black Shores, balloons drift over Rinascita and the northern lights hang
+over the Frostlands. The other planets hang in the sky; a click on one travels there, as do the
+buttons of the regions. The portal behind the place of arrival leads back to the lobby.
+
+The visitor stays at the zero point and the page turns the planet, through the `roll` of the floor
+in `src/three/Roamer.tsx`. The planets are laid out in `src/lib/atlas.ts`, which spreads the areas
+of a region over its planet, however many there are. The scene is drawn by
+`src/three/AtlasScene.tsx`, and the planets and the sky by `src/three/AtlasMap.tsx`.
+
+The model is original low-poly work that is in Git, in `src/assets/map/orrery.glb`, with its
+layout in `orrery.json` beside it. To change it, edit `scripts/build-orrery.py`, which writes both
+files, and run it:
+
+```bash
+blender --background --factory-startup --python scripts/build-orrery.py
+```
+
+It also runs inside an open Blender, where it only makes its own `Solaris_Orrery` scene. A new
+area gets a landmark in `AREAS` in the script; until then it shows a pile of stones. A new region
+needs a planet in the script; until then it borrows the one of the Black Shores.
+
 ## Add monsters
 
 ```bash
@@ -337,7 +367,7 @@ npm run upload
 ## Walking in the Armory, the Resonator Hall and the Library
 
 The Gallery, the Glossary and the Document Archive can be walked through as well, and are
-described further below.
+described further below. The walk of the Map room is described with its floating map above.
 
 These rooms have the same three ways to look around. The one without walking is "List" in the
 Armory, with one weapon on the stage, "Stage" in the Resonator Hall and "Ring" in the Library.

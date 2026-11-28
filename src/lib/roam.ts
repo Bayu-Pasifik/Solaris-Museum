@@ -16,6 +16,8 @@ export type Spot = {
   pitch: number
   /** The way the body faces, when there is one. */
   heading: number
+  /** For ground that turns under the walker: the place to bring under their feet. */
+  to?: number
 }
 
 /** The spot, together with what the keys and the stick ask for. */
@@ -82,6 +84,11 @@ export type Floor = {
   inside?: (x: number, z: number) => boolean
   /** The height of ground that is not flat. */
   height?: (x: number, z: number) => number
+  /**
+   * For ground that turns under the walker, such as a small planet: it takes every step, and
+   * the walker stays at the zero point.
+   */
+  roll?: (x: number, z: number) => void
 }
 
 /** A point as seen from a gate: "across" is along it, "front" is out of it. */

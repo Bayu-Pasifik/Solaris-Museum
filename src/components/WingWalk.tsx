@@ -45,6 +45,8 @@ export type HallProps<T> = {
   /** Tells the row, the id of what the visitor is at, and whether the way out is near. */
   onPlace: (row: number, near: string | undefined, exit: boolean) => void
   onPick: (index: number) => void
+  /** Opens another wing, as its button does. */
+  onWing: (name: string) => void
   onExit: () => void
 }
 
@@ -237,6 +239,7 @@ export default function WingWalk<T extends Exhibit>({
                 picked={picked}
                 onPlace={onPlace}
                 onPick={show}
+                onWing={enterWing}
                 onExit={leave}
               />
             </Suspense>

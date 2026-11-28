@@ -1,13 +1,17 @@
 import { Suspense, useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Link, useNavigate, useParams } from 'react-router'
+import { useCharacters } from '../lib/characters'
 import { regionColors, useWorldMap } from '../lib/map'
 import { reveal, useInsets } from '../lib/insets'
 import { useTitle } from '../lib/title'
+import { useWalkChoice } from '../lib/walkChoice'
 import AreaReport from '../components/AreaReport'
 import Disclaimer from '../components/Disclaimer'
 import LoadingOverlay from '../components/LoadingOverlay'
+import MapWalk from '../components/MapWalk'
 import MapStrip from '../components/MapStrip'
+import ModeSwitch from '../components/ModeSwitch'
 import SceneBoundary from '../components/SceneBoundary'
 import SearchButton from '../components/SearchButton'
 import SoundButton from '../components/SoundButton'
@@ -23,6 +27,9 @@ export default function MapRoom() {
   /** The region whose description is open. */
   const [about, setAbout] = useState<number>()
   const { insets, setTop, setBottom, setDrawer } = useInsets()
+  const characters = useCharacters()
+  const walk = useWalkChoice(characters.status === 'ready' ? characters.data : [])
+  const walking = walk.mode !== 'tour' && state.status !== 'error'
 
   const regions = state.status === 'ready' ? state.data.regions : []
   const region = regions.find((item) => String(item.id) === params.region)
@@ -73,6 +80,18 @@ export default function MapRoom() {
 
   const next = area && region?.areas[(region.areas.indexOf(area) + 1) % region.areas.length]
 
+  if (walking) {
+    if (state.status === 'loading') return <p className="notice">Loading data…</p>
+    return (
+      <MapWalk
+        regions={state.data.regions}
+        regionId={params.region}
+        areaId={params.area}
+        walk={walk}
+      />
+    )
+  }
+
   return (
     <>
       <main
@@ -120,6 +139,7 @@ export default function MapRoom() {
           </Link>
           <SearchButton />
           <SoundButton />
+          <ModeSwitch walk={walk} onChoose={walk.choose} still="Atlas" />
           <div className="plate">
             <h1 lang={region ? 'en' : undefined}>{region?.name ?? 'Map Room'}</h1>
             <p>

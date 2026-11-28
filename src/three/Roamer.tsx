@@ -98,8 +98,11 @@ export default function Roamer({
         floor,
       )
       if (moved.x !== pose.x || moved.z !== pose.z) next = fast ? 'run' : 'walk'
-      pose.x = moved.x
-      pose.z = moved.z
+      if (floor.roll) floor.roll(moved.x - pose.x, moved.z - pose.z)
+      else {
+        pose.x = moved.x
+        pose.z = moved.z
+      }
       entered = moved.entered
       // Turn the shortest way to where the walk goes.
       const way = Math.atan2(x, z) - pose.heading
