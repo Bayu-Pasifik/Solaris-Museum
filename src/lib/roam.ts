@@ -78,6 +78,8 @@ export type Floor = {
   far: number
   /** For a room that is narrower than the corridor. */
   side?: number
+  /** For ground of any shape. It then replaces the sides and the two ends. */
+  inside?: (x: number, z: number) => boolean
 }
 
 /** A point as seen from a gate: "across" is along it, "front" is out of it. */
@@ -103,7 +105,7 @@ const SILL = 0.3
 export function advance(
   at: { x: number; z: number },
   to: { x: number; z: number },
-  { gates, circles, far, side = SIDE }: Floor,
+  { gates, circles, far, side = SIDE, inside }: Floor,
 ): { x: number; z: number; entered?: number } {
   const entered = gates.findIndex((gate) => {
     const next = fromGate(gate, to.x, to.z)
@@ -113,7 +115,7 @@ export function advance(
   if (entered >= 0) return { x: at.x, z: at.z, entered }
 
   const free = (x: number, z: number) => {
-    if (Math.abs(x) > side || z > START || z < far) return false
+    if (inside ? !inside(x, z) : Math.abs(x) > side || z > START || z < far) return false
     const solid = gates.some((gate) => {
       const next = fromGate(gate, x, z)
       // The gate and the back of its step are solid.

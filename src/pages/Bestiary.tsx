@@ -9,15 +9,18 @@ import {
 } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Link, useNavigate, useParams } from 'react-router'
-import { assetUrl } from '../lib/characters'
-import { ordered, useBestiary } from '../lib/bestiary'
+import { assetUrl, useCharacters } from '../lib/characters'
+import { ordered, useBestiary, type Monster } from '../lib/bestiary'
 import { themeOf } from '../lib/elements'
 import { reveal, useInsets } from '../lib/insets'
 import { entrance, pop, strike, tint, ultimate } from '../lib/sakuga'
 import { useTitle } from '../lib/title'
+import { useWalkChoice, type WalkChoice } from '../lib/walkChoice'
 import AnimationTabs from '../components/AnimationTabs'
+import BestiaryWalk from '../components/BestiaryWalk'
 import Disclaimer from '../components/Disclaimer'
 import LoadingOverlay from '../components/LoadingOverlay'
+import ModeSwitch from '../components/ModeSwitch'
 import MonsterReport from '../components/MonsterReport'
 import MonsterStrip from '../components/MonsterStrip'
 import SceneBoundary from '../components/SceneBoundary'
@@ -26,20 +29,21 @@ import SoundButton from '../components/SoundButton'
 import ArenaScene from '../three/ArenaScene'
 import { MONSTER_FOV } from '../three/MonsterStand'
 
-export default function Bestiary() {
-  const { id } = useParams()
+type ArenaProps = {
+  state: ReturnType<typeof useBestiary>
+  monsters: Monster[]
+  current?: Monster
+  walk: WalkChoice
+}
+
+/** One monster at a time, in the middle of a ring of stones. */
+function Arena({ state, monsters, current, walk }: ArenaProps) {
   const navigate = useNavigate()
-  const state = useBestiary()
   const [query, setQuery] = useState('')
   const [reading, setReading] = useState(false)
   const { insets, setTop, setBottom, setDrawer } = useInsets()
   const stage = useRef<HTMLDivElement>(null)
 
-  const monsters = useMemo(() => (state.status === 'ready' ? ordered(state.data) : []), [state])
-  const current = id
-    ? monsters.find((item) => String(item.id) === id)
-    : (monsters.find((item) => item.model) ?? monsters[0])
-  useTitle((id && current?.name) || 'Bestiary')
   const ranks = useMemo(() => [...new Set(monsters.map((item) => item.rank))], [monsters])
   const rank = current?.rank ?? ranks[0]
   const round = monsters.filter((item) => item.rank === rank)
@@ -138,6 +142,7 @@ export default function Bestiary() {
           </Link>
           <SearchButton />
           <SoundButton />
+          <ModeSwitch walk={walk} onChoose={walk.choose} still="Arena" />
           <div className="plate">
             <h1 lang={current ? 'en' : undefined}>{current?.name ?? 'Bestiary'}</h1>
             <p lang={current ? 'en' : undefined}>
@@ -242,4 +247,24 @@ export default function Bestiary() {
       </main>
     </>
   )
+}
+
+export default function Bestiary() {
+  const { id } = useParams()
+  const state = useBestiary()
+  const monsters = useMemo(() => (state.status === 'ready' ? ordered(state.data) : []), [state])
+  const current = id
+    ? monsters.find((item) => String(item.id) === id)
+    : (monsters.find((item) => item.model) ?? monsters[0])
+  useTitle((id && current?.name) || 'Bestiary')
+  const characters = useCharacters()
+  const walk = useWalkChoice(characters.status === 'ready' ? characters.data : [])
+
+  if (walk.mode !== 'tour' && state.status !== 'error') {
+    if (state.status === 'loading') return <p className="notice">Loading data…</p>
+    // Without an id, the walk starts at the camp.
+    return <BestiaryWalk monsters={monsters} currentId={id} walk={walk} />
+  }
+
+  return <Arena state={state} monsters={monsters} current={current} walk={walk} />
 }

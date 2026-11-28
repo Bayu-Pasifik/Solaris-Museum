@@ -61,6 +61,8 @@ export type Hall<T> = {
    * brings the visitor to its first item, and shows where the visitor is.
    */
   jump?: (index: number) => Spot
+  /** Where the walk starts when no item is chosen; without it, at the entrance of a corridor. */
+  start?: Spot
   Scene: ComponentType<HallProps<T>>
 }
 
@@ -132,7 +134,7 @@ export default function WingWalk<T extends Exhibit>({
   const { Scene } = hall
 
   const [start] = useState<Roam>(() => ({
-    ...(begin < 0 ? spotBefore(0) : hall.spot(begin, third)),
+    ...(begin < 0 ? (hall.start ?? spotBefore(0)) : hall.spot(begin, third)),
     keys: new Set<string>(),
     stick: { x: 0, y: 0 },
   }))

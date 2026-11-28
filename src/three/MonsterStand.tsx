@@ -13,9 +13,16 @@ const SLOPE = Math.tan(MathUtils.degToRad(MONSTER_FOV / 2))
 const HEIGHT = 3.4
 const WIDTH = 6
 
-/** How a model is scaled and moved, so that it stands in the middle of the floor. */
-function fit({ size: [w, h, d], center: [x, y, z] }: MonsterModel) {
-  const scale = Math.min(HEIGHT / h, WIDTH / Math.max(w, d))
+/**
+ * How a model is scaled and moved, so that it stands in the middle of the floor and is no
+ * taller than "tallest" and no wider than "widest".
+ */
+export function fit(
+  { size: [w, h, d], center: [x, y, z] }: MonsterModel,
+  tallest = HEIGHT,
+  widest = WIDTH,
+) {
+  const scale = Math.min(tallest / h, widest / Math.max(w, d))
   return {
     scale,
     position: [-x * scale, (h / 2 - y) * scale, -z * scale] as [number, number, number],

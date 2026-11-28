@@ -2295,6 +2295,11 @@ h1 {
   width: 170px;
 }
 
+/* A light rim keeps the pressed button in sight under the dark sky of an island. */
+.wing-hall .topbar .pill[aria-pressed='true'] {
+  outline: 2px solid #fff;
+}
+
 .wing-hall .report h2 {
   margin-bottom: 4px;
 }

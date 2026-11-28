@@ -231,6 +231,29 @@ blender --background --factory-startup --python scripts/build-bestiary.py
 
 It also runs inside an open Blender, where it only makes its own `Solaris_Bestiary` scene.
 
+## The Wilds: walking in the Bestiary
+
+The view of the Bestiary without walking is "Arena". Walking, the room is not a corridor but an
+open map: a camp that floats in the sky, and around it one island for every element, each with a
+landmark of its own (a windmill tree, a crown of ice, a storm spire, a torn gate, a volcano, a
+temple of light and the skull of a giant). Bridges lead from the camp to every island and from
+each island to the next one. Every monster has a den on the island of its element, with the
+strongest in the middle; it turns to watch a visitor who is close, and greets one. The buttons
+of the elements jump to an island, and the way back to the lobby is the portal at the camp. Only
+the nearest monsters are loaded, and the others show as a gem in the color of their rank. A
+monster without a 3D model shows its head picture as a medal.
+
+The map is original low-poly work that is in Git, in `src/assets/bestiary/wilds.glb`, with its
+layout (what can be walked on, what is in the way and what turns) in `wilds.json` beside it. To
+change it, edit `scripts/build-wilds.py`, which writes both files, and run it:
+
+```bash
+blender --background --factory-startup --python scripts/build-wilds.py
+```
+
+It also runs inside an open Blender, where it only makes its own `Solaris_Wilds` scene. Where the
+dens are is in `src/lib/wilds.ts`; the scene is drawn by `src/three/WildsScene.tsx`.
+
 ## Add the echoes
 
 ```bash
@@ -299,7 +322,7 @@ walk through the Library starts at the story that was read last. The aisle is la
 visitor who walks. The shared layout is in `src/lib/wings.ts`, the scene in
 `src/three/WingScene.tsx` and the page around it in `src/components/WingWalk.tsx`. All walks
 use `src/three/Roamer.tsx`, which takes the floor of a room: its portals, what is in the way,
-and where it ends.
+and where it ends, or for ground of another shape, which points can be stood on.
 
 ## The search box
 
