@@ -20,7 +20,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # Importing blender_common also puts the UEFormat addon on the path.
 from blender_common import (  # noqa: E402
     apply_materials,
+    attach,
     export_glb,
+    import_model,
     log,
     read_manifest,
     remove_root_motion,
@@ -29,93 +31,7 @@ from blender_common import (  # noqa: E402
 
 import io_scene_ueformat  # noqa: E402
 from io_scene_ueformat.importer.import_context import UEFormatImport  # noqa: E402
-from io_scene_ueformat.options import UEAnimOptions, UEModelOptions  # noqa: E402
-
-# A part is only joined to the body when this share of its bones is in the body already.
-# A part below it has a skeleton of its own, and would stay on the floor.
-SHARED_BONES = 0.5
-
-
-def import_model(path):
-    """Imports one .uemodel and returns its skeleton and its meshes."""
-    before = set(bpy.context.scene.objects)
-    UEFormatImport(UEModelOptions()).import_file(path)
-    new = [o for o in bpy.context.scene.objects if o not in before]
-    armature = next((o for o in new if o.type == "ARMATURE"), None)
-    return armature, [o for o in new if o.type == "MESH"]
-
-
-def add_missing_bones(body, part):
-    """Copies the bones that only the part has into the skeleton of the body."""
-    known = {bone.name.lower() for bone in body.data.bones}
-    # Parents come before their children in this list.
-    missing = [
-        (
-            bone.name,
-            bone.parent.name if bone.parent else None,
-            bone.head_local.copy(),
-            bone.matrix_local.copy(),
-            bone.length,
-            # The animation importer reads its correction values from these.
-            {key: bone[key] for key in bone.keys()},
-        )
-        for bone in part.data.bones
-        if bone.name.lower() not in known
-    ]
-    if not missing:
-        return 0
-    bpy.context.view_layer.objects.active = body
-    bpy.ops.object.mode_set(mode="EDIT")
-    bones = body.data.edit_bones
-    lower = {bone.name.lower(): bone for bone in bones}
-    for name, parent, head, matrix, length, _ in missing:
-        bone = bones.new(name)
-        bone.head = head
-        bone.tail = (head[0], head[1], head[2] + length)
-        bone.matrix = matrix
-        bone.length = length
-        bone.parent = lower.get(parent.lower()) if parent else None
-        lower[name.lower()] = bone
-    bpy.ops.object.mode_set(mode="OBJECT")
-    for name, *_, properties in missing:
-        for key, value in properties.items():
-            body.data.bones[name][key] = value
-    return len(missing)
-
-
-def attach(body, path):
-    """Moves the meshes of a part onto the skeleton of the body."""
-    armature, meshes = import_model(path)
-    name = os.path.basename(path)
-    if not armature:
-        log("part without a skeleton, left out:", name)
-        for mesh in meshes:
-            bpy.data.objects.remove(mesh)
-        return []
-    known = {bone.name.lower() for bone in body.data.bones}
-    shared = sum(bone.name.lower() in known for bone in armature.data.bones)
-    share = shared / max(len(armature.data.bones), 1)
-    if share < SHARED_BONES:
-        log(f"part with a skeleton of its own ({share:.0%} shared), left out:", name)
-        for mesh in meshes:
-            bpy.data.objects.remove(mesh)
-        bpy.data.objects.remove(armature)
-        return []
-    added = add_missing_bones(body, armature)
-    for mesh in meshes:
-        # Bone names can differ in case between the two files.
-        names = {bone.name.lower(): bone.name for bone in body.data.bones}
-        for group in mesh.vertex_groups:
-            group.name = names.get(group.name.lower(), group.name)
-        world = mesh.matrix_world.copy()
-        mesh.parent = body
-        mesh.matrix_world = world
-        for modifier in mesh.modifiers:
-            if modifier.type == "ARMATURE":
-                modifier.object = body
-    bpy.data.objects.remove(armature)
-    log("part", name, "joined,", added, "bones added")
-    return meshes
+from io_scene_ueformat.options import UEAnimOptions  # noqa: E402
 
 
 def bounds(meshes):

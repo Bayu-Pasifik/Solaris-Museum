@@ -15,6 +15,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 # Importing blender_common also puts the UEFormat addon on the path.
 from blender_common import (  # noqa: E402
     apply_materials,
+    attach,
     export_glb,
     log,
     read_manifest,
@@ -64,6 +65,20 @@ def main():
 
     apply_materials(mesh, manifest["materials"], manifest["textures"])
     log("materials", len(mesh.data.materials))
+
+    # Some characters keep the upper body, the hair or a tail in a model file of its own.
+    for path in manifest.get("parts", []):
+        meshes = sorted(attach(armature, path), key=lambda o: len(o.data.vertices))
+        if not meshes:
+            raise RuntimeError(f"a part could not be joined: {path}")
+        for other in meshes[:-1]:
+            bpy.data.objects.remove(other)
+        part = meshes[-1]
+        # Only the face of the body moves.
+        if part.data.shape_keys:
+            part.shape_key_clear()
+        apply_materials(part, manifest["materials"], manifest["textures"])
+        log("part materials", len(part.data.materials))
 
     names = []
     for item in manifest["animations"]:

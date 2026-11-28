@@ -10,8 +10,9 @@
 // and updates public/data/characters.json. The voice audio stays on encore.moe.
 // With --no-model it stops after the pictures and the profile. With --profile it only writes
 // the profile and its pictures, and leaves the splash art and the face picture alone. With
-// --skins it only converts the alternate outfits of characters that are listed already, and
-// with --l2d it only downloads their animated art into public/art/l2d/.
+// --skins it only converts the alternate outfits of characters that are listed already, with
+// --models all their models again, and with --l2d it only downloads their animated art into
+// public/art/l2d/.
 // Needs Node 22.15+ (zstd), the UEFormat addon source in tools/ueformat/src,
 // and Blender on PATH or in the BLENDER environment variable.
 
@@ -92,6 +93,8 @@ async function addProfile(data, slug) {
  */
 async function addModel(skin, folder, file) {
   const model = await download(skin.Model, folder)
+  const parts = []
+  for (const url of skin.Parts ?? []) parts.push(await download(url, folder))
 
   const animations = []
   for (const { name: clipName, paths } of CLIPS) {
@@ -105,11 +108,12 @@ async function addModel(skin, folder, file) {
   }
   if (animations.length === 0) throw new Error(`${file}: no idle animation`)
 
-  const materials = await addMaterials([model], folder)
+  const materials = await addMaterials([model, ...parts], folder)
 
   const output = join(root, 'public', 'models', `${file}.glb`)
   const textures = join(root, 'work', 'textures', file)
-  convert('convert-character.py', { model, animations, materials, textures, output }, folder)
+  const manifest = { model, parts, animations, materials, textures, output }
+  convert('convert-character.py', manifest, folder)
 
   return {
     model: `models/${file}.glb`,
@@ -190,6 +194,17 @@ async function add(id) {
 
   if (profileOnly) return addProfile(data, slug)
 
+  if (modelsOnly) {
+    const entry = readList('characters.json').find((item) => item.id === slug)
+    if (!entry) throw new Error(`${title}: not in characters.json yet`)
+    const next = { ...entry, ...(await addModel(skin, folder, slug)) }
+    if (others.length > 0) {
+      next.skinName = skin.Name
+      next.skins = await addOutfits(others, folder, slug)
+    }
+    return saveEntry('characters.json', next)
+  }
+
   if (live2dOnly) {
     const l2d = await addLive2d(data, slug)
     if (!l2d) return console.log('  no animated art')
@@ -234,9 +249,10 @@ const noModel = process.argv.includes('--no-model')
 const profileOnly = process.argv.includes('--profile')
 const outfitsOnly = process.argv.includes('--skins')
 const live2dOnly = process.argv.includes('--l2d')
+const modelsOnly = process.argv.includes('--models')
 const ids = process.argv.slice(2).filter((arg) => !arg.startsWith('--'))
 if (ids.length === 0) {
-  console.error('Usage: node scripts/add-character.mjs [--no-model | --profile | --skins | --l2d] <character id> [...]')
+  console.error('Usage: node scripts/add-character.mjs [--no-model | --profile | --skins | --models | --l2d] <character id> [...]')
   process.exit(1)
 }
 
