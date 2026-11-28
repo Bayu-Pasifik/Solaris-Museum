@@ -2297,6 +2297,14 @@ h1 {
   width: 170px;
 }
 
+/* A long name is cut, so one of them does not make every card of the strip tall. */
+.wing-hall .door b {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
 /* A light rim keeps the pressed button in sight under the dark sky of an island. */
 .wing-hall .topbar .pill[aria-pressed='true'] {
   outline: 2px solid #fff;

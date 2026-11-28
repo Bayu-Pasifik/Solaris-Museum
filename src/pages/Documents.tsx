@@ -1,12 +1,16 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
+import { useCharacters } from '../lib/characters'
 import { KINDS, NO_REGION, regionOf, useDocuments, type Shelved } from '../lib/documents'
 import { reveal } from '../lib/insets'
 import { categoryTheme } from '../lib/stories'
 import { useTitle } from '../lib/title'
+import { useWalkChoice } from '../lib/walkChoice'
 import { unique } from '../components/Chips'
 import DocumentReader from '../components/DocumentReader'
+import DocumentsWalk from '../components/DocumentsWalk'
 import GroupSelect from '../components/GroupSelect'
+import ModeSwitch from '../components/ModeSwitch'
 import RingHall from '../components/RingHall'
 import RingStrip from '../components/RingStrip'
 import DocumentsScene from '../three/DocumentsScene'
@@ -20,6 +24,9 @@ export default function Documents() {
   const { id } = useParams()
   const { state, documents } = useDocuments()
   const [query, setQuery] = useState('')
+  const characters = useCharacters()
+  const walk = useWalkChoice(characters.status === 'ready' ? characters.data : [])
+  const walking = walk.mode !== 'tour' && state.status !== 'error'
 
   const kinds = Object.keys(KINDS).filter((kind) => documents.some((item) => item.kind === kind))
   const current = id
@@ -41,12 +48,18 @@ export default function Documents() {
       ]
     : shelf
 
+  if (walking) {
+    if (state.status === 'loading') return <p className="notice">Loading data…</p>
+    return <DocumentsWalk documents={documents} currentId={id} walk={walk} />
+  }
+
   return (
     <RingHall
       name="paper-hall"
       theme={theme}
       base="/documents"
       back={{ to: '/', label: 'Lobby' }}
+      links={<ModeSwitch walk={walk} onChoose={walk.choose} still="Ring" />}
       title="Document Archive"
       subtitle={current ? `${shelf.length} ${shelf.length === 1 ? 'entry' : 'entries'} · ${KINDS[current.kind]}` : 'Records of Solaris'}
       switches={{

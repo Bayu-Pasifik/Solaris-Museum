@@ -336,7 +336,8 @@ npm run upload
 
 ## Walking in the Armory, the Resonator Hall and the Library
 
-The Gallery and the Glossary can be walked through as well, and are described further below.
+The Gallery, the Glossary and the Document Archive can be walked through as well, and are
+described further below.
 
 These rooms have the same three ways to look around. The one without walking is "List" in the
 Armory, with one weapon on the stage, "Stage" in the Resonator Hall and "Ring" in the Library.
@@ -457,6 +458,34 @@ blender --background --factory-startup --python scripts/build-mobius.py
 
 It also runs inside an open Blender, where it only makes its own `Solaris_Mobius` scene. The
 shape of the ribbon is in both the script (`frame`) and the page (`frameAt`), so change them
+together.
+
+## The Drowned Archive: walking in the Document Archive
+
+The view of the Document Archive without walking is "Ring". Walking, the visitor arrives by diving
+bell on the floor of the sea. Every kind of document has its own depth, and the buttons of the
+kinds lead there: a meadow of bottled letters in the sunlit shallows, a reef where clams keep the
+pictures, a grotto of gramophones for the recordings, and an abyss of carved steles for the text of
+unknown origin. A path winds through each depth, with one stand for every document and the ribs of
+a wreck where the documents of another region begin. A sheet unrolls above the stands that are
+near. At the stand of the visitor the cork leaves the bottle, the clam opens, the record turns or
+the stones circle faster, with bubbles and a few notes. Schools of paper fish part around the
+visitor, a whale, rays and jellyfish pass by, and every path ends at a landmark: an octopus that
+reads, a camera as big as a house, the ribs of a whale around a horn, and the head of an unknown
+scholar. Only what is close by is drawn.
+
+The model is original low-poly work that is in Git, in `src/assets/documents/trench.glb`, with
+its layout in `trench.json` beside it. To change it, edit `scripts/build-trench.py`, which writes
+both files, and run it:
+
+```bash
+blender --background --factory-startup --python scripts/build-trench.py
+```
+
+It also runs inside an open Blender, where it only makes its own `Solaris_Trench` scene. The
+stands and the floor are laid out in `src/lib/trench.ts`; the scene is drawn by
+`src/three/TrenchScene.tsx`, and the sea around the stands by `src/three/TrenchMap.tsx`. The
+winding of the path is in both the script (`center`, `base`) and the page, so change them
 together.
 
 ## The search box

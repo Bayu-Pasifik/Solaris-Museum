@@ -118,6 +118,26 @@ export function playNote(note: number) {
   }
 }
 
+/** A few bubbles that rise: short tones that bend upward, one after the other. */
+export function playBubbles() {
+  if (!audio || !wanted() || audio.context.state !== 'running') return
+  const { context, power } = audio
+  for (let index = 0; index < 5; index++) {
+    const at = context.currentTime + index * 0.07 + Math.random() * 0.04
+    const pitch = 260 + Math.random() * 420
+    const source = context.createOscillator()
+    const envelope = context.createGain()
+    source.frequency.setValueAtTime(pitch, at)
+    source.frequency.exponentialRampToValueAtTime(pitch * 2.6, at + 0.09)
+    envelope.gain.setValueAtTime(0, at)
+    envelope.gain.linearRampToValueAtTime(0.06, at + 0.012)
+    envelope.gain.exponentialRampToValueAtTime(0.0001, at + 0.11)
+    source.connect(envelope).connect(power)
+    source.start(at)
+    source.stop(at + 0.12)
+  }
+}
+
 let rail: AudioBuffer | undefined
 
 /** The wheels of a train over a joint of the rails: two low knocks, one after the other. */
