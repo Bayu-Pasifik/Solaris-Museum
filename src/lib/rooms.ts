@@ -13,4 +13,5 @@ export const rooms: Room[] = [
   { name: 'Galeri', description: 'Namecard, title, achievement', color: '#4fd1b5', path: '/gallery' },
   { name: 'Ruang Peta', description: 'Wilayah dan laporan area', color: '#7ecb55', path: '/map' },
   { name: 'Bestiary', description: 'Monster dan catatannya', color: '#e5544b', path: '/bestiary' },
+  { name: 'Ruang Echo', description: 'Echo dan set Sonata', color: '#46c8ff', path: '/echo' },
 ]

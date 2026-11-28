@@ -1990,6 +1990,112 @@ h1 {
   }
 }
 
+/* Echo room: it shares the bars of the Bestiary, over the dark of the resonance chamber. */
+
+.echo-room .backdrop.sky {
+  background: #0d0b24;
+}
+
+.filters-row {
+  display: flex;
+  gap: 6px;
+}
+
+.filters-row select {
+  min-width: 0;
+  padding: 6px 8px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: var(--page);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.filters-row select:first-child {
+  flex: 1;
+}
+
+.echo-room .finder {
+  width: 250px;
+}
+
+.echo-room .badges span {
+  background: var(--el-deep);
+}
+
+.report h3.skill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The icons of the game are white, so they sit on a dark tile. */
+.report h3.skill img,
+.sonata img {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--text);
+  object-fit: contain;
+}
+
+.sonata header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sonata h3 {
+  margin-right: auto;
+}
+
+.sonata .pill {
+  flex: none;
+}
+
+.sonata dl {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 10px 0 0;
+}
+
+.sonata dl div {
+  display: flex;
+  gap: 10px;
+}
+
+.sonata dt {
+  flex: none;
+  width: 44px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.sonata dd {
+  margin: 0;
+  white-space: pre-line;
+}
+
+@media (max-width: 760px) {
+  /* The search and the count take one row, the filters the next. */
+  .echo-room .finder {
+    flex-wrap: wrap;
+    align-items: center;
+    width: 100%;
+  }
+
+  .echo-room .finder input {
+    flex: 1;
+  }
+
+  .echo-room .filters-row {
+    order: 1;
+    width: 100%;
+  }
+}
+
 /* Lobby: the corridor fills the screen, with one card per room in the strip below it. */
 
 .lobby-hall {

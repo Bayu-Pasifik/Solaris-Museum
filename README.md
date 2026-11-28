@@ -217,6 +217,24 @@ blender --background --factory-startup --python scripts/build-bestiary.py
 
 It also runs inside an open Blender, where it only makes its own `Solaris_Bestiary` scene.
 
+## Add the echoes
+
+```bash
+node scripts/add-echo.mjs
+node scripts/add-echo.mjs --force
+```
+
+The script writes the echoes and the Sonata sets of the Echo room to
+`public/data/echo.json` (the `EchoArchive` type is in `src/lib/echoes.ts`) and the pictures
+to `public/art/echo/`. Without `--force` it only downloads the pictures that are missing. It
+does not need Blender. The API has no 3D model of an echo (its mesh is a placeholder object),
+so run it after `add-monster.mjs`: each echo borrows the model of a Bestiary monster. The
+`MonsterId` of an echo is its own id, not the id of a monster, so the script matches by name
+(a Phantom may take the name without "Phantom: "), else by the folder of the idle clip, else
+by the name without "Nightmare: " or "Reminiscence: ", else by the echo of
+`ParentMonsterId`. Echoes that find no monster show their picture. The room itself is drawn
+in the browser, by `src/three/ChamberScene.tsx`.
+
 ## The lobby
 
 The lobby is a corridor that the visitor walks along, with the door of a room at the left or

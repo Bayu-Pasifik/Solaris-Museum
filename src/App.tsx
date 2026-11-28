@@ -8,6 +8,7 @@ const Armory = lazy(() => import('./pages/Armory'))
 const Gallery = lazy(() => import('./pages/Gallery'))
 const MapRoom = lazy(() => import('./pages/MapRoom'))
 const Bestiary = lazy(() => import('./pages/Bestiary'))
+const EchoRoom = lazy(() => import('./pages/EchoRoom'))
 const Glossary = lazy(() => import('./pages/Glossary'))
 const Messages = lazy(() => import('./pages/Messages'))
 
@@ -34,6 +35,8 @@ export default function App() {
         <Route path="/map/:region/:area" element={<MapRoom />} />
         <Route path="/bestiary" element={<Bestiary />} />
         <Route path="/bestiary/:id" element={<Bestiary />} />
+        <Route path="/echo" element={<EchoRoom />} />
+        <Route path="/echo/:id" element={<EchoRoom />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>

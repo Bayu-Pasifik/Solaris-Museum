@@ -20,7 +20,8 @@ import LoadingOverlay from '../components/LoadingOverlay'
 import MonsterReport from '../components/MonsterReport'
 import MonsterStrip from '../components/MonsterStrip'
 import SceneBoundary from '../components/SceneBoundary'
-import ArenaScene, { ARENA_FOV } from '../three/ArenaScene'
+import ArenaScene from '../three/ArenaScene'
+import { MONSTER_FOV } from '../three/MonsterStand'
 
 export default function Bestiary() {
   const { id } = useParams()
@@ -106,7 +107,7 @@ export default function Bestiary() {
               <Canvas
                 flat
                 aria-hidden="true"
-                camera={{ position: [0, 3, 10], fov: ARENA_FOV }}
+                camera={{ position: [0, 3, 10], fov: MONSTER_FOV }}
                 dpr={[1, 2]}
               >
                 <Suspense fallback={null}>
@@ -114,7 +115,7 @@ export default function Bestiary() {
                     element={element}
                     theme={theme}
                     model={model}
-                    monster={current.id}
+                    subject={current.id}
                     animation={animation}
                     insets={insets}
                     onLoaded={onLoaded}
