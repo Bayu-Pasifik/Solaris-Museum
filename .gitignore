@@ -23,8 +23,9 @@ public/art/
 *.blend1
 *.glb
 
-# The islands of the Map room and the hall of the Gallery are made by scripts/build-map.py and
-# scripts/build-gallery.py. They hold no game assets.
+# The islands of the Map room, the hall of the Gallery and the arena of the Bestiary are made by
+# scripts/build-map.py, scripts/build-gallery.py and scripts/build-bestiary.py. They hold no
+# game assets.
 !src/assets/**/*.glb
 
 # Tool leftovers

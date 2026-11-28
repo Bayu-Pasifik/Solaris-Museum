@@ -1768,3 +1768,128 @@ h1 {
     margin: 16px 0;
   }
 }
+
+/* Bestiary: a dusk sky over the arena, the buttons of the clips above the strip and what is
+   known about the monster in the drawer. */
+
+.bestiary .backdrop.sky {
+  background: linear-gradient(#151033, var(--el-deep) 48%, var(--el-accent) 82%, var(--el-pale));
+}
+
+.bestiary > .viewport {
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.bestiary .controls {
+  max-width: 100%;
+  pointer-events: auto;
+}
+
+.bestiary .controls .acts {
+  justify-content: center;
+  margin: 0;
+  padding: 0 14px 34px;
+  border: 0;
+}
+
+.bestiary .portrait.flat {
+  opacity: 0.55;
+}
+
+.no-model {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin: auto;
+}
+
+.no-model img {
+  width: min(220px, 50vw);
+  border: var(--ink-border);
+  border-radius: 24px;
+  background: linear-gradient(160deg, var(--chip) 40%, var(--el-accent));
+}
+
+.no-model figcaption {
+  padding: 8px 16px;
+  border: var(--ink-border);
+  border-radius: 999px;
+  background: var(--page);
+}
+
+.badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  margin: 6px 0 0;
+}
+
+.badges span {
+  padding: 1px 10px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.figures {
+  width: 100%;
+  margin-top: 6px;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.figures th,
+.figures td {
+  padding: 4px 0;
+  text-align: right;
+}
+
+.figures tbody th {
+  font-weight: 600;
+  text-align: left;
+}
+
+.figures thead th {
+  color: var(--mute);
+  font-size: 12px;
+}
+
+.resists {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.resists li {
+  padding: 3px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.resists li.strong {
+  border-color: var(--text);
+  background: var(--chip);
+}
+
+@media (max-width: 760px) {
+  /* The clips take one row that scrolls, so the monster keeps its room. */
+  .bestiary .controls .acts {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    padding-bottom: 10px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .bestiary .controls .pill {
+    flex: none;
+  }
+}

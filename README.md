@@ -159,6 +159,36 @@ stands on a pin of its island, in the order of `map.json`. A new region needs an
 script and an entry in `ISLANDS` in `src/three/WorldScene.tsx`; until then it is only in the
 strip under the map.
 
+## Add monsters
+
+```bash
+node scripts/add-monster.mjs --bosses
+node scripts/add-monster.mjs 340000010 330000110
+node scripts/add-monster.mjs --all
+```
+
+The arguments are monster ids from `https://api-v2.encore.moe/api/en/monster`; `--bosses` takes
+the Overlord and the Calamity Class, and `--all` takes every monster. The script writes the list
+of the Bestiary to `public/data/bestiary.json` (the `Monster` type is in
+`src/lib/bestiary.ts`), the head pictures to `public/art/bestiary/` and the models to
+`public/models/monsters/`, each with an idle clip and, where the API has them, an appearance,
+walking, running, up to four attacks and a fall. It needs the same tools as the character
+script. Monsters that share a model get one file, which a later run does not convert again
+(`--force` does). A monster without a 3D model in the API is listed with its picture only. A
+weapon or another part that has a skeleton of its own is left out; the script names it.
+
+## The arena
+
+The Bestiary room shows one monster at a time on a dais among standing stones. The arena is an
+original low-poly model that is in Git, in `src/assets/bestiary/arena.glb`. To change it, edit
+`scripts/build-bestiary.py` and run it:
+
+```bash
+blender --background --factory-startup --python scripts/build-bestiary.py
+```
+
+It also runs inside an open Blender, where it only makes its own `Solaris_Bestiary` scene.
+
 ## Deploy to shared hosting
 
 Manual: run `npm run build`, then upload the **contents** of `dist/` (including `.htaccess`)

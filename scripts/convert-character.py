@@ -13,18 +13,19 @@ import bpy
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 # Importing blender_common also puts the UEFormat addon on the path.
-from blender_common import apply_materials, export_glb, log, read_manifest  # noqa: E402
+from blender_common import (  # noqa: E402
+    apply_materials,
+    export_glb,
+    log,
+    read_manifest,
+    remove_root_motion,
+    use_smooth_animation,
+)
 
 import io_scene_ueformat  # noqa: E402
 from io_scene_ueformat.importer.create import anim  # noqa: E402
 from io_scene_ueformat.importer.import_context import UEFormatImport  # noqa: E402
 from io_scene_ueformat.options import UEAnimOptions, UEModelOptions  # noqa: E402
-from io_scene_gltf2.io.exp import meshopt  # noqa: E402
-
-# Blender's meshopt defaults (8 bits for rotations, 12 for the rest) make bones move in
-# visible steps and shift keyframe times, so the animation stutters.
-QUAT_BITS = 16
-EXP_BITS = 18
 
 
 def exact_match(items, key, goal, default=None):
@@ -44,16 +45,6 @@ def fcurves(action):
         for bag in strip.channelbags
         for curve in bag.fcurves
     ]
-
-
-def remove_root_motion(action):
-    """Keeps the character on the podium: attacks and jumps move the root bone metres away."""
-    for layer in action.layers:
-        for strip in layer.strips:
-            for bag in strip.channelbags:
-                for curve in list(bag.fcurves):
-                    if curve.data_path.lower() == 'pose.bones["root"].location':
-                        bag.fcurves.remove(curve)
 
 
 def main():
@@ -131,8 +122,7 @@ def main():
             key.value = 0.0
         bpy.context.view_layer.update()
         log("neutral face", sum(abs(k.value) for k in keys.key_blocks[1:]))
-    meshopt.QUAT_FILTER_BITS = QUAT_BITS
-    meshopt.EXP_FILTER_BITS = EXP_BITS
+    use_smooth_animation()
     export_glb(
         manifest["output"],
         export_animation_mode="NLA_TRACKS",

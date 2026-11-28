@@ -11,30 +11,41 @@ import Portal, { PORTAL_CENTER } from './Portal'
 export const LOBBY_FOV = 40
 const SLOPE = Math.tan(MathUtils.degToRad(LOBBY_FOV / 2))
 
+/** Above this many portals, the two rows of a narrow screen stand closer and smaller. */
+const ROOMY = 5
+
 /**
  * Portals stand on a curve around the visitor. On narrow screens they do not all fit side by
  * side, so every other one stands in front and the rest float smaller behind and above them.
  */
 function place(index: number, count: number, narrow: boolean) {
   const offset = index - (count - 1) / 2
-  const raised = narrow && index % 2 === 0
-  const position: [number, number, number] = !narrow
-    ? [offset * 2.35, 0, -1.6 + Math.abs(offset) * 0.35]
-    : raised
-      ? [offset * 0.9, 3.9, -4.8]
-      : [offset * 1.15, 0, -1.6]
-  const scale = !narrow ? 1 : raised ? 0.72 : 0.9
-  return { position, scale, turn: -offset * (narrow ? 0.1 : 0.2) }
+  if (!narrow) {
+    const position: [number, number, number] = [offset * 2.35, 0, -1.6 + Math.abs(offset) * 0.35]
+    return { position, scale: 1, turn: -offset * 0.2 }
+  }
+  const raised = index % 2 === 0
+  // Each row stands in the middle on its own.
+  const inRow = raised ? Math.ceil(count / 2) : Math.floor(count / 2)
+  const across = Math.floor(index / 2) - (inRow - 1) / 2
+  const tight = count > ROOMY
+  const position: [number, number, number] = raised
+    ? [across * (tight ? 1.7 : 1.8), 3.9, -4.8]
+    : [across * (tight ? 1.85 : 2.3), 0, -1.6]
+  const scale = raised ? (tight ? 0.65 : 0.72) : tight ? 0.78 : 0.9
+  return { position, scale, turn: -across * 0.2 }
 }
 
 type RigProps = {
   narrow: boolean
+  /** Number of portals. */
+  count: number
   /** Where the portal being entered stands. */
   target?: [number, number, number]
 }
 
 /** Keeps the room in view, follows the pointer a little and walks into a chosen portal. */
-function CameraRig({ narrow, target }: RigProps) {
+function CameraRig({ narrow, count, target }: RigProps) {
   const goal = useRef(new Vector3())
   const aim = useRef(new Vector3())
   const look = useRef(new Vector3(0, 1.3, -1.6))
@@ -42,12 +53,12 @@ function CameraRig({ narrow, target }: RigProps) {
   useFrame(({ camera, size, pointer }, delta) => {
     const calm = window.SakugaFX?.calm
     // Half the width that must fit on screen, at the depth of the middle portal.
-    const half = narrow ? 2.7 : 6.5
+    const half = narrow ? 2.7 : (count - 1) * 1.175 + 2.1
     const distance = MathUtils.clamp(
       half / (SLOPE * (size.width / size.height)),
       // Far enough that both rows of a narrow screen fit in height.
       narrow ? 8.5 : 6.6,
-      narrow ? 10.5 : 11.5,
+      narrow ? (count > ROOMY ? 13 : 10.5) : 13.5,
     )
 
     if (target && !calm) {
@@ -135,6 +146,7 @@ export default function LobbyScene({
 
       <CameraRig
         narrow={narrow}
+        count={rooms.length}
         target={spots.find((spot) => spot.room.path === entering && entering)?.position}
       />
     </>

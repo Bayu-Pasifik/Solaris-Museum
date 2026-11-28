@@ -4,7 +4,7 @@ import { LoopOnce, LoopRepeat, type AnimationAction, type Group } from 'three'
 import HeldWeapon from './HeldWeapon'
 
 // These clips end in another pose than they start in, so repeating them makes a visible jump.
-const PLAY_ONCE = /^(Jump|Dodge|Attack\d+|Burst\d+|StandChange)$/
+const PLAY_ONCE = /^(Jump|Dodge|Attack\d+|Burst\d+|StandChange|Born|Death)$/
 
 type Props = {
   url: string

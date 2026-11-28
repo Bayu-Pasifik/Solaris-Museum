@@ -8,11 +8,17 @@ import sys
 import bmesh
 import bpy
 import numpy as np
+from io_scene_gltf2.io.exp import meshopt
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "tools", "ueformat", "src"))
 
 TEXTURE_SIZE = 1024
+
+# Blender's meshopt defaults (8 bits for rotations, 12 for the rest) make bones move in
+# visible steps and shift keyframe times, so the animation stutters.
+QUAT_BITS = 16
+EXP_BITS = 18
 
 
 def log(*parts):
@@ -23,6 +29,22 @@ def read_manifest():
     """Loads the JSON file named after "--" on the command line."""
     with open(sys.argv[sys.argv.index("--") + 1], encoding="utf-8") as handle:
         return json.load(handle)
+
+
+def remove_root_motion(action):
+    """Keeps the model in its place: attacks and jumps move the root bone metres away."""
+    for layer in action.layers:
+        for strip in layer.strips:
+            for bag in strip.channelbags:
+                for curve in list(bag.fcurves):
+                    if curve.data_path.lower() == 'pose.bones["root"].location':
+                        bag.fcurves.remove(curve)
+
+
+def use_smooth_animation():
+    """Makes the exporter keep enough bits for animations that do not stutter."""
+    meshopt.QUAT_FILTER_BITS = QUAT_BITS
+    meshopt.EXP_FILTER_BITS = EXP_BITS
 
 
 def web_texture(source_path, folder):

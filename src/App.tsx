@@ -7,6 +7,7 @@ const Library = lazy(() => import('./pages/Library'))
 const Armory = lazy(() => import('./pages/Armory'))
 const Gallery = lazy(() => import('./pages/Gallery'))
 const MapRoom = lazy(() => import('./pages/MapRoom'))
+const Bestiary = lazy(() => import('./pages/Bestiary'))
 
 export default function App() {
   return (
@@ -25,6 +26,8 @@ export default function App() {
         <Route path="/map" element={<MapRoom />} />
         <Route path="/map/:region" element={<MapRoom />} />
         <Route path="/map/:region/:area" element={<MapRoom />} />
+        <Route path="/bestiary" element={<Bestiary />} />
+        <Route path="/bestiary/:id" element={<Bestiary />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>
