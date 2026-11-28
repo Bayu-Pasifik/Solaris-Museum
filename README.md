@@ -263,8 +263,8 @@ blender --background --factory-startup --python scripts/build-lobby.py
 
 It also runs inside an open Blender, where it only makes its own `Solaris_Lobby` scene.
 
-There are three ways to look around, chosen in the top bar. "Tur" walks from door to door.
-"Orang pertama" and "Orang ketiga" walk freely: WASD or the arrows, Shift to run, a drag to
+There are three ways to look around, chosen in the top bar. "Tour" walks from door to door.
+"First person" and "Third person" walk freely: WASD or the arrows, Shift to run, a drag to
 look around, and a thumb stick on touch screens. A walker enters a room by walking into its
 portal or with the key E. In the third-person view the visitor picks the Resonator who walks;
 those without a `Walk` clip are listed in `src/lib/roam.ts`, so add a new one there if it
@@ -275,24 +275,26 @@ script joins them. `node scripts/add-character.mjs --models <id>` converts a Res
 A Resonator stands by every door and says hello when the visitor comes near. Who it is and
 what they say is set per room in `src/lib/rooms.ts`; the words are our own, not lines of the
 game. The guards use light models with only two clips, in `public/models/guards/`, and only
-those within two doors are shown. After adding a room or changing a guard, make them again
-and upload them:
+those within two doors are shown. The walk through the Resonator Hall uses the same light
+models, one for every Resonator. After adding or converting a Resonator, make them again and
+upload them:
 
 ```bash
 node scripts/build-guards.mjs
 npm run upload
 ```
 
-The script reads the TypeScript list directly, so it needs Node 22.18 or newer.
+## Walking in the Armory and the Resonator Hall
 
-## Walking in the Armory
-
-The Armory has the same three ways to look around; "Daftar" is the list with one weapon on the
-stage. When walking, every kind of weapon has its own wing, with a weapon on a stand at both
-sides of every bay. The key E opens the report of the weapon, and only the models close by are
-loaded. The layout is in `src/lib/armory.ts` and the hall in `src/three/ArmoryScene.tsx`. Both
-rooms walk with `src/three/Roamer.tsx`, which takes the floor of a room: its portals, what is
-in the way, and where it ends.
+Both rooms have the same three ways to look around. The one without walking is "List" in the
+Armory, with one weapon on the stage, and "Stage" in the Resonator Hall. When walking, every
+kind of weapon, or every element, has its own wing, with a stand at both sides of every bay.
+The key E opens the report of the weapon or the dossier of the Resonator, and only the models
+close by are loaded. The address ending `?stage` shows a Resonator on the stage also to a
+visitor who walks. The shared layout is in `src/lib/wings.ts`, the scene in
+`src/three/WingScene.tsx` and the page around it in `src/components/WingWalk.tsx`. All walks
+use `src/three/Roamer.tsx`, which takes the floor of a room: its portals, what is in the way,
+and where it ends.
 
 ## The search box
 

@@ -2265,6 +2265,20 @@ h1 {
   bottom: auto;
 }
 
+/* One row that scrolls, so the switch does not push the stage away. */
+@media (max-width: 760px) {
+  .gallery:not(.open-hall) .modes {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .gallery:not(.open-hall) .modes > * {
+    flex: none;
+  }
+}
+
 /* The switch of the Armory list stands under its links. */
 .wrap > header .modes {
   margin-top: 8px;
@@ -2276,12 +2290,12 @@ h1 {
   color: var(--page);
 }
 
-/* The walk through the Armory shares the look of the lobby, with a drawer for the weapon. */
-.armory-hall .door {
+/* A hall of wings shares the look of the lobby, with a drawer for what is on show. */
+.wing-hall .door {
   width: 170px;
 }
 
-.armory-hall .report h2 {
+.wing-hall .report h2 {
   margin-bottom: 4px;
 }
 
@@ -2316,7 +2330,7 @@ h1 {
 
 /* A taller sheet and a lower stage, so the whole model is in sight on a phone. */
 @media (max-width: 760px) {
-  .open-hall.armory-hall .drawer {
+  .open-hall.wing-hall .drawer {
     top: 40%;
   }
 
@@ -2327,8 +2341,8 @@ h1 {
 
 /* On a narrow screen the switches make room for the weapon above the report. */
 @media (max-width: 760px) {
-  .armory-hall.reading .modes,
-  .armory-hall.reading .switches {
+  .wing-hall.reading .modes,
+  .wing-hall.reading .switches {
     display: none;
   }
 }

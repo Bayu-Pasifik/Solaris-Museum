@@ -59,7 +59,7 @@ function Body({ character, position, turn, active }: Props) {
   )
 }
 
-/** The Resonator who stands by the door of a room. */
+/** A Resonator who stands by the door of a room, or on a stand of the Resonator Hall. */
 export default function Guard(props: Props) {
   return (
     <Optional>

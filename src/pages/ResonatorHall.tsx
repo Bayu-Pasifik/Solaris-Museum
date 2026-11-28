@@ -9,12 +9,13 @@ import {
 } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
-import { Link, useParams } from 'react-router'
+import { Link, useParams, useSearchParams } from 'react-router'
 import { assetUrl, useCharacters, type Character } from '../lib/characters'
 import { themeOf } from '../lib/elements'
 import { entrance, pop, strike, tint, ultimate } from '../lib/sakuga'
 import { useWeapons, type Weapon } from '../lib/weapons'
 import { useTitle } from '../lib/title'
+import { useWalkChoice } from '../lib/walkChoice'
 import AnimationTabs from '../components/AnimationTabs'
 import CharacterModel from '../three/CharacterModel'
 import Podium from '../three/Podium'
@@ -27,6 +28,8 @@ import StageBackdrop from '../components/StageBackdrop'
 import Roster from '../components/Roster'
 import Dossier from '../components/Dossier'
 import FlatArt from '../components/FlatArt'
+import ModeSwitch from '../components/ModeSwitch'
+import ResonatorWalk from '../components/ResonatorWalk'
 import ElementParticles from '../three/ElementParticles'
 
 // The Spine player is big, so it is only loaded when the visitor asks for the art.
@@ -231,6 +234,23 @@ export default function ResonatorHall() {
     return () => window.removeEventListener('keydown', onKey)
   }, [reading])
 
+  const walk = useWalkChoice(characters)
+  // "?stage" shows one Resonator on the stage also to a visitor who walks.
+  const [query, setQuery] = useSearchParams()
+  const walks = walk.mode !== 'tour'
+  const staged = query.has('stage')
+
+  if (walks && !staged && state.status !== 'error') {
+    if (state.status === 'loading') return <p className="notice">Loading data…</p>
+    return <ResonatorWalk characters={characters} currentId={id} walk={walk} />
+  }
+
+  const choose: typeof walk.choose = (next) => {
+    walk.choose(next)
+    // A way of walking leaves the stage.
+    if (next.mode && next.mode !== 'tour') setQuery({}, { replace: true })
+  }
+
   const views: { id: View; label: string }[] = [
     { id: 'model', label: '3D' },
     { id: 'art', label: current?.l2d ? 'L2D' : 'Artwork' },
@@ -252,6 +272,11 @@ export default function ResonatorHall() {
           <Link to="/" className="pill">
             ← Lobby
           </Link>
+          {walks && staged && (
+            <button type="button" className="pill" onClick={() => setQuery({}, { replace: true })}>
+              Back to the walk
+            </button>
+          )}
           <SearchButton />
           <SoundButton />
           <div className="plate">
@@ -265,6 +290,7 @@ export default function ResonatorHall() {
               </p>
             )}
           </div>
+          <ModeSwitch walk={walk} onChoose={choose} still="Stage" />
           {current && (
             <div className="switches">
               <div role="group" aria-label="View">
@@ -312,7 +338,11 @@ export default function ResonatorHall() {
           </div>
         )}
 
-        <Roster characters={characters} currentId={current?.id} />
+        <Roster
+          characters={characters}
+          currentId={current?.id}
+          query={staged ? '?stage' : ''}
+        />
 
         <footer className="gallery-foot">
           <Disclaimer />

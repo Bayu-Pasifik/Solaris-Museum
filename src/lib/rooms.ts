@@ -6,7 +6,7 @@ export type Room = {
   path?: string
   /**
    * The Resonator who stands by the door and what they say. The words are our own, not lines of
-   * the game. After a change of "id", run scripts/build-guards.mjs.
+   * the game.
    */
   guard?: { id: string; line: string }
 }

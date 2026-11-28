@@ -1,15 +1,15 @@
-// Writes the light models of the lobby guards to public/models/guards/.
+// Writes the light models of the Resonators to public/models/guards/.
 //
 //   node scripts/build-guards.mjs
 //
-// The guards are listed in src/lib/rooms.ts. Each light model is the model of that Resonator
-// with only two clips, the idle one and one greeting, so it is much smaller to download. The
-// mesh and the textures stay as they are. Needs the full models in public/models/.
+// They stand in the lobby (as the guards of src/lib/rooms.ts) and in the walk through the
+// Resonator Hall. Each light model is the model of that Resonator with only two clips, the idle
+// one and one greeting, so it is much smaller to download. The mesh and the textures stay as
+// they are. Needs the full models in public/models/.
 
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { rooms } from '../src/lib/rooms.ts'
 
 const root = fileURLToPath(new URL('..', import.meta.url))
 const JSON_CHUNK = 0x4e4f534a
@@ -117,17 +117,14 @@ const characters = JSON.parse(readFileSync(join(root, 'public', 'data', 'charact
 const folder = join(root, 'public', 'models', 'guards')
 mkdirSync(folder, { recursive: true })
 
-for (const { guard } of rooms) {
-  if (!guard) continue
-  const character = characters.find((item) => item.id === guard.id)
-  if (!character) throw new Error(`${guard.id}: not in characters.json`)
+for (const character of characters) {
   const file = readFileSync(join(root, 'public', character.model))
   const clips = JSON.parse(file.subarray(20, 20 + file.readUInt32LE(12))).animations.map(
     (clip) => clip.name,
   )
   const greeting = GREETINGS.flatMap((pattern) => clips.filter((name) => pattern.test(name)))[0]
   const light = keepClips(file, [character.defaultAnimation, greeting])
-  writeFileSync(join(folder, `${guard.id}.glb`), light)
+  writeFileSync(join(folder, `${character.id}.glb`), light)
   const size = (bytes) => `${(bytes / 1e6).toFixed(1)} MB`
-  console.log(`${guard.id}: ${size(file.length)} to ${size(light.length)}`)
+  console.log(`${character.id}: ${size(file.length)} to ${size(light.length)}`)
 }

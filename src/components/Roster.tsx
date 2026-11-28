@@ -11,10 +11,10 @@ type Filters = { element: string[]; weapon: string[]; rarity: number[] }
 
 const none: Filters = { element: [], weapon: [], rarity: [] }
 
-type FaceProps = { character: Character; current: boolean }
+type FaceProps = { character: Character; current: boolean; search: string }
 
 /** One character: the face, or the first letter when there is no picture. */
-function Face({ character, current }: FaceProps) {
+function Face({ character, current, search }: FaceProps) {
   const [missing, setMissing] = useState(false)
   const item = useRef<HTMLLIElement>(null)
 
@@ -26,7 +26,7 @@ function Face({ character, current }: FaceProps) {
   return (
     <li ref={item}>
       <Link
-        to={`/resonator/${character.id}`}
+        to={{ pathname: `/resonator/${character.id}`, search }}
         className={character.rarity === 5 ? 'face five' : 'face'}
         style={{ '--el-accent': themeOf(character.element).accent } as CSSProperties}
         title={`${character.name} · ${character.element} · ${character.weapon} · ${character.rarity}★`}
@@ -54,10 +54,15 @@ function Face({ character, current }: FaceProps) {
   )
 }
 
-type Props = { characters: Character[]; currentId?: string }
+type Props = {
+  characters: Character[]
+  currentId?: string
+  /** The query of the page, which another face keeps. */
+  query?: string
+}
 
 /** The character list of the Resonator hall: search, filters and a strip of faces. */
-export default function Roster({ characters, currentId }: Props) {
+export default function Roster({ characters, currentId, query: kept = '' }: Props) {
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState(none)
   const [open, setOpen] = useState(false)
@@ -146,7 +151,12 @@ export default function Roster({ characters, currentId }: Props) {
 
       <ul ref={wheel}>
         {matches.map((item) => (
-          <Face key={item.id} character={item} current={item.id === currentId} />
+          <Face
+            key={item.id}
+            character={item}
+            current={item.id === currentId}
+            search={kept}
+          />
         ))}
         {characters.length > 0 && matches.length === 0 && <li>Nothing found.</li>}
       </ul>

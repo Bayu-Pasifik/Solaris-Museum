@@ -1,22 +1,19 @@
 import { BAY } from './corridor'
 import type { Gate, Spot } from './roam'
-import type { Weapon } from './weapons'
 
-/** The order of the wings. A kind of weapon that is not listed comes after these. */
-const ORDER = ['Broadblade', 'Sword', 'Pistols', 'Gauntlets', 'Rectifier']
+/* A hall of wings: one wing for every kind, with a stand at both sides of every bay. */
 
-export const wingsOf = (weapons: Weapon[]) => {
-  const rank = (type: string) => (ORDER.indexOf(type) + 1 || ORDER.length + 1)
-  return [...new Set(weapons.map((weapon) => weapon.type))].sort(
-    (a, b) => rank(a) - rank(b) || a.localeCompare(b),
-  )
+/** The kinds in the order of "order". A kind that is not listed comes after these. */
+export const wingsOf = (kinds: string[], order: readonly string[]) => {
+  const rank = (kind: string) => order.indexOf(kind) + 1 || order.length + 1
+  return [...new Set(kinds)].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b))
 }
 
-/** The weapons of one wing, the best ones by the entrance. */
-export const wing = (weapons: Weapon[], type: string) =>
-  weapons
-    .filter((weapon) => weapon.type === type)
-    .sort((a, b) => b.rarity - a.rarity || a.name.localeCompare(b.name))
+/** The order of the stands in a wing: the best ones by the entrance. */
+export const byRank = (
+  a: { name: string; rarity: number },
+  b: { name: string; rarity: number },
+) => b.rarity - a.rarity || a.name.localeCompare(b.name)
 
 /** Stands face each other in pairs, one pair in every bay of the corridor. */
 export const rowOf = (index: number) => Math.floor(index / 2)
