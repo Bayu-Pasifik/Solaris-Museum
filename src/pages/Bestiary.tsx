@@ -207,6 +207,9 @@ export default function Bestiary() {
             query={query}
             onQuery={setQuery}
           />
+          <footer className="gallery-foot">
+            <Disclaimer />
+          </footer>
         </div>
 
         {reading && current && (
@@ -227,10 +230,6 @@ export default function Bestiary() {
           </aside>
         )}
       </main>
-
-      <div className="gallery-foot">
-        <Disclaimer />
-      </div>
     </>
   )
 }

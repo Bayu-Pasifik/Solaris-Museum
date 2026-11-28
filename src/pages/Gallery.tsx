@@ -258,6 +258,9 @@ export default function Gallery() {
               setQuery(next)
             }}
           />
+          <footer className="gallery-foot">
+            <Disclaimer />
+          </footer>
         </div>
 
         {piece && (
@@ -278,10 +281,6 @@ export default function Gallery() {
           </aside>
         )}
       </main>
-
-      <div className="gallery-foot">
-        <Disclaimer />
-      </div>
     </>
   )
 }

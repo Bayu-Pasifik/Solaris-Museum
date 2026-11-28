@@ -307,6 +307,14 @@ export default function ResonatorHall() {
 
         <Roster characters={characters} currentId={current?.id} />
 
+        <footer className="gallery-foot">
+          <Disclaimer />
+          <p className="disclaimer">
+            L2D diputar dengan Spine Runtimes © Esoteric Software (
+            <a href={assetUrl('spine-license.txt')}>lisensi</a>).
+          </p>
+        </footer>
+
         {reading && current && (
           <div className="drawer">
             <button type="button" className="pill close" onClick={() => setReading(false)}>
@@ -316,14 +324,6 @@ export default function ResonatorHall() {
           </div>
         )}
       </main>
-
-      <div className="gallery-foot">
-        <Disclaimer />
-        <p className="disclaimer">
-          L2D diputar dengan Spine Runtimes © Esoteric Software (
-          <a href={assetUrl('spine-license.txt')}>lisensi</a>).
-        </p>
-      </div>
     </>
   )
 }

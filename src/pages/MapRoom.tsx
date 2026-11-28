@@ -172,6 +172,9 @@ export default function MapRoom() {
             onHover={setHovered}
             onPick={settle}
           />
+          <footer className="gallery-foot">
+            <Disclaimer />
+          </footer>
         </div>
 
         {reading && region && (
@@ -203,10 +206,6 @@ export default function MapRoom() {
           </aside>
         )}
       </main>
-
-      <div className="gallery-foot">
-        <Disclaimer />
-      </div>
     </>
   )
 }

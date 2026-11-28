@@ -148,118 +148,115 @@ export default function Lobby() {
   const here = rooms[stop]
 
   return (
-    <>
-      <main className="gallery open-hall lobby-hall">
-        <div
-          className={pointed?.path ? 'backdrop sky pointing' : 'backdrop sky'}
-          ref={stroll}
-          onPointerDown={grab}
-        >
-          <SceneBoundary message="Tampilan 3D gagal dimuat.">
-            {/* Clicking a portal is a mouse shortcut. The buttons below are for keyboard and screen readers. */}
-            <Canvas
-              flat
-              aria-hidden="true"
-              camera={{ position: [0, 2.4, 7], fov: LOBBY_FOV }}
-              dpr={[1, 2]}
-            >
-              <Suspense fallback={null}>
-                <LobbyScene
-                  rooms={rooms}
-                  walk={walk}
-                  insets={insets}
-                  active={hovered ?? here?.name}
-                  entering={entering}
-                  greeter={greeter}
-                  onHover={setHovered}
-                  onSelect={select}
-                  onArrive={onArrive}
-                />
-              </Suspense>
-            </Canvas>
-            <LoadingOverlay />
-          </SceneBoundary>
-        </div>
-
-        <header className="topbar" ref={setTop}>
-          <div className="plate">
-            <h1>Solaris Museum</h1>
-            <p>Museum 3D buatan penggemar</p>
-          </div>
-        </header>
-
-        {/* The free space between the bars. The corridor behind it takes the pointer. */}
-        <div className="viewport" ref={viewport}>
-          {([-1, 1] as const).map((by) => (
-            <button
-              key={by}
-              type="button"
-              className={by < 0 ? 'pill walk back' : 'pill walk'}
-              aria-label={by < 0 ? 'Ruangan sebelumnya' : 'Ruangan berikutnya'}
-              disabled={by < 0 ? stop === 0 : stop === rooms.length - 1}
-              onClick={() => go(stop + by)}
-            >
-              {by < 0 ? '‹' : '›'}
-            </button>
-          ))}
-          {/* The greeter stands near the entrance, so the words go with those doors. */}
-          {greeter && arrived && stop < 2 && (
-            <div className="dialogue" role="status">
-              <img
-                src={assetUrl(`art/faces/${greeter.id}.webp`)}
-                alt=""
-                onError={(event) => (event.currentTarget.hidden = true)}
+    <main className="gallery open-hall lobby-hall">
+      <div
+        className={pointed?.path ? 'backdrop sky pointing' : 'backdrop sky'}
+        ref={stroll}
+        onPointerDown={grab}
+      >
+        <SceneBoundary message="Tampilan 3D gagal dimuat.">
+          {/* Clicking a portal is a mouse shortcut. The buttons below are for keyboard and screen readers. */}
+          <Canvas
+            flat
+            aria-hidden="true"
+            camera={{ position: [0, 2.4, 7], fov: LOBBY_FOV }}
+            dpr={[1, 2]}
+          >
+            <Suspense fallback={null}>
+              <LobbyScene
+                rooms={rooms}
+                walk={walk}
+                insets={insets}
+                active={hovered ?? here?.name}
+                entering={entering}
+                greeter={greeter}
+                onHover={setHovered}
+                onSelect={select}
+                onArrive={onArrive}
               />
-              <p>
-                <b>{greeter.name}</b>
-                {greeting}
-              </p>
-            </div>
-          )}
-        </div>
-
-        <div ref={setBottom}>
-          <nav className="strip" aria-label="Ruangan">
-            <p className="steer">Gulir atau seret untuk berjalan · klik portal untuk masuk</p>
-            <ul ref={wheel}>
-              {rooms.map((room, index) => (
-                <li key={room.name} ref={index === stop ? reveal : undefined}>
-                  <button
-                    type="button"
-                    className="door"
-                    style={{ '--door': room.color } as CSSProperties}
-                    aria-current={index === stop ? 'location' : undefined}
-                    disabled={!room.path}
-                    onPointerEnter={(event) => {
-                      // A finger that scrolls the strip must not walk the corridor.
-                      if (event.pointerType === 'mouse') go(index)
-                    }}
-                    onFocus={() => go(index)}
-                    onClick={(event) => {
-                      if (!room.path) return
-                      // A key press has no place of its own, so the hit goes in the middle.
-                      const box = viewport.current?.getBoundingClientRect()
-                      const point =
-                        event.detail > 0 || !box
-                          ? { x: event.clientX, y: event.clientY }
-                          : { x: box.left + box.width / 2, y: box.top + box.height / 2 }
-                      go(index)
-                      select(room.path, point)
-                    }}
-                  >
-                    <b>{room.name}</b>
-                    <small>{room.path ? room.description : 'Segera hadir'}</small>
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
-      </main>
-
-      <div className="gallery-foot">
-        <Disclaimer />
+            </Suspense>
+          </Canvas>
+          <LoadingOverlay />
+        </SceneBoundary>
       </div>
-    </>
+
+      <header className="topbar" ref={setTop}>
+        <div className="plate">
+          <h1>Solaris Museum</h1>
+          <p>Museum 3D buatan penggemar</p>
+        </div>
+      </header>
+
+      {/* The free space between the bars. The corridor behind it takes the pointer. */}
+      <div className="viewport" ref={viewport}>
+        {([-1, 1] as const).map((by) => (
+          <button
+            key={by}
+            type="button"
+            className={by < 0 ? 'pill walk back' : 'pill walk'}
+            aria-label={by < 0 ? 'Ruangan sebelumnya' : 'Ruangan berikutnya'}
+            disabled={by < 0 ? stop === 0 : stop === rooms.length - 1}
+            onClick={() => go(stop + by)}
+          >
+            {by < 0 ? '‹' : '›'}
+          </button>
+        ))}
+        {/* The greeter stands near the entrance, so the words go with those doors. */}
+        {greeter && arrived && stop < 2 && (
+          <div className="dialogue" role="status">
+            <img
+              src={assetUrl(`art/faces/${greeter.id}.webp`)}
+              alt=""
+              onError={(event) => (event.currentTarget.hidden = true)}
+            />
+            <p>
+              <b>{greeter.name}</b>
+              {greeting}
+            </p>
+          </div>
+        )}
+      </div>
+
+      <div ref={setBottom}>
+        <nav className="strip" aria-label="Ruangan">
+          <p className="steer">Gulir atau seret untuk berjalan · klik portal untuk masuk</p>
+          <ul ref={wheel}>
+            {rooms.map((room, index) => (
+              <li key={room.name} ref={index === stop ? reveal : undefined}>
+                <button
+                  type="button"
+                  className="door"
+                  style={{ '--door': room.color } as CSSProperties}
+                  aria-current={index === stop ? 'location' : undefined}
+                  disabled={!room.path}
+                  onPointerEnter={(event) => {
+                    // A finger that scrolls the strip must not walk the corridor.
+                    if (event.pointerType === 'mouse') go(index)
+                  }}
+                  onFocus={() => go(index)}
+                  onClick={(event) => {
+                    if (!room.path) return
+                    // A key press has no place of its own, so the hit goes in the middle.
+                    const box = viewport.current?.getBoundingClientRect()
+                    const point =
+                      event.detail > 0 || !box
+                        ? { x: event.clientX, y: event.clientY }
+                        : { x: box.left + box.width / 2, y: box.top + box.height / 2 }
+                    go(index)
+                    select(room.path, point)
+                  }}
+                >
+                  <b>{room.name}</b>
+                  <small>{room.path ? room.description : 'Segera hadir'}</small>
+                </button>
+              </li>
+            ))}
+          </ul>
+        </nav>
+        <footer className="gallery-foot">
+          <Disclaimer />
+        </footer>
+      </div>
+    </main>
   )
 }
