@@ -2,47 +2,13 @@ import { Suspense, useCallback, useEffect, useState, type CSSProperties } from '
 import { Canvas } from '@react-three/fiber'
 import { Link, useNavigate, useParams } from 'react-router'
 import { regionColors, useWorldMap } from '../lib/map'
+import { reveal, useInsets } from '../lib/insets'
 import AreaReport from '../components/AreaReport'
 import Disclaimer from '../components/Disclaimer'
 import LoadingOverlay from '../components/LoadingOverlay'
 import MapStrip from '../components/MapStrip'
 import SceneBoundary from '../components/SceneBoundary'
-import WorldScene, { WORLD_FOV, type Insets } from '../three/WorldScene'
-
-/**
- * Measures how much of the screen the top bar, the strip and the drawer cover, so the map can
- * keep clear of them. The refs go on those three.
- */
-function useInsets() {
-  const [top, setTop] = useState<HTMLElement | null>(null)
-  const [bottom, setBottom] = useState<HTMLElement | null>(null)
-  const [drawer, setDrawer] = useState<HTMLElement | null>(null)
-  const [insets, setInsets] = useState<Insets>({ top: 0, right: 0, bottom: 0 })
-
-  useEffect(() => {
-    const measure = () => {
-      // The strip is a child of its wrapper, and the drawer is a bottom sheet on a narrow
-      // screen and a side panel on a wide one.
-      const under = bottom?.offsetHeight ?? 0
-      const sheet = drawer?.parentElement && drawer.offsetWidth >= drawer.parentElement.clientWidth
-      setInsets({
-        top: top?.offsetHeight ?? 0,
-        right: drawer && !sheet ? drawer.offsetWidth : 0,
-        bottom: drawer && sheet ? Math.max(drawer.offsetHeight, under) : under,
-      })
-    }
-    const watch = new ResizeObserver(measure)
-    for (const element of [top, bottom, drawer]) if (element) watch.observe(element)
-    measure()
-    return () => watch.disconnect()
-  }, [top, bottom, drawer])
-
-  return { insets, setTop, setBottom, setDrawer }
-}
-
-/** On a narrow screen the regions scroll sideways, so the open one is brought into sight. */
-const reveal = (element: HTMLElement | null) =>
-  element?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+import WorldScene, { WORLD_FOV } from '../three/WorldScene'
 
 export default function MapRoom() {
   const params = useParams()
@@ -106,7 +72,7 @@ export default function MapRoom() {
   return (
     <>
       <main
-        className={reading ? 'gallery atlas-hall reading' : 'gallery atlas-hall'}
+        className={reading ? 'gallery open-hall reading' : 'gallery open-hall'}
         style={
           {
             '--el-deep': colors.deep,

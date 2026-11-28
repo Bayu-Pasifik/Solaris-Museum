@@ -5,6 +5,7 @@ import { BackSide, DoubleSide, MathUtils, Mesh, MeshToonMaterial, PerspectiveCam
 import { regionColors, type Region } from '../lib/map'
 import islandsUrl from '../assets/map/islands.glb?url'
 import MapLabel from './MapLabel'
+import type { Insets } from '../lib/insets'
 
 const INK = '#1d1a4a'
 const PICKED = '#ff5fa8'
@@ -25,9 +26,6 @@ const ISLANDS: Record<number, { radius: number; wide: Spot; narrow: Spot }> = {
   3: { radius: 5.4, wide: [3.6, -1, 3], narrow: [5.8, -0.6, 4] },
   4: { radius: 5.6, wide: [12.4, 0.6, -2.5], narrow: [5.6, 1.6, -8.5] },
 }
-
-/** Pixels at the edges of the screen that the page covers with its own bars and panels. */
-export type Insets = { top: number; right: number; bottom: number }
 
 /** The part of the world that the camera has to fit on screen, and where it looks from. */
 const OVERVIEW = {

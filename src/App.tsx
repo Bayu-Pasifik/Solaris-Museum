@@ -21,6 +21,7 @@ export default function App() {
         <Route path="/armory/:id" element={<Armory />} />
         <Route path="/gallery" element={<Gallery />} />
         <Route path="/gallery/:section" element={<Gallery />} />
+        <Route path="/gallery/:section/:item" element={<Gallery />} />
         <Route path="/map" element={<MapRoom />} />
         <Route path="/map/:region" element={<MapRoom />} />
         <Route path="/map/:region/:area" element={<MapRoom />} />

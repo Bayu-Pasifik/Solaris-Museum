@@ -1,200 +1,287 @@
-import { useState } from 'react'
-import { Link, useParams } from 'react-router'
-import { assetUrl } from '../lib/characters'
 import {
-  useGallery,
-  type AchievementCategory,
-  type AchievementGroup,
-  type Namecard,
-  type Title,
-} from '../lib/gallery'
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from 'react'
+import { Canvas } from '@react-three/fiber'
+import { Link, useNavigate, useParams } from 'react-router'
+import { useGallery } from '../lib/gallery'
+import { pieceId, pieces, SECTIONS, type Choosable } from '../lib/exhibits'
+import { reveal, useInsets } from '../lib/insets'
 import Disclaimer from '../components/Disclaimer'
+import GalleryStrip from '../components/GalleryStrip'
+import LoadingOverlay from '../components/LoadingOverlay'
+import PieceReport from '../components/PieceReport'
+import SceneBoundary from '../components/SceneBoundary'
+import GalleryScene, { GALLERY_FOV, newScroll, type Scroll } from '../three/GalleryScene'
+import { DRAG } from '../three/Frame'
 
-const SECTIONS = [
-  { id: 'namecard', label: 'Namecard' },
-  { id: 'title', label: 'Title' },
-  { id: 'achievement', label: 'Achievement' },
-]
-
-/** A picture that loads when it comes near. Without a file it takes no room. */
-function Picture({ path, className }: { path?: string; className?: string }) {
-  if (!path) return null
-  return <img className={className} src={assetUrl(path)} alt="" loading="lazy" />
-}
-
-function Cards({ cards }: { cards: Namecard[] }) {
-  return (
-    <ul className="collection cards">
-      {cards.map((card) => (
-        <li key={card.id}>
-          {/* The link opens the picture at its full size. */}
-          <a href={card.picture && assetUrl(card.picture)} target="_blank" rel="noreferrer">
-            <Picture path={card.picture} />
-            <span>{card.name}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-function Titles({ titles }: { titles: Title[] }) {
-  return (
-    <ul className="collection titles">
-      {titles.map((title) => (
-        <li key={title.id} className="title-plate">
-          <Picture path={title.background} className="background" />
-          <Picture path={title.left} className="left" />
-          <Picture path={title.right} className="right" />
-          <Picture path={title.avatar} className="avatar" />
-          <span>{title.name}</span>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-/** One group: the icon and the name, and below them the list that a click opens. */
-function Group({ group, open }: { group: AchievementGroup; open: boolean }) {
-  return (
-    <li>
-      {/* Without "open", the visitor decides; a search opens every group that it finds. */}
-      <details open={open || undefined}>
-        <summary>
-          <Picture path={group.icon} />
-          <p>
-            <b>{group.name}</b>
-            {group.achievements.length} achievement
-          </p>
-        </summary>
-        <ul>
-          {group.achievements.map((item) => (
-            <li key={item.id}>
-              <h3>
-                {item.name}
-                <span role="img" aria-label={`Tingkat ${item.level}`}>
-                  {'★'.repeat(item.level)}
-                </span>
-                {item.hidden && <small>Tersembunyi</small>}
-              </h3>
-              <p>{item.description}</p>
-            </li>
-          ))}
-        </ul>
-      </details>
-    </li>
-  )
-}
-
-type AchievementsProps = { categories: AchievementCategory[]; searching: boolean }
-
-function Achievements({ categories, searching }: AchievementsProps) {
-  return (
-    <>
-      {categories.map((category) => (
-        <section key={category.id} className="achievements">
-          <Picture path={category.picture} className="keyart" />
-          <div>
-            <h2>{category.name}</h2>
-            <ul className="collection groups">
-              {category.groups.map((group) => (
-                <Group key={group.id} group={group} open={searching} />
-              ))}
-            </ul>
-          </div>
-        </section>
-      ))}
-    </>
-  )
-}
+const choosable = (list: ReturnType<typeof pieces>) =>
+  list.filter((piece): piece is Choosable => piece.kind !== 'banner')
 
 export default function Gallery() {
-  const { section = SECTIONS[0].id } = useParams()
+  const params = useParams()
+  const navigate = useNavigate()
   const state = useGallery()
+  const section = SECTIONS.find((item) => item.id === params.section) ?? SECTIONS[0]
   const [query, setQuery] = useState('')
+  const [hovered, setHovered] = useState<string>()
+  const [pointing, setPointing] = useState(false)
+  const [jump, setJump] = useState<{ key: string }>()
+  const { insets, setTop, setBottom, setDrawer } = useInsets()
 
   const text = query.trim().toLowerCase()
-  const matching = <T extends { name: string }>(items: T[]) =>
-    items.filter((item) => item.name.toLowerCase().includes(text))
-
   const data = state.status === 'ready' ? state.data : undefined
-  const cards = matching(data?.cards ?? [])
-  const titles = matching(data?.titles ?? [])
-  // A group whose name matches keeps its whole list; another one keeps the achievements
-  // that have the text in their name or description. Empty groups and categories go.
-  const achievements = (data?.achievements ?? [])
-    .map((category) => ({
-      ...category,
-      groups: category.groups
-        .map((group) =>
-          group.name.toLowerCase().includes(text)
-            ? group
-            : {
-                ...group,
-                achievements: group.achievements.filter((item) =>
-                  `${item.name}\n${item.description}`.toLowerCase().includes(text),
-                ),
-              },
-        )
-        .filter((group) => group.achievements.length > 0),
-    }))
-    .filter((category) => category.groups.length > 0)
-  const view =
-    section === 'title'
-      ? { found: titles.length, list: <Titles titles={titles} /> }
-      : section === 'achievement'
-        ? {
-            found: achievements.length,
-            list: <Achievements categories={achievements} searching={text !== ''} />,
-          }
-        : { found: cards.length, list: <Cards cards={cards} /> }
+  const shown = useMemo(() => (data ? pieces(data, section.id, text) : []), [data, section, text])
+  // The drawer and the buttons in it keep to what the search found, if the piece is in it.
+  const all = useMemo(
+    () => (data ? choosable(pieces(data, section.id, '')) : []),
+    [data, section],
+  )
+  const found = useMemo(() => choosable(shown), [shown])
+  const piece = all.find((item) => String(pieceId(item)) === params.item)
+  const round = piece && found.some((item) => item.key === piece.key) ? found : all
+  const at = piece ? round.findIndex((item) => item.key === piece.key) : -1
+
+  // Every collection and every search starts at the left end of the wall.
+  const scroll = useMemo<{ current: Scroll }>(() => ({ current: newScroll() }), [section, text])
+
+  const base = `/gallery/${section.id}`
+  const close = useCallback(() => navigate(base), [navigate, base])
+  const move = (by: number) => {
+    const next = round[(at + by + round.length) % round.length]
+    if (next) navigate(`${base}/${pieceId(next)}`)
+  }
+
+  // Whatever was pointed at is gone after a move to another collection.
+  const settle = () => {
+    setHovered(undefined)
+    setPointing(false)
+    setJump(undefined)
+    setQuery('')
+  }
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement) return
+      const by = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
+      if (piece) {
+        if (event.key === 'Escape') close()
+        else if (by) move(by)
+      } else if (by) {
+        scroll.current.target += by * scroll.current.page * 0.5
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  })
+
+  /** The wall follows a drag, and slides on a little when it is let go. */
+  const grab = (event: ReactPointerEvent) => {
+    if (event.button !== 0) return
+    const place = scroll.current
+    const from = event.clientX
+    let last = from
+    let speed = 0
+    const drag = (next: PointerEvent) => {
+      const by = next.clientX - last
+      last = next.clientX
+      speed = by
+      // A small shake of the pointer is a click and moves nothing.
+      if (Math.abs(next.clientX - from) > DRAG) place.target -= by * place.perPixel
+    }
+    const drop = () => {
+      if (Math.abs(last - from) > DRAG) place.target -= speed * place.perPixel * 10
+      window.removeEventListener('pointermove', drag)
+      window.removeEventListener('pointerup', drop)
+      window.removeEventListener('pointercancel', drop)
+    }
+    window.addEventListener('pointermove', drag)
+    window.addEventListener('pointerup', drop)
+    window.addEventListener('pointercancel', drop)
+  }
+
+  /** The wheel moves along the wall instead of down the page. */
+  const roll = useCallback(
+    (stage: HTMLDivElement | null) => {
+      if (!stage) return
+      const onWheel = (event: WheelEvent) => {
+        event.preventDefault()
+        const by =
+          Math.abs(event.deltaX) > Math.abs(event.deltaY) ? event.deltaX : event.deltaY
+        scroll.current.target += by * scroll.current.perPixel
+      }
+      stage.addEventListener('wheel', onWheel, { passive: false })
+      return () => stage.removeEventListener('wheel', onWheel)
+    },
+    [scroll],
+  )
+
+  const { colors } = section
 
   return (
-    <div className="wrap">
-      <header>
-        <h1>Galeri</h1>
-        <p className="lede">Koleksi namecard, title, dan achievement.</p>
-        <p className="links">
+    <>
+      <main
+        className={
+          piece ? 'gallery open-hall exhibit-hall reading' : 'gallery open-hall exhibit-hall'
+        }
+        style={
+          {
+            '--el-deep': colors.deep,
+            '--el-pale': colors.pale,
+            '--el-accent': colors.accent,
+          } as CSSProperties
+        }
+      >
+        <div
+          className={pointing ? 'backdrop sky pointing' : 'backdrop sky'}
+          ref={roll}
+          onPointerDown={grab}
+        >
+          {data && (
+            <SceneBoundary message="Galeri 3D gagal dimuat.">
+              {/* The wall is a shortcut for pointers. The strip below it has the same links. */}
+              <Canvas
+                flat
+                aria-hidden="true"
+                camera={{ position: [0, 5, 2], fov: GALLERY_FOV }}
+                dpr={[1, 2]}
+              >
+                <Suspense fallback={null}>
+                  <GalleryScene
+                    pieces={shown}
+                    accent={colors.accent}
+                    insets={insets}
+                    scroll={scroll}
+                    picked={piece?.key}
+                    hovered={hovered}
+                    jump={jump}
+                    onHover={(key) => {
+                      setHovered(key)
+                      setPointing(key !== undefined)
+                    }}
+                    onPick={(chosen) => navigate(`${base}/${pieceId(chosen)}`)}
+                  />
+                </Suspense>
+              </Canvas>
+              <LoadingOverlay />
+            </SceneBoundary>
+          )}
+        </div>
+
+        <header className="topbar" ref={setTop}>
           <Link to="/" className="pill">
             ← Lobby
           </Link>
-        </p>
-      </header>
-
-      <main>
-        <div className="toolbar">
-          <nav className="links" aria-label="Jenis koleksi">
-            {SECTIONS.map((item) => (
-              <Link
-                key={item.id}
-                to={`/gallery/${item.id}`}
-                className="pill"
-                aria-current={item.id === section ? 'page' : undefined}
-              >
-                {item.label}
-              </Link>
-            ))}
+          <div className="plate">
+            <h1>Galeri</h1>
+            <p>{data ? `${all.length} ${section.unit}` : 'Namecard, title, achievement'}</p>
+          </div>
+          <nav className="switches" aria-label="Jenis koleksi">
+            <div>
+              {SECTIONS.map((item) => (
+                <Link
+                  key={item.id}
+                  to={`/gallery/${item.id}`}
+                  className="pill"
+                  aria-current={item.id === section.id ? 'page' : undefined}
+                  ref={item.id === section.id ? reveal : undefined}
+                  onClick={settle}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
           </nav>
-          <input
-            type="search"
-            aria-label={section === 'achievement' ? 'Cari nama atau deskripsi' : 'Cari nama'}
-            placeholder={section === 'achievement' ? 'Cari nama atau deskripsi' : 'Cari nama'}
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
+          {section.id === 'achievement' && (
+            <nav className="jumps" aria-label="Kategori achievement">
+              {shown.map(
+                (item) =>
+                  item.kind === 'banner' && (
+                    <button
+                      key={item.key}
+                      type="button"
+                      className="pill"
+                      onClick={() => {
+                        close()
+                        setJump({ key: item.key })
+                      }}
+                    >
+                      {item.category.name}
+                    </button>
+                  ),
+              )}
+            </nav>
+          )}
+        </header>
+
+        {/* The free space between the bars. The hall behind it takes the pointer. */}
+        <div className="viewport">
+          {state.status === 'loading' && <p className="notice">Memuat data…</p>}
+          {state.status === 'error' && (
+            <p className="notice" role="alert">
+              Data galeri gagal dimuat ({state.message}). Pastikan file data/gallery.json ada.
+            </p>
+          )}
+          {data && shown.length === 0 && <p className="notice plain">Tidak ditemukan.</p>}
+          {shown.length > 0 &&
+            ([-1, 1] as const).map((by) => (
+              <button
+                key={by}
+                type="button"
+                className={by < 0 ? 'pill walk back' : 'pill walk'}
+                aria-label={by < 0 ? 'Geser ke kiri' : 'Geser ke kanan'}
+                onClick={() => {
+                  scroll.current.target += by * scroll.current.page
+                }}
+              >
+                {by < 0 ? '‹' : '›'}
+              </button>
+            ))}
+        </div>
+
+        <div ref={setBottom}>
+          <GalleryStrip
+            section={section.id}
+            unit={section.unit}
+            pieces={found}
+            picked={piece?.key}
+            hovered={hovered}
+            onHover={setHovered}
+            query={query}
+            onQuery={(next) => {
+              setJump(undefined)
+              setQuery(next)
+            }}
           />
         </div>
 
-        {state.status === 'loading' && <p className="notice">Memuat data…</p>}
-        {state.status === 'error' && (
-          <p className="notice" role="alert">
-            Data galeri gagal dimuat ({state.message}). Pastikan file data/gallery.json ada.
-          </p>
+        {piece && (
+          // A new key starts every piece at its top.
+          <aside key={piece.key} className="drawer" aria-label="Keterangan" ref={setDrawer}>
+            <p className="tools">
+              <button type="button" className="pill" onClick={() => move(-1)}>
+                ← Sebelumnya
+              </button>
+              <button type="button" className="pill" onClick={() => move(1)}>
+                Berikutnya →
+              </button>
+              <button type="button" className="pill close" onClick={close}>
+                Tutup ✕
+              </button>
+            </p>
+            <PieceReport piece={piece} text={text} />
+          </aside>
         )}
-        {data && view.found === 0 && <p className="notice">Tidak ditemukan.</p>}
-        {view.list}
       </main>
 
-      <Disclaimer />
-    </div>
+      <div className="gallery-foot">
+        <Disclaimer />
+      </div>
+    </>
   )
 }

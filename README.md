@@ -117,6 +117,19 @@ with the name and the description of every achievement, to `public/data/gallery.
 `Gallery` type is in `src/lib/gallery.ts`) and the pictures to `public/art/gallery/`. Without
 `--force` it only downloads the pictures that are missing. It does not need Blender.
 
+## The exhibition hall
+
+The Gallery room shows each collection on a curved wall inside a round colonnade. The hall is
+an original low-poly model that is in Git, in `src/assets/gallery/hall.glb`. To change it,
+edit `scripts/build-gallery.py` and run it:
+
+```bash
+blender --background --factory-startup --python scripts/build-gallery.py
+```
+
+It also runs inside an open Blender, where it only makes its own `Solaris_Gallery` scene. The
+frames of the pieces are painted in the browser, by `src/three/pieceArt.ts`.
+
 ## Add the map
 
 ```bash
