@@ -13,7 +13,7 @@ export default function ModeSwitch({ walk, onChoose, still = MODES.tour }: Props
   const { mode, hero, walkers } = walk
 
   return (
-    <div className="modes" role="group" aria-label="Cara berkeliling">
+    <div className="modes" role="group" aria-label="Ways to look around">
       {(Object.keys(MODES) as Mode[]).map((key) => (
         <button
           key={key}
@@ -32,7 +32,7 @@ export default function ModeSwitch({ walk, onChoose, still = MODES.tour }: Props
       {mode === 'third' && hero && (
         <select
           className="pill"
-          aria-label="Resonator yang berjalan"
+          aria-label="Walking Resonator"
           lang="en"
           value={hero.id}
           onChange={(event) => {

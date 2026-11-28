@@ -25,7 +25,7 @@ export default function Marks({ path, readable }: Props) {
         }}
       >
         <span aria-hidden="true">{favorite ? '★' : '☆'}</span>
-        Favorit
+        Favorite
       </button>
       {readable && (
         <button
@@ -36,7 +36,7 @@ export default function Marks({ path, readable }: Props) {
             toggleRead(path)
           }}
         >
-          {read ? '✓ Sudah dibaca · batalkan' : 'Tandai sudah dibaca'}
+          {read ? '✓ Read · undo' : 'Mark as read'}
         </button>
       )}
     </p>

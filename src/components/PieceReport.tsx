@@ -20,7 +20,7 @@ export default function PieceReport({ piece, text }: Props) {
         {picture && (
           <p>
             <a className="button" href={picture} target="_blank" rel="noreferrer">
-              Buka ukuran penuh
+              Open full size
             </a>
           </p>
         )}
@@ -53,8 +53,8 @@ export default function PieceReport({ piece, text }: Props) {
           <small>
             <bdi lang="en">{category.name}</bdi> ·{' '}
             {filtered
-              ? `${list.length} dari ${group.achievements.length} achievement`
-              : `${group.achievements.length} achievement`}
+              ? `${list.length} of ${group.achievements.length} achievements`
+              : `${group.achievements.length} ${group.achievements.length === 1 ? 'achievement' : 'achievements'}`}
           </small>
         </div>
       </header>
@@ -63,10 +63,10 @@ export default function PieceReport({ piece, text }: Props) {
           <li key={item.id}>
             <h3 lang="en">
               {item.name}
-              <span role="img" lang="id" aria-label={`Tingkat ${item.level}`}>
+              <span role="img" aria-label={`Level ${item.level}`}>
                 {'★'.repeat(item.level)}
               </span>
-              {item.hidden && <small lang="id">Tersembunyi</small>}
+              {item.hidden && <small lang="en">Hidden</small>}
             </h3>
             <p lang="en">{item.description}</p>
           </li>

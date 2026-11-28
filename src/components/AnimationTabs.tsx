@@ -13,7 +13,7 @@ export default function AnimationTabs({ clips, labels = {}, selected, onPick }: 
   const sorted = [...clips].sort((a, b) => order.indexOf(a) - order.indexOf(b))
 
   return (
-    <div className="acts" role="group" aria-label="Animasi">
+    <div className="acts" role="group" aria-label="Animation">
       {sorted.map((clip) => (
         <button
           key={clip}

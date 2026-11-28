@@ -12,7 +12,7 @@ export default function DocumentReader({ document }: { document: Shelved }) {
   const where = [...new Set([region, place, source].filter(Boolean))].join(' · ')
 
   return (
-    <section className="card dossier reader" aria-label={`Dokumen ${title}`}>
+    <section className="card dossier reader" aria-label={`Document ${title}`}>
       <h2 lang="en">{title}</h2>
       <p className="how">
         {KINDS[kind]}
@@ -37,7 +37,7 @@ export default function DocumentReader({ document }: { document: Shelved }) {
         {text ? (
           <GameText text={terms.link(text, new Set())} terms={terms.byId} />
         ) : (
-          <p className="notice">Tidak ada teks pada gambar ini.</p>
+          <p className="notice">This picture has no text.</p>
         )}
       </div>
     </section>

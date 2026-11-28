@@ -80,18 +80,18 @@ export default function WeaponRack({ weapons, currentId }: Props) {
 
   return (
     <aside className="card roster">
-      <sakuga-input type="search" placeholder="Cari senjata" label="Cari senjata" ref={search} />
+      <sakuga-input type="search" placeholder="Search weapons" label="Search weapons" ref={search} />
 
       {weapons.length > 0 && (
         <>
           <Chips
-            label="Jenis"
+            label="Type"
             options={unique(weapons.map((item) => item.type)).sort()}
             chosen={filters.type}
             onToggle={(value) => setFilters({ ...filters, type: toggled(filters.type, value) })}
           />
           <Chips
-            label="Bintang"
+            label="Stars"
             options={unique(weapons.map((item) => item.rarity)).sort((a, b) => b - a)}
             chosen={filters.rarity}
             text={(rarity) => `${rarity}★`}
@@ -101,7 +101,7 @@ export default function WeaponRack({ weapons, currentId }: Props) {
 
           <p className="count">
             <span role="status">
-              {matches.length} dari {weapons.length} senjata
+              {matches.length} of {weapons.length} weapons
             </span>
             {filtering && (
               <button type="button" className="pill" onClick={reset}>
@@ -117,7 +117,7 @@ export default function WeaponRack({ weapons, currentId }: Props) {
           <Item key={item.id} weapon={item} current={item.id === currentId} />
         ))}
       </ul>
-      {weapons.length > 0 && matches.length === 0 && <p>Tidak ditemukan.</p>}
+      {weapons.length > 0 && matches.length === 0 && <p>Nothing found.</p>}
     </aside>
   )
 }

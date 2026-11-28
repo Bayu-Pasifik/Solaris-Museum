@@ -130,7 +130,7 @@ export default function ArmoryWalk({ weapons, currentId, walk }: Props) {
         className="backdrop sky"
         onPointerDown={(event) => lookAround(event, roam, walk.mode === 'third')}
       >
-        <SceneBoundary message="Tampilan 3D gagal dimuat.">
+        <SceneBoundary message="The 3D view failed to load.">
           {/* Clicking a stand is a mouse shortcut. The buttons below are for keyboard and screen readers. */}
           <Canvas flat aria-hidden="true" camera={{ position: [0, 1.6, 4] }} dpr={[1, 2]}>
             <Suspense fallback={null}>
@@ -160,13 +160,13 @@ export default function ArmoryWalk({ weapons, currentId, walk }: Props) {
         </Link>
         <div className="plate">
           <h1>Armory</h1>
-          <p>{list.length} senjata di sayap ini</p>
+          <p>{list.length} weapons in this wing</p>
         </div>
         <SearchButton />
         <SoundButton />
-        <ModeSwitch walk={walk} onChoose={choose} still="Daftar" />
+        <ModeSwitch walk={walk} onChoose={choose} still="List" />
         <div className="switches">
-          <div role="group" aria-label="Sayap">
+          <div role="group" aria-label="Wings">
             {wings.map((type) => (
               <button
                 key={type}
@@ -191,22 +191,22 @@ export default function ArmoryWalk({ weapons, currentId, walk }: Props) {
         <Stick roam={roam} />
         {atExit ? (
           <button type="button" className="button enter" onClick={leave}>
-            Keluar ke Lobby <kbd aria-hidden="true">E</kbd>
+            Exit to Lobby <kbd aria-hidden="true">E</kbd>
           </button>
         ) : (
           target &&
           near !== picked && (
             <button type="button" className="button enter" onClick={() => show(near!)}>
-              Lihat <bdi lang="en">{target.name}</bdi> <kbd aria-hidden="true">E</kbd>
+              View <bdi lang="en">{target.name}</bdi> <kbd aria-hidden="true">E</kbd>
             </button>
           )
         )}
       </div>
 
       <div ref={setBottom}>
-        <nav className="strip" aria-label="Senjata">
+        <nav className="strip" aria-label="Weapons">
           <p className="steer">
-            WASD atau panah untuk berjalan · Shift lari · seret untuk melihat · E buka senjata
+            WASD or arrows to walk · Shift to run · drag to look · E to open a weapon
           </p>
           <ul ref={wheel}>
             {list.map((weapon, index) => (
@@ -242,11 +242,11 @@ export default function ArmoryWalk({ weapons, currentId, walk }: Props) {
           className="drawer"
           ref={setDrawer}
           style={colors(current)}
-          aria-label={`Data ${current.name}`}
+          aria-label={`${current.name} details`}
         >
           <div className="tools">
             <button type="button" className="pill close" onClick={close}>
-              Tutup
+              Close
             </button>
           </div>
           <section className="report">
@@ -255,12 +255,11 @@ export default function ArmoryWalk({ weapons, currentId, walk }: Props) {
               <bdi lang="en">{current.type}</bdi> · {'★'.repeat(current.rarity)}
             </small>
             <Marks path={`/armory/${current.id}`} />
-            <div className="weapon-view" role="group" aria-label={`Model 3D ${current.name}`}>
+            <div className="weapon-view" role="group" aria-label={`3D model of ${current.name}`}>
               <WeaponViewer weapon={current} />
             </div>
             <p className="ranks">
-              Seret untuk memutar · gulir atau cubit untuk memperbesar · klik kanan atau dua
-              jari untuk menggeser
+              Drag to rotate · scroll or pinch to zoom · right-click or two fingers to pan
             </p>
             <WeaponReport weapon={current} />
           </section>

@@ -79,7 +79,7 @@ function thread(lines) {
         : target?.AttachmentId
           ? 'Kirim gambar'
           : ''
-      return { text: textOf(option.PlotLineKey) || sent || `Jawaban ${number + 1}`, next }
+      return { text: textOf(option.PlotLineKey) || sent || `Reply ${number + 1}`, next }
     })
 
     return {

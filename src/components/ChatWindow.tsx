@@ -11,7 +11,7 @@ function Bubble({ message, group }: { message: Message; group: boolean }) {
   if (system) {
     return (
       <li className="system" lang={text ? 'en' : undefined}>
-        {text ?? 'Pesan tidak tersedia'}
+        {text ?? 'Message unavailable'}
       </li>
     )
   }
@@ -28,7 +28,7 @@ function Bubble({ message, group }: { message: Message; group: boolean }) {
           <img
             className="sticker"
             src={assetUrl(sticker)}
-            alt={text ?? 'Stiker'}
+            alt={text ?? 'Sticker'}
             lang={text ? 'en' : undefined}
           />
         ) : picture ? (
@@ -36,13 +36,13 @@ function Bubble({ message, group }: { message: Message; group: boolean }) {
             <img
               className="photo"
               src={assetUrl(picture)}
-              alt={text ?? 'Foto'}
+              alt={text ?? 'Photo'}
               lang={text ? 'en' : undefined}
             />
           </a>
         ) : (
           <p className={missing ? 'gone' : undefined} lang={missing ? undefined : 'en'}>
-            {missing ? 'Pesan tidak tersedia' : <Struck>{text ?? ''}</Struck>}
+            {missing ? 'Message unavailable' : <Struck>{text ?? ''}</Struck>}
           </p>
         )}
       </div>
@@ -71,7 +71,7 @@ function Thread({ thread, group }: { thread: Message[]; group: boolean }) {
 
   return (
     <>
-      <div className="log" ref={log} tabIndex={0} role="log" aria-label="Isi obrolan">
+      <div className="log" ref={log} tabIndex={0} role="log" aria-label="Chat messages">
         <ol>
           {shown.map(({ message, index, reply }) => (
             <li key={index} className="turn-of">
@@ -100,11 +100,11 @@ function Thread({ thread, group }: { thread: Message[]; group: boolean }) {
             </button>
           ))
         ) : (
-          <p>Obrolan selesai.</p>
+          <p>End of chat.</p>
         )}
         {answered > 0 && (
           <button type="button" className="pill again" onClick={() => setAnswers({})}>
-            ↺ Ulangi
+            ↺ Replay
           </button>
         )}
       </div>
@@ -116,11 +116,11 @@ function Threads({ id, group }: { id: string; group: boolean }) {
   const state = useJson<Conversation>(`data/chat/${id}.json`, isConversation)
   const [open, setOpen] = useState(0)
 
-  if (state.status === 'loading') return <p className="notice">Memuat obrolan…</p>
+  if (state.status === 'loading') return <p className="notice">Loading chat…</p>
   if (state.status === 'error') {
     return (
       <p className="notice" role="alert">
-        Obrolan ini belum tersedia.
+        This chat is not available yet.
       </p>
     )
   }
@@ -129,12 +129,12 @@ function Threads({ id, group }: { id: string; group: boolean }) {
   return (
     <>
       {threads.length > 1 && (
-        <nav className="turn" aria-label="Pindah obrolan">
+        <nav className="turn" aria-label="Switch chat">
           <button type="button" className="pill" disabled={open === 0} onClick={() => setOpen(open - 1)}>
-            ←<span className="long"> Sebelumnya</span>
+            ←<span className="long"> Previous</span>
           </button>
           <label>
-            Obrolan{' '}
+            Chat{' '}
             <select value={open} onChange={(event) => setOpen(Number(event.target.value))}>
               {threads.map((_, index) => (
                 <option key={index} value={index}>
@@ -142,16 +142,16 @@ function Threads({ id, group }: { id: string; group: boolean }) {
                 </option>
               ))}
             </select>{' '}
-            dari {threads.length}
+            of {threads.length}
           </label>
           <button
             type="button"
             className="pill"
-            aria-label="Obrolan berikutnya"
+            aria-label="Next chat"
             disabled={open === threads.length - 1}
             onClick={() => setOpen(open + 1)}
           >
-            <span className="long">Berikutnya </span>→
+            <span className="long">Next </span>→
           </button>
         </nav>
       )}
@@ -165,13 +165,13 @@ export default function ChatWindow({ contact }: { contact: Contact }) {
   const group = contact.members !== undefined
 
   return (
-    <section className="card phone" aria-label={`Obrolan ${contact.name}`}>
+    <section className="card phone" aria-label={`Chat with ${contact.name}`}>
       <header>
         <Avatar name={contact.name} path={contact.avatar} />
         <div>
           <h2 lang="en">{contact.name}</h2>
           <p lang={group ? undefined : 'en'}>
-            {group ? `Grup · ${contact.members} orang` : contact.description}
+            {group ? `Group · ${contact.members} people` : contact.description}
           </p>
         </div>
       </header>

@@ -41,7 +41,7 @@ const clip = (name, label, ...files) => ({ name, label, files })
 const CLIPS = [
   clip(
     'Stand',
-    'Santai',
+    'Idle',
     'Stand2',
     'Stand02',
     'Stand1',
@@ -55,10 +55,10 @@ const CLIPS = [
     // The Midnight Rangers have one set of clips per weapon.
     'Stand2_Sword',
   ),
-  clip('Born', 'Muncul', 'Born', 'Born_Sword'),
-  clip('Walk', 'Jalan', 'Walk_F', 'Walk_F_Sword'),
-  clip('Run', 'Lari', 'Run', 'Run_F', 'Run_Sword'),
-  clip('Death', 'Tumbang', 'Death'),
+  clip('Born', 'Appear', 'Born', 'Born_Sword'),
+  clip('Walk', 'Walk', 'Walk_F', 'Walk_F_Sword'),
+  clip('Run', 'Run', 'Run', 'Run_F', 'Run_Sword'),
+  clip('Death', 'Defeat', 'Death'),
 ]
 
 /** The number of attacks that a model gets, from the lowest numbers that it has. */
@@ -96,7 +96,7 @@ function pickClips(urls) {
   const chosen = [...attacks]
     .sort(([a], [b]) => a - b)
     .slice(0, ATTACKS)
-    .map(([, url], index) => ({ name: `Attack0${index + 1}`, label: `Serang ${index + 1}`, url }))
+    .map(([, url], index) => ({ name: `Attack0${index + 1}`, label: `Attack ${index + 1}`, url }))
 
   // Death goes last, after the attacks.
   const death = picked.findIndex((item) => item.name === 'Death')

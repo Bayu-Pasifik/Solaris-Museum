@@ -85,13 +85,13 @@ export default function MapStrip({
   const places = found ?? (region ? region.areas.map((item) => ({ region, area: item })) : undefined)
 
   return (
-    <nav className="strip" aria-label="Daftar tempat">
-      <p className="steer">Seret untuk memutar · gulir atau cubit untuk memperbesar</p>
+    <nav className="strip" aria-label="Place list">
+      <p className="steer">Drag to rotate · scroll or pinch to zoom</p>
       <div className="finder">
         <input
           type="search"
-          aria-label="Cari area atau isi laporan"
-          placeholder="Cari area atau isi laporan"
+          aria-label="Search areas or report text"
+          placeholder="Search areas or report text"
           value={query}
           onChange={(event) => onQuery(event.target.value)}
         />
@@ -127,7 +127,7 @@ export default function MapStrip({
                 onPick={onPick}
               />
             ))}
-        {places?.length === 0 && <li>Tidak ditemukan.</li>}
+        {places?.length === 0 && <li>Nothing found.</li>}
       </ul>
     </nav>
   )

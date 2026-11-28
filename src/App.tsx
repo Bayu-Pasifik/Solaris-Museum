@@ -21,7 +21,7 @@ export default function App() {
 
   return (
     <>
-      <Suspense fallback={<p className="notice">Memuat ruangan…</p>}>
+      <Suspense fallback={<p className="notice">Loading room…</p>}>
         <Routes>
           <Route path="/" element={<Lobby />} />
           <Route path="/resonator" element={<ResonatorHall />} />

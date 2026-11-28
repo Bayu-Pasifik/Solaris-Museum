@@ -75,11 +75,11 @@ export default function GalleryStrip({
   query,
   onQuery,
 }: Props) {
-  const label = section === 'achievement' ? 'Cari nama atau deskripsi' : 'Cari nama'
+  const label = section === 'achievement' ? 'Search name or description' : 'Search by name'
 
   return (
-    <nav className="strip" aria-label="Daftar koleksi">
-      <p className="steer">Seret atau gulir untuk menyusuri · klik untuk melihat</p>
+    <nav className="strip" aria-label="Collection list">
+      <p className="steer">Drag or scroll to browse · click to view</p>
       <div className="finder">
         <input
           type="search"
@@ -105,7 +105,7 @@ export default function GalleryStrip({
             onHover={(over) => onHover(over ? piece.key : undefined)}
           />
         ))}
-        {pieces.length === 0 && <li>Tidak ditemukan.</li>}
+        {pieces.length === 0 && <li>Nothing found.</li>}
       </ul>
     </nav>
   )

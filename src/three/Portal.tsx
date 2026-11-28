@@ -144,7 +144,7 @@ export default function Portal({
 
       <Sign
         title={room.name}
-        note={open ? undefined : 'Segera hadir'}
+        note={open ? undefined : 'Coming soon'}
         shadow={open ? room.color : '#b8b3ff'}
         ink={open ? INK : '#8580b0'}
         position={[0, STEP + RADIUS * 2 * SCALE + 0.55, 0]}

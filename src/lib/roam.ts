@@ -2,9 +2,9 @@ import { BAY, door } from './corridor'
 
 /** "tour" walks from door to door; the other two walk freely, with or without a body in sight. */
 export const MODES = {
-  tour: 'Tur',
-  first: 'Orang pertama',
-  third: 'Orang ketiga',
+  tour: 'Tour',
+  first: 'First person',
+  third: 'Third person',
 } as const
 export type Mode = keyof typeof MODES
 

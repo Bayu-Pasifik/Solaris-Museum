@@ -56,10 +56,10 @@ export default function Live2dArt({ art, label }: { art: Live2d; label: string }
   return (
     <div className="live2d" role="img" aria-label={label} data-state={state}>
       <div ref={host} />
-      {state === 'loading' && <p className="notice">Memuat L2D…</p>}
+      {state === 'loading' && <p className="notice">Loading L2D…</p>}
       {state === 'failed' && (
         <p className="notice" role="alert">
-          L2D gagal dimuat.
+          L2D failed to load.
         </p>
       )}
     </div>

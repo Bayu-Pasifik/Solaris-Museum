@@ -15,7 +15,7 @@ export default function AreaReport({ area }: { area: Area }) {
       {area.reports.map((report) => (
         <article key={report.id}>
           <h3 lang="en">{report.title}</h3>
-          <small>Terbuka di game pada eksplorasi {report.unlock}%</small>
+          <small>Unlocks in game at exploration {report.unlock}%</small>
           <GameText text={terms.link(report.text, seen)} terms={terms.byId} />
         </article>
       ))}

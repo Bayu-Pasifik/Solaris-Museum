@@ -7,8 +7,8 @@ type Playing = { id: number; state: 'loading' | 'playing' | 'failed' }
 const icons = { loading: '…', playing: '■', failed: '!' }
 
 const groups = [
-  { combat: false, label: 'Obrolan' },
-  { combat: true, label: 'Pertempuran' },
+  { combat: false, label: 'Chat' },
+  { combat: true, label: 'Combat' },
 ]
 
 /** The voice lines. One line plays at a time, and it stops when the panel closes. */
@@ -61,7 +61,7 @@ export default function VoicePanel({ profile }: { profile: Profile }) {
   if (profile.voices.length === 0) {
     return (
       <div className="panel">
-        <p>Belum ada baris suara untuk karakter ini.</p>
+        <p>No voice lines for this character yet.</p>
       </div>
     )
   }
@@ -69,10 +69,10 @@ export default function VoicePanel({ profile }: { profile: Profile }) {
   return (
     <div className="panel">
       {available.length === 0 ? (
-        <p>Audio karakter ini belum tersedia. Teksnya tetap bisa dibaca.</p>
+        <p>Audio for this character is not available yet. You can still read the lines.</p>
       ) : (
-        <div className="chips" role="group" aria-label="Bahasa suara">
-          <span aria-hidden="true">Bahasa</span>
+        <div className="chips" role="group" aria-label="Voice language">
+          <span aria-hidden="true">Language</span>
           {available.map((option) => (
             <button
               key={option}
@@ -91,12 +91,12 @@ export default function VoicePanel({ profile }: { profile: Profile }) {
       )}
       {profile.voiceActors[language] && (
         <p>
-          Pengisi suara: <bdi lang="en">{profile.voiceActors[language]}</bdi>
+          Voice actor: <bdi lang="en">{profile.voiceActors[language]}</bdi>
         </p>
       )}
 
-      <div className="chips" role="group" aria-label="Jenis baris suara">
-        <span aria-hidden="true">Jenis</span>
+      <div className="chips" role="group" aria-label="Voice line type">
+        <span aria-hidden="true">Type</span>
         {groups.map((group) => (
           <button
             key={group.label}
@@ -133,7 +133,7 @@ export default function VoicePanel({ profile }: { profile: Profile }) {
                   <span>
                     <b lang="en">{voice.title}</b>
                     <span lang="en">{voice.text}</span>
-                    {state === 'failed' && <b role="alert">Audio gagal diputar.</b>}
+                    {state === 'failed' && <b role="alert">Audio failed to play.</b>}
                   </span>
                 </button>
               </li>

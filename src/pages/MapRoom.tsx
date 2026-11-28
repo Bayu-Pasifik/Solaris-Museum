@@ -27,7 +27,7 @@ export default function MapRoom() {
   const regions = state.status === 'ready' ? state.data.regions : []
   const region = regions.find((item) => String(item.id) === params.region)
   const area = region?.areas.find((item) => String(item.id) === params.area)
-  useTitle(area?.name ?? region?.name ?? 'Ruang Peta')
+  useTitle(area?.name ?? region?.name ?? 'Map Room')
   const describing = !area && region !== undefined && about === region.id
   const colors = regionColors(region?.id)
 
@@ -87,7 +87,7 @@ export default function MapRoom() {
       >
         <div className={pointing ? 'backdrop sky pointing' : 'backdrop sky'}>
           {state.status === 'ready' && (
-            <SceneBoundary message="Peta 3D gagal dimuat.">
+            <SceneBoundary message="The 3D map failed to load.">
               {/* The map is a shortcut for pointers. The bars around it have the same links. */}
               <Canvas
                 flat
@@ -121,11 +121,11 @@ export default function MapRoom() {
           <SearchButton />
           <SoundButton />
           <div className="plate">
-            <h1 lang={region ? 'en' : undefined}>{region?.name ?? 'Ruang Peta'}</h1>
+            <h1 lang={region ? 'en' : undefined}>{region?.name ?? 'Map Room'}</h1>
             <p>
               {region
                 ? `${region.areas.length} area`
-                : `${regions.length} wilayah · ${regions.flatMap((item) => item.areas).length} area`}
+                : `${regions.length} regions · ${regions.flatMap((item) => item.areas).length} areas`}
             </p>
           </div>
           {region?.description && !area && (
@@ -135,12 +135,12 @@ export default function MapRoom() {
               aria-expanded={describing}
               onClick={() => setAbout(describing ? undefined : region.id)}
             >
-              Tentang
+              About
             </button>
           )}
-          <nav className="switches" aria-label="Wilayah">
+          <nav className="switches" aria-label="Regions">
             <div>
-              {[{ id: undefined, name: 'Seluruh peta' }, ...regions].map((item) => (
+              {[{ id: undefined, name: 'Whole map' }, ...regions].map((item) => (
                 <Link
                   key={item.id ?? 'all'}
                   to={item.id === undefined ? '/map' : `/map/${item.id}`}
@@ -159,10 +159,10 @@ export default function MapRoom() {
 
         {/* The free space between the bars. The map behind it takes the pointer. */}
         <div className="viewport">
-          {state.status === 'loading' && <p className="notice">Memuat data…</p>}
+          {state.status === 'loading' && <p className="notice">Loading data…</p>}
           {state.status === 'error' && (
             <p className="notice" role="alert">
-              Data peta gagal dimuat ({state.message}). Pastikan file data/map.json ada.
+              Could not load map data ({state.message}). Check that data/map.json exists.
             </p>
           )}
         </div>
@@ -189,17 +189,17 @@ export default function MapRoom() {
           <aside
             key={area?.id ?? region.id}
             className="drawer"
-            aria-label="Keterangan"
+            aria-label="Details"
             ref={setDrawer}
           >
             <p className="tools">
               {next && next !== area && (
                 <Link to={`/map/${region.id}/${next.id}`} className="pill">
-                  Area berikutnya →
+                  Next area →
                 </Link>
               )}
               <button type="button" className="pill close" onClick={close}>
-                Tutup ✕
+                Close ✕
               </button>
             </p>
             {area ? (

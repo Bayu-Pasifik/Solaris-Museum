@@ -42,7 +42,7 @@ export function drawContact(
   const width = WIDTH - 80
   const heading = { weight: 'italic 800', size: 58, smallest: 38, width, most: 1 }
   const small = { weight: '600', size: 32, smallest: 28, width, most: 2 }
-  const line = contact.preview || contact.description || 'Pesan tidak tersedia'
+  const line = contact.preview || contact.description || 'Message unavailable'
   write(
     g,
     [

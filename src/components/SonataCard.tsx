@@ -18,13 +18,13 @@ export default function SonataCard({ set, count, chosen, onChoose }: Props) {
         {set.icon && <img src={assetUrl(set.icon)} alt="" loading="lazy" />}
         <h3 lang="en">{set.name}</h3>
         <button type="button" className="pill" aria-pressed={chosen} onClick={() => onChoose(set.id)}>
-          {count} echo
+          {count} {count === 1 ? 'echo' : 'echoes'}
         </button>
       </header>
       <dl>
         {set.effects.map((effect) => (
           <div key={effect.pieces}>
-            <dt>{effect.pieces} set</dt>
+            <dt>{effect.pieces}-piece</dt>
             <dd lang="en">{effect.text}</dd>
           </div>
         ))}

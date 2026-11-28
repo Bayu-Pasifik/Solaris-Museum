@@ -49,7 +49,7 @@ export default function Gallery() {
   const piece = all.find((item) => String(pieceId(item)) === params.item)
   const round = piece && found.some((item) => item.key === piece.key) ? found : all
   const at = piece ? round.findIndex((item) => item.key === piece.key) : -1
-  useTitle(piece ? pieceName(piece) : 'Galeri')
+  useTitle(piece ? pieceName(piece) : 'Gallery')
 
   // Every collection and every search starts at the left end of the wall.
   const scroll = useMemo<{ current: Scroll }>(() => ({ current: newScroll() }), [section, text])
@@ -147,7 +147,7 @@ export default function Gallery() {
           onPointerDown={grab}
         >
           {data && (
-            <SceneBoundary message="Galeri 3D gagal dimuat.">
+            <SceneBoundary message="The 3D gallery failed to load.">
               {/* The wall is a shortcut for pointers. The strip below it has the same links. */}
               <Canvas
                 flat
@@ -184,10 +184,10 @@ export default function Gallery() {
           <SearchButton />
           <SoundButton />
           <div className="plate">
-            <h1>Galeri</h1>
+            <h1>Gallery</h1>
             <p>{data ? `${all.length} ${section.unit}` : 'Namecard, title, achievement'}</p>
           </div>
-          <nav className="switches" aria-label="Jenis koleksi">
+          <nav className="switches" aria-label="Collection types">
             <div>
               {SECTIONS.map((item) => (
                 <Link
@@ -204,7 +204,7 @@ export default function Gallery() {
             </div>
           </nav>
           {section.id === 'achievement' && (
-            <nav className="jumps" aria-label="Kategori achievement">
+            <nav className="jumps" aria-label="Achievement categories">
               {shown.map(
                 (item) =>
                   item.kind === 'banner' && (
@@ -228,20 +228,20 @@ export default function Gallery() {
 
         {/* The free space between the bars. The hall behind it takes the pointer. */}
         <div className="viewport">
-          {state.status === 'loading' && <p className="notice">Memuat data…</p>}
+          {state.status === 'loading' && <p className="notice">Loading data…</p>}
           {state.status === 'error' && (
             <p className="notice" role="alert">
-              Data galeri gagal dimuat ({state.message}). Pastikan file data/gallery.json ada.
+              Could not load gallery data ({state.message}). Check that data/gallery.json exists.
             </p>
           )}
-          {data && shown.length === 0 && <p className="notice plain">Tidak ditemukan.</p>}
+          {data && shown.length === 0 && <p className="notice plain">Nothing found.</p>}
           {shown.length > 0 &&
             ([-1, 1] as const).map((by) => (
               <button
                 key={by}
                 type="button"
                 className={by < 0 ? 'pill walk back' : 'pill walk'}
-                aria-label={by < 0 ? 'Geser ke kiri' : 'Geser ke kanan'}
+                aria-label={by < 0 ? 'Scroll left' : 'Scroll right'}
                 onClick={() => {
                   scroll.current.target += by * scroll.current.page
                 }}
@@ -272,16 +272,16 @@ export default function Gallery() {
 
         {piece && (
           // A new key starts every piece at its top.
-          <aside key={piece.key} className="drawer" aria-label="Keterangan" ref={setDrawer}>
+          <aside key={piece.key} className="drawer" aria-label="Details" ref={setDrawer}>
             <p className="tools">
               <button type="button" className="pill" onClick={() => move(-1)}>
-                ← Sebelumnya
+                ← Previous
               </button>
               <button type="button" className="pill" onClick={() => move(1)}>
-                Berikutnya →
+                Next →
               </button>
               <button type="button" className="pill close" onClick={close}>
-                Tutup ✕
+                Close ✕
               </button>
             </p>
             <PieceReport piece={piece} text={text} />

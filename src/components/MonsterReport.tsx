@@ -3,7 +3,7 @@ import { useTerms } from '../lib/glossary'
 import GameText from './GameText'
 import Marks from './Marks'
 
-const number = new Intl.NumberFormat('id-ID')
+const number = new Intl.NumberFormat('en-US')
 
 /** The drawer of the Bestiary: what is known about the chosen monster. */
 export default function MonsterReport({ monster }: { monster: Monster }) {
@@ -20,19 +20,19 @@ export default function MonsterReport({ monster }: { monster: Monster }) {
         </span>
         <small>
           <bdi lang="en">{monster.element}</bdi>
-          {height ? ` · tinggi sekitar ${number.format(Math.round(height * 10) / 10)} m` : ''}
+          {height ? ` · about ${number.format(Math.round(height * 10) / 10)} m tall` : ''}
         </small>
       </p>
 
       {monster.description && (
         <article>
-          <h3>Catatan</h3>
+          <h3>Notes</h3>
           <GameText text={terms.link(monster.description, seen)} terms={terms.byId} />
         </article>
       )}
       {monster.rumor && (
         <article>
-          <h3>Sebelum diteliti</h3>
+          <h3>Before research</h3>
           <GameText text={terms.link(monster.rumor, seen)} terms={terms.byId} />
         </article>
       )}
@@ -65,7 +65,7 @@ export default function MonsterReport({ monster }: { monster: Monster }) {
 
       {monster.resistances.length > 0 && (
         <article>
-          <h3>Ketahanan (RES)</h3>
+          <h3>Resistance (RES)</h3>
           <ul className="resists">
             {monster.resistances.map((item) => (
               // The element of the monster usually has the highest resistance.

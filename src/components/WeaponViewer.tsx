@@ -53,14 +53,14 @@ export default function WeaponViewer({ weapon, onReady = noop }: Props) {
   }
 
   const buttons = [
-    { label: 'Perbesar', sign: '+', act: () => zoom(0.75) },
-    { label: 'Perkecil', sign: '−', act: () => zoom(1 / 0.75) },
-    { label: 'Kembalikan tampilan', sign: '↺', act: reset },
+    { label: 'Zoom in', sign: '+', act: () => zoom(0.75) },
+    { label: 'Zoom out', sign: '−', act: () => zoom(1 / 0.75) },
+    { label: 'Reset view', sign: '↺', act: reset },
   ]
 
   return (
     <>
-      <SceneBoundary message={`Model ${weapon.name} gagal dimuat.`}>
+      <SceneBoundary message={`Model ${weapon.name} failed to load.`}>
         {/* flat: no tone mapping, so unlit anime textures keep their colors. */}
         <Canvas flat camera={{ position: EYE, fov: 35 }} dpr={[1, 2]}>
           <Podium theme={rarityTheme(weapon.rarity)} />
@@ -81,7 +81,7 @@ export default function WeaponViewer({ weapon, onReady = noop }: Props) {
           />
         </Canvas>
       </SceneBoundary>
-      <div className="zoom" role="group" aria-label="Perbesaran model">
+      <div className="zoom" role="group" aria-label="Model zoom">
         {buttons.map((button) => (
           <button
             key={button.label}

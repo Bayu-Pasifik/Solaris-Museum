@@ -23,7 +23,7 @@ export default function Library() {
   const current = id
     ? stories.find((story) => story.id === id)
     : (stories.find((story) => `/library/${story.id}` === last) ?? stories[0])
-  useTitle((id && current?.name) || 'Perpustakaan')
+  useTitle((id && current?.name) || 'Library')
   const shelf = stories.filter((story) => story.category === current?.category)
   const index = shelf.findIndex((story) => story.id === current?.id)
   const theme = categoryTheme(categories, current?.category ?? '')
@@ -47,32 +47,33 @@ export default function Library() {
       theme={theme}
       base="/library"
       back={{ to: '/', label: 'Lobby' }}
-      title="Perpustakaan"
+      title="Library"
       subtitle={
         current ? (
           <>
-            {shelf.length} cerita{done ? ` · ${done} dibaca` : ''} ·{' '}
+            {shelf.length} {shelf.length === 1 ? 'story' : 'stories'}
+            {done ? ` · ${done} read` : ''} ·{' '}
             <bdi lang="en">{current.category}</bdi>
           </>
         ) : (
-          'Arsip cerita'
+          'Story archive'
         )
       }
       links={
         <>
           <Link to="/glossary" className="pill">
-            Glosarium
+            Glossary
           </Link>
           <Link to="/messages" className="pill">
-            Pesan
+            Messages
           </Link>
           <Link to="/documents" className="pill">
-            Dokumen
+            Documents
           </Link>
         </>
       }
       switches={{
-        label: 'Kategori',
+        label: 'Category',
         children: categories.map((category) => {
           const first = stories.find((story) => story.category === category)!
           const chosen = category === current?.category
@@ -93,16 +94,16 @@ export default function Library() {
       }}
       ids={shelf.map((story) => story.id)}
       current={current?.id}
-      noun="Cerita"
+      noun="Story"
       notice={
         state.status === 'loading' ? (
-          <p className="notice">Memuat data…</p>
+          <p className="notice">Loading data…</p>
         ) : state.status === 'error' ? (
           <p className="notice" role="alert">
-            Data cerita gagal dimuat ({state.message}). Pastikan file data/story.json ada.
+            Could not load story data ({state.message}). Check that data/story.json exists.
           </p>
         ) : (
-          !current && <p className="notice">Cerita tidak ditemukan.</p>
+          !current && <p className="notice">Story not found.</p>
         )
       }
       caption={
@@ -110,10 +111,10 @@ export default function Library() {
           title: current.name,
           detail: (
             <>
-              <bdi lang="en">{current.group}</bdi> · {index + 1} dari {shelf.length}
+              <bdi lang="en">{current.group}</bdi> · {index + 1} of {shelf.length}
             </>
           ),
-          action: place ? `Lanjutkan · hal. ${place + 1}` : 'Baca cerita',
+          action: place ? `Continue · p. ${place + 1}` : 'Read story',
         }
       }
       scene={(stage) => (
@@ -122,8 +123,8 @@ export default function Library() {
       // The search stays open after a pick, so another result is one click away.
       strip={(pick) => (
         <RingStrip
-          label="Daftar cerita"
-          search="Cari cerita"
+          label="Story list"
+          search="Search stories"
           base="/library"
           entries={matches.map((story) => ({
             id: story.id,
@@ -137,13 +138,13 @@ export default function Library() {
           query={query}
           onQuery={setQuery}
           onPick={pick}
-          count={`${matches.length} dari ${stories.length} cerita`}
+          count={`${matches.length} of ${stories.length} stories`}
           list={text || (current?.category ?? '')}
-          hint="Seret atau gulir untuk menyusuri · klik panel untuk membaca"
+          hint="Drag or scroll to browse · click a panel to read"
         >
           {!text && groups.length > 1 && (
             <GroupSelect
-              label="Bab"
+              label="Chapter"
               groups={groups}
               value={current?.group}
               to={(group) => `/library/${shelf.find((story) => story.group === group)!.id}`}
@@ -152,7 +153,7 @@ export default function Library() {
         </RingStrip>
       )}
       report={current && <StoryReader story={current} />}
-      reportLabel="Naskah"
+      reportLabel="Script"
     />
   )
 }

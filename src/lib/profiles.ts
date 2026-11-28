@@ -47,7 +47,7 @@ export type Skill = {
   icon: string
 }
 
-export const languages = { ja: 'Jepang', en: 'Inggris', zh: 'Mandarin', ko: 'Korea' }
+export const languages = { ja: 'Japanese', en: 'English', zh: 'Chinese', ko: 'Korean' }
 
 export type Language = keyof typeof languages
 

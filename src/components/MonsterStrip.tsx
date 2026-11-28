@@ -18,7 +18,7 @@ function Head({ monster, current }: { monster: Monster; current: boolean }) {
       <Link
         to={`/bestiary/${monster.id}`}
         className="face"
-        title={monster.model ? monster.name : `${monster.name} (tanpa model 3D)`}
+        title={monster.model ? monster.name : `${monster.name} (no 3D model)`}
         aria-current={current ? 'page' : undefined}
       >
         <span className={monster.model ? 'portrait' : 'portrait flat'}>
@@ -47,17 +47,17 @@ type Props = {
 /** The bar under the arena: the search, and every monster of the open rank. */
 export default function MonsterStrip({ monsters, currentId, query, onQuery }: Props) {
   return (
-    <nav className="strip" aria-label="Daftar monster">
-      <p className="steer">Seret untuk memutar · gulir untuk mendekat · panah untuk ganti monster</p>
+    <nav className="strip" aria-label="Monster list">
+      <p className="steer">Drag to rotate · scroll to zoom · arrows to switch monster</p>
       <div className="finder">
         <input
           type="search"
-          aria-label="Cari nama"
-          placeholder="Cari nama"
+          aria-label="Search by name"
+          placeholder="Search by name"
           value={query}
           onChange={(event) => onQuery(event.target.value)}
         />
-        <span role="status">{monsters.length} monster</span>
+        <span role="status">{monsters.length} {monsters.length === 1 ? 'monster' : 'monsters'}</span>
       </div>
 
       {/* A new key starts every search at its beginning. */}
@@ -65,7 +65,7 @@ export default function MonsterStrip({ monsters, currentId, query, onQuery }: Pr
         {monsters.map((monster) => (
           <Head key={monster.id} monster={monster} current={monster.id === currentId} />
         ))}
-        {monsters.length === 0 && <li>Tidak ditemukan.</li>}
+        {monsters.length === 0 && <li>Nothing found.</li>}
       </ul>
     </nav>
   )

@@ -59,7 +59,7 @@ export default function EchoRoom() {
   const current = id
     ? echoes.find((item) => String(item.id) === id)
     : (echoes.find((item) => item.kind === 'echo' && item.monster) ?? echoes[0])
-  useTitle((id && current?.name) || 'Ruang Echo')
+  useTitle((id && current?.name) || 'Echo Room')
   const kind = current?.kind ?? 'echo'
   const round = echoes.filter((item) => item.kind === kind && passes(item, filter))
   const text = query.trim().toLowerCase()
@@ -153,7 +153,7 @@ export default function EchoRoom() {
       >
         <div className="backdrop sky">
           {current && (
-            <SceneBoundary key={model?.url} message={`Model ${current.name} gagal dimuat.`}>
+            <SceneBoundary key={model?.url} message={`Model ${current.name} failed to load.`}>
               {/* flat: no tone mapping, so unlit anime textures keep their colors. */}
               <Canvas
                 flat
@@ -187,16 +187,16 @@ export default function EchoRoom() {
           <SearchButton />
           <SoundButton />
           <div className="plate">
-            <h1 lang={current ? 'en' : undefined}>{current?.name ?? 'Ruang Echo'}</h1>
+            <h1 lang={current ? 'en' : undefined}>{current?.name ?? 'Echo Room'}</h1>
             <p lang={current ? 'en' : undefined}>
               {current
                 ? `Cost ${current.cost} · ${current.rank} · ${current.element}`
-                : 'Echo dan set Sonata'}
+                : 'Echoes and Sonata sets'}
             </p>
           </div>
           {current && (
             <div className="switches">
-              <nav aria-label="Jenis echo">
+              <nav aria-label="Echo kinds">
                 <div>
                   {KINDS.map((item) => {
                     const members = echoes.filter((echo) => echo.kind === item.id)
@@ -233,7 +233,7 @@ export default function EchoRoom() {
                       setReading(reading === item ? undefined : item)
                     }}
                   >
-                    {item === 'echo' ? 'Catatan' : `Set Sonata ${sets.size}`}
+                    {item === 'echo' ? 'Notes' : `Sonata sets ${sets.size}`}
                   </button>
                 ))}
               </div>
@@ -243,17 +243,17 @@ export default function EchoRoom() {
 
         {/* The free space between the bars. The chamber behind it takes the pointer. */}
         <div className="viewport" ref={stage}>
-          {state.status === 'loading' && <p className="notice">Memuat data…</p>}
+          {state.status === 'loading' && <p className="notice">Loading data…</p>}
           {state.status === 'error' && (
             <p className="notice" role="alert">
-              Data echo gagal dimuat ({state.message}). Pastikan file data/echo.json ada.
+              Could not load echo data ({state.message}). Check that data/echo.json exists.
             </p>
           )}
-          {state.status === 'ready' && !current && <p className="notice">Echo tidak ditemukan.</p>}
+          {state.status === 'ready' && !current && <p className="notice">Echo not found.</p>}
           {current && !model && bestiary.status !== 'loading' && (
             <figure className="no-model">
               {current.icon && <img src={assetUrl(current.icon)} alt="" />}
-              <figcaption>Echo ini belum punya model 3D.</figcaption>
+              <figcaption>This echo has no 3D model yet.</figcaption>
             </figure>
           )}
           {model && (
@@ -278,11 +278,11 @@ export default function EchoRoom() {
           >
             <div className="filters-row">
               <select
-                aria-label="Set Sonata"
+                aria-label="Sonata set"
                 value={filter.set}
                 onChange={(event) => choose({ ...filter, set: Number(event.target.value) })}
               >
-                <option value={0}>Semua set</option>
+                <option value={0}>All sets</option>
                 {[...sets.values()].map((set) => (
                   <option key={set.id} value={set.id} lang="en">
                     {set.name}
@@ -318,27 +318,27 @@ export default function EchoRoom() {
           <aside
             key={reading === 'echo' ? current.id : reading}
             className="drawer"
-            aria-label={reading === 'echo' ? 'Catatan echo' : 'Set Sonata'}
+            aria-label={reading === 'echo' ? 'Echo records' : 'Sonata sets'}
             ref={setDrawer}
           >
             <p className="tools">
               {reading === 'echo' && (
                 <>
                   <button type="button" className="pill" onClick={() => move(-1)}>
-                    ← Sebelumnya
+                    ← Previous
                   </button>
                   <button type="button" className="pill" onClick={() => move(1)}>
-                    Berikutnya →
+                    Next →
                   </button>
                 </>
               )}
               <button type="button" className="pill close" onClick={() => setReading(undefined)}>
-                Tutup ✕
+                Close ✕
               </button>
             </p>
             <div className="report">
               <h2 lang={reading === 'echo' ? 'en' : undefined}>
-                {reading === 'echo' ? current.name : 'Set Sonata'}
+                {reading === 'echo' ? current.name : 'Sonata sets'}
               </h2>
               {reading === 'echo' && <Marks path={`/echo/${current.id}`} />}
               {reading === 'echo' && (
@@ -353,18 +353,18 @@ export default function EchoRoom() {
                     <article>
                       <h3 className="skill">
                         {current.skill.icon && <img src={assetUrl(current.skill.icon)} alt="" />}
-                        Skill Echo (level tertinggi)
+                        Echo skill (highest level)
                       </h3>
                       <GameText text={terms.link(current.skill.text, seen)} terms={terms.byId} />
                     </article>
                   )}
                   {lender && (
                     <article>
-                      <h3>Model 3D</h3>
+                      <h3>3D model</h3>
                       <p>
-                        Dipinjam dari{' '}
+                        Borrowed from{' '}
                         <Link to={`/bestiary/${lender.id}`}>
-                          <bdi lang="en">{lender.name}</bdi> di Bestiary
+                          <bdi lang="en">{lender.name}</bdi> in the Bestiary
                         </Link>
                         .
                       </p>

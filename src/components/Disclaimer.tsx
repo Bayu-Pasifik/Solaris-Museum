@@ -1,8 +1,8 @@
 export default function Disclaimer() {
   return (
     <p className="disclaimer">
-      Proyek penggemar non-komersial. Wuthering Waves dan asetnya milik Kuro Games. Tidak
-      berafiliasi dengan Kuro Games. Teks dari game ditampilkan dalam bahasa Inggris.
+      Non-commercial fan project. Wuthering Waves and its assets belong to Kuro Games. Not
+      affiliated with Kuro Games.
     </p>
   )
 }

@@ -106,7 +106,7 @@ export default function Bestiary() {
       >
         <div className="backdrop sky">
           {current && (
-            <SceneBoundary key={model?.url} message={`Model ${current.name} gagal dimuat.`}>
+            <SceneBoundary key={model?.url} message={`Model ${current.name} failed to load.`}>
               {/* flat: no tone mapping, so unlit anime textures keep their colors. */}
               <Canvas
                 flat
@@ -141,12 +141,12 @@ export default function Bestiary() {
           <div className="plate">
             <h1 lang={current ? 'en' : undefined}>{current?.name ?? 'Bestiary'}</h1>
             <p lang={current ? 'en' : undefined}>
-              {current ? `${current.rank} · ${current.element}` : 'Catatan monster'}
+              {current ? `${current.rank} · ${current.element}` : 'Monster records'}
             </p>
           </div>
           {current && (
             <div className="switches">
-              <nav aria-label="Kelas monster">
+              <nav aria-label="Monster classes">
                 <div>
                   {ranks.map((item) => {
                     const first = monsters.find((monster) => monster.rank === item)
@@ -175,7 +175,7 @@ export default function Bestiary() {
                   setReading(!reading)
                 }}
               >
-                Catatan
+                Notes
               </button>
             </div>
           )}
@@ -183,19 +183,19 @@ export default function Bestiary() {
 
         {/* The free space between the bars. The arena behind it takes the pointer. */}
         <div className="viewport" ref={stage}>
-          {state.status === 'loading' && <p className="notice">Memuat data…</p>}
+          {state.status === 'loading' && <p className="notice">Loading data…</p>}
           {state.status === 'error' && (
             <p className="notice" role="alert">
-              Data bestiary gagal dimuat ({state.message}). Pastikan file data/bestiary.json ada.
+              Could not load bestiary data ({state.message}). Check that data/bestiary.json exists.
             </p>
           )}
           {state.status === 'ready' && !current && (
-            <p className="notice">Monster tidak ditemukan.</p>
+            <p className="notice">Monster not found.</p>
           )}
           {current && !model && (
             <figure className="no-model">
               {current.icon && <img src={assetUrl(current.icon)} alt="" />}
-              <figcaption>Monster ini belum punya model 3D.</figcaption>
+              <figcaption>This monster has no 3D model yet.</figcaption>
             </figure>
           )}
           {model && (
@@ -224,16 +224,16 @@ export default function Bestiary() {
 
         {reading && current && (
           // A new key starts every report at its top.
-          <aside key={current.id} className="drawer" aria-label="Catatan monster" ref={setDrawer}>
+          <aside key={current.id} className="drawer" aria-label="Monster records" ref={setDrawer}>
             <p className="tools">
               <button type="button" className="pill" onClick={() => move(-1)}>
-                ← Sebelumnya
+                ← Previous
               </button>
               <button type="button" className="pill" onClick={() => move(1)}>
-                Berikutnya →
+                Next →
               </button>
               <button type="button" className="pill close" onClick={() => setReading(false)}>
-                Tutup ✕
+                Close ✕
               </button>
             </p>
             <MonsterReport monster={current} />

@@ -24,13 +24,13 @@ export type Shelved = GameDocument & { picture?: string }
 
 /** The shelves, in the order of the page. */
 export const KINDS: Record<DocumentKind, string> = {
-  text: 'Dokumen',
-  picture: 'Foto & gambar',
-  record: 'Rekaman',
-  foreign: 'Teks asing',
+  text: 'Documents',
+  picture: 'Photos & pictures',
+  record: 'Recordings',
+  foreign: 'Foreign text',
 }
 
-export const NO_REGION = 'Wilayah tidak tercatat'
+export const NO_REGION = 'Region not recorded'
 export const regionOf = (document: GameDocument) => document.region ?? NO_REGION
 
 const NONE: Shelved[] = []

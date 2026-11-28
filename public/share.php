@@ -9,16 +9,16 @@ const SITE = 'Solaris Museum';
 
 /** Name, description and color of every room. Keep them in line with src/lib/rooms.ts. */
 const ROOMS = [
-    'resonator' => ['Hall Resonator', 'Koleksi karakter', '#ff5fa8'],
-    'armory' => ['Armory', 'Koleksi senjata', '#ffb86b'],
-    'library' => ['Perpustakaan', 'Arsip cerita', '#8f8df7'],
-    'glossary' => ['Glosarium', 'Istilah Solaris', '#f5c542'],
-    'messages' => ['Pesan', 'Obrolan Resonator', '#c77dff'],
-    'documents' => ['Dokumen', 'Catatan Solaris', '#c9976b'],
-    'gallery' => ['Galeri', 'Namecard, title, achievement', '#4fd1b5'],
-    'map' => ['Ruang Peta', 'Wilayah dan laporan area', '#7ecb55'],
-    'bestiary' => ['Bestiary', 'Monster dan catatannya', '#e5544b'],
-    'echo' => ['Ruang Echo', 'Echo dan set Sonata', '#46c8ff'],
+    'resonator' => ['Resonator Hall', 'Character collection', '#ff5fa8'],
+    'armory' => ['Armory', 'Weapon collection', '#ffb86b'],
+    'library' => ['Library', 'Story archive', '#8f8df7'],
+    'glossary' => ['Glossary', 'Terms of Solaris', '#f5c542'],
+    'messages' => ['Messages', 'Resonator chats', '#c77dff'],
+    'documents' => ['Documents', 'Records of Solaris', '#c9976b'],
+    'gallery' => ['Gallery', 'Namecard, title, achievement', '#4fd1b5'],
+    'map' => ['Map Room', 'Regions and area reports', '#7ecb55'],
+    'bestiary' => ['Bestiary', 'Monsters and their records', '#e5544b'],
+    'echo' => ['Echo Room', 'Echoes and Sonata sets', '#46c8ff'],
 ];
 
 /** A JSON file of data/, or an empty list when it is missing or broken. */
@@ -197,7 +197,7 @@ $parts = array_map('rawurldecode', explode('/', trim($route, '/')));
 $room = $parts[0] ?? '';
 
 list($name, $summary, $color) = ROOMS[$room]
-    ?? [SITE, 'Solaris Museum, museum 3D buatan penggemar.', '#8f8df7'];
+    ?? [SITE, 'Solaris Museum, a fan-made 3D museum.', '#8f8df7'];
 $page = entry($room, $parts[1] ?? '', $parts[2] ?? '') ?: ['name' => $name, 'text' => $summary];
 
 // The host comes from the visitor, so anything that does not look like one is dropped.

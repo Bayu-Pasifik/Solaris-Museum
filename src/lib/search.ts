@@ -9,11 +9,11 @@ import { useWeapons } from './weapons'
 /** What the search looks through, in the order of the results. */
 export const GROUPS = {
   character: 'Resonator',
-  weapon: 'Senjata',
+  weapon: 'Weapon',
   monster: 'Monster',
   echo: 'Echo',
-  story: 'Cerita',
-  document: 'Dokumen',
+  story: 'Story',
+  document: 'Document',
 }
 
 export type Group = keyof typeof GROUPS

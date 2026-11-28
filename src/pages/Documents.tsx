@@ -25,7 +25,7 @@ export default function Documents() {
   const current = id
     ? documents.find((item) => String(item.id) === id)
     : documents.find((item) => item.kind === kinds[0])
-  useTitle((id && current?.title) || 'Dokumen')
+  useTitle((id && current?.title) || 'Documents')
   const shelf = documents.filter((item) => item.kind === current?.kind)
   const index = shelf.findIndex((item) => item.id === current?.id)
   const theme = categoryTheme(kinds, current?.kind ?? '')
@@ -47,10 +47,10 @@ export default function Documents() {
       theme={theme}
       base="/documents"
       back={{ to: '/', label: 'Lobby' }}
-      title="Arsip Dokumen"
-      subtitle={current ? `${shelf.length} entri · ${KINDS[current.kind]}` : 'Catatan Solaris'}
+      title="Document Archive"
+      subtitle={current ? `${shelf.length} ${shelf.length === 1 ? 'entry' : 'entries'} · ${KINDS[current.kind]}` : 'Records of Solaris'}
       switches={{
-        label: 'Jenis',
+        label: 'Type',
         children: kinds.map((kind) => {
           const first = documents.find((item) => item.kind === kind)!
           const chosen = kind === current?.kind
@@ -70,16 +70,16 @@ export default function Documents() {
       }}
       ids={shelf.map((item) => String(item.id))}
       current={current && String(current.id)}
-      noun="Dokumen"
+      noun="Document"
       notice={
         state.status === 'loading' ? (
-          <p className="notice">Memuat data…</p>
+          <p className="notice">Loading data…</p>
         ) : state.status === 'error' ? (
           <p className="notice" role="alert">
-            Dokumen gagal dimuat ({state.message}). Pastikan file data/documents.json ada.
+            Could not load documents ({state.message}). Check that data/documents.json exists.
           </p>
         ) : (
-          !current && <p className="notice">Dokumen tidak ditemukan.</p>
+          !current && <p className="notice">Document not found.</p>
         )
       }
       caption={
@@ -87,10 +87,10 @@ export default function Documents() {
           title: current.title,
           detail: (
             <>
-              <Where name={current.region} /> · {index + 1} dari {shelf.length}
+              <Where name={current.region} /> · {index + 1} of {shelf.length}
             </>
           ),
-          action: 'Baca',
+          action: 'Read',
         }
       }
       scene={(stage) => (
@@ -98,8 +98,8 @@ export default function Documents() {
       )}
       strip={(pick) => (
         <RingStrip
-          label="Daftar dokumen"
-          search="Cari dokumen"
+          label="Document list"
+          search="Search documents"
           base="/documents"
           entries={matches.map((item) => ({
             id: String(item.id),
@@ -117,13 +117,13 @@ export default function Documents() {
           query={query}
           onQuery={setQuery}
           onPick={pick}
-          count={`${matches.length} dari ${documents.length} dokumen`}
+          count={`${matches.length} of ${documents.length} documents`}
           list={text || (current?.kind ?? '')}
-          hint="Seret atau gulir untuk menyusuri · klik panel untuk membaca"
+          hint="Drag or scroll to browse · click a panel to read"
         >
           {!text && regions.length > 1 && (
             <GroupSelect
-              label="Wilayah"
+              label="Region"
               own={NO_REGION}
               groups={regions}
               value={current && regionOf(current)}
@@ -133,7 +133,7 @@ export default function Documents() {
         </RingStrip>
       )}
       report={current && <DocumentReader document={current} />}
-      reportLabel="Isi dokumen"
+      reportLabel="Document text"
     />
   )
 }

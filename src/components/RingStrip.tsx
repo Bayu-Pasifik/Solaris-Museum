@@ -109,7 +109,7 @@ export default function RingStrip({
             onPick={onPick}
           />
         ))}
-        {entries.length === 0 && <li>Tidak ditemukan.</li>}
+        {entries.length === 0 && <li>Nothing found.</li>}
       </ul>
     </nav>
   )

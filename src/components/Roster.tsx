@@ -94,9 +94,9 @@ export default function Roster({ characters, currentId }: Props) {
   )
 
   return (
-    <nav className="strip" aria-label="Daftar karakter">
+    <nav className="strip" aria-label="Character list">
       <div className="finder">
-        <sakuga-input type="search" placeholder="Cari karakter" label="Cari karakter" ref={search} />
+        <sakuga-input type="search" placeholder="Search characters" label="Search characters" ref={search} />
         <p className="count">
           <button
             type="button"
@@ -120,7 +120,7 @@ export default function Roster({ characters, currentId }: Props) {
       {open && characters.length > 0 && (
         <div className="filters">
           <Chips
-            label="Elemen"
+            label="Element"
             options={elements}
             chosen={filters.element}
             color={(element) => themeOf(element).accent}
@@ -129,13 +129,13 @@ export default function Roster({ characters, currentId }: Props) {
             }
           />
           <Chips
-            label="Senjata"
+            label="Weapon"
             options={unique(characters.map((item) => item.weapon)).sort()}
             chosen={filters.weapon}
             onToggle={(value) => setFilters({ ...filters, weapon: toggled(filters.weapon, value) })}
           />
           <Chips
-            label="Bintang"
+            label="Stars"
             options={unique(characters.map((item) => item.rarity)).sort((a, b) => b - a)}
             chosen={filters.rarity}
             text={(rarity) => `${rarity}★`}
@@ -148,7 +148,7 @@ export default function Roster({ characters, currentId }: Props) {
         {matches.map((item) => (
           <Face key={item.id} character={item} current={item.id === currentId} />
         ))}
-        {characters.length > 0 && matches.length === 0 && <li>Tidak ditemukan.</li>}
+        {characters.length > 0 && matches.length === 0 && <li>Nothing found.</li>}
       </ul>
     </nav>
   )

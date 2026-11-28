@@ -19,19 +19,19 @@ type Kind = {
 const KINDS: Kind[] = [
   {
     id: 'all',
-    label: 'Semua',
+    label: 'All',
     theme: { deep: '#4a47b8', pale: '#e6e5ff', accent: '#8f8df7' },
     has: () => true,
   },
   {
     id: 'private',
-    label: 'Pribadi',
+    label: 'Private',
     theme: { deep: '#a82a68', pale: '#ffe0ee', accent: '#ff5fa8' },
     has: (contact) => contact.members === undefined,
   },
   {
     id: 'group',
-    label: 'Grup',
+    label: 'Group',
     theme: { deep: '#1c7a4c', pale: '#dcf8e6', accent: '#45d38a' },
     has: (contact) => contact.members !== undefined,
   },
@@ -48,7 +48,7 @@ export default function Messages() {
 
   const contacts = state.status === 'ready' ? state.data : NONE
   const current = id ? contacts.find((contact) => contact.id === id) : contacts[0]
-  useTitle((id && current?.name) || 'Pesan')
+  useTitle((id && current?.name) || 'Messages')
   // A link or a search can open a contact of another kind; then all of them are in the ring.
   const kind = current && !chosen.has(current) ? KINDS[0] : chosen
   const shelf = contacts.filter(kind.has)
@@ -65,10 +65,10 @@ export default function Messages() {
       theme={kind.theme}
       base="/messages"
       back={{ to: '/', label: 'Lobby' }}
-      title="Pesan"
-      subtitle="Obrolan ponsel dari Solaris"
+      title="Messages"
+      subtitle="Phone chats from Solaris"
       switches={{
-        label: 'Jenis obrolan',
+        label: 'Chat type',
         children: KINDS.map((item) => (
           <button
             key={item.id}
@@ -88,23 +88,23 @@ export default function Messages() {
       }}
       ids={shelf.map((contact) => contact.id)}
       current={current?.id}
-      noun="Kontak"
+      noun="Contact"
       notice={
         state.status === 'loading' ? (
-          <p className="notice">Memuat data…</p>
+          <p className="notice">Loading data…</p>
         ) : state.status === 'error' ? (
           <p className="notice" role="alert">
-            Data pesan gagal dimuat ({state.message}). Pastikan file data/chat.json ada.
+            Could not load message data ({state.message}). Check that data/chat.json exists.
           </p>
         ) : (
-          !current && <p className="notice">Percakapan tidak ditemukan.</p>
+          !current && <p className="notice">Conversation not found.</p>
         )
       }
       caption={
         current && {
           title: current.name,
-          detail: `${current.members ? `Grup · ${current.members} orang` : 'Obrolan pribadi'} · ${index + 1} dari ${shelf.length}`,
-          action: 'Buka obrolan',
+          detail: `${current.members ? `Group · ${current.members} people` : 'Private chat'} · ${index + 1} of ${shelf.length}`,
+          action: 'Open chat',
         }
       }
       scene={(stage) => (
@@ -118,8 +118,8 @@ export default function Messages() {
       )}
       strip={(pick) => (
         <RingStrip
-          label="Daftar kontak"
-          search="Cari kontak"
+          label="Contact list"
+          search="Search contacts"
           base="/messages"
           entries={matches.map((contact) => ({
             id: contact.id,
@@ -127,7 +127,7 @@ export default function Messages() {
             detail: contact.preview ? (
               <bdi lang="en">{contact.preview}</bdi>
             ) : (
-              'Pesan tidak tersedia'
+              'Message unavailable'
             ),
             lead: <Avatar name={contact.name} path={contact.avatar} />,
           }))}
@@ -135,13 +135,13 @@ export default function Messages() {
           query={query}
           onQuery={setQuery}
           onPick={pick}
-          count={`${matches.length} dari ${contacts.length} percakapan`}
+          count={`${matches.length} of ${contacts.length} conversations`}
           list={text || kind.id}
-          hint="Seret atau gulir untuk menyusuri · klik panel untuk membuka obrolan"
+          hint="Drag or scroll to browse · click a panel to open the chat"
         />
       )}
       report={current && <ChatWindow contact={current} />}
-      reportLabel="Obrolan"
+      reportLabel="Chat"
     />
   )
 }

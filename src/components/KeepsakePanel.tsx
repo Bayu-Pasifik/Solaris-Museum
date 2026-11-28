@@ -11,7 +11,7 @@ export default function KeepsakePanel({ profile }: { profile: Profile }) {
 
   return (
     <div className="panel">
-      {keepsakes.length === 0 && <p>Belum ada barang kenangan untuk karakter ini.</p>}
+      {keepsakes.length === 0 && <p>No keepsakes for this character yet.</p>}
       <ul className="keepsakes">
         {keepsakes.map((item) => (
           <li key={item.name}>

@@ -46,7 +46,7 @@ function Stage({ character, view, weapons }: StageProps) {
   const [armed, setArmed] = useState('')
   const weapon = weapons.find((item) => item.id === armed)
   const outfits = [
-    { ...character, name: character.skinName ?? 'Bawaan' },
+    { ...character, name: character.skinName ?? 'Default' },
     ...(character.skins ?? []),
   ]
   const [worn, setWorn] = useState(0)
@@ -105,7 +105,7 @@ function Stage({ character, view, weapons }: StageProps) {
 
       <div className="viewport" ref={viewport}>
         {view === 'model' && (
-          <SceneBoundary message={`Model ${character.name} gagal dimuat.`}>
+          <SceneBoundary message={`Model ${character.name} failed to load.`}>
             {/* flat: no tone mapping, so unlit anime textures keep their colors. */}
             <Canvas flat camera={{ position: [0, 0.98, 3.65], fov: 35 }} dpr={[1, 2]}>
               <ambientLight intensity={0.8} />
@@ -137,9 +137,9 @@ function Stage({ character, view, weapons }: StageProps) {
         )}
         {view === 'art' &&
           (character.l2d ? (
-            <SceneBoundary message={`L2D ${character.name} gagal dimuat.`}>
-              <Suspense fallback={<p className="notice">Memuat L2D…</p>}>
-                <Live2dArt art={character.l2d} label={`Ilustrasi bergerak ${character.name}`} />
+            <SceneBoundary message={`L2D ${character.name} failed to load.`}>
+              <Suspense fallback={<p className="notice">Loading L2D…</p>}>
+                <Live2dArt art={character.l2d} label={`Animated artwork of ${character.name}`} />
               </Suspense>
             </SceneBoundary>
           ) : (
@@ -152,7 +152,7 @@ function Stage({ character, view, weapons }: StageProps) {
           {(outfits.length > 1 || weapons.length > 0) && (
             <div className="outfits">
               {outfits.length > 1 && (
-                <div role="group" aria-label="Kostum">
+                <div role="group" aria-label="Outfit">
                   {outfits.map((item, index) => (
                     <button
                       key={item.model}
@@ -174,14 +174,14 @@ function Stage({ character, view, weapons }: StageProps) {
               {weapons.length > 0 && (
                 <select
                   className="pill"
-                  aria-label="Senjata di tangan"
+                  aria-label="Held weapon"
                   value={armed}
                   onChange={(event) => {
                     pop(event.currentTarget)
                     setArmed(event.target.value)
                   }}
                 >
-                  <option value="">Tanpa senjata</option>
+                  <option value="">No weapon</option>
                   {weapons.map((item) => (
                     <option key={item.id} value={item.id} lang="en">
                       {item.name} {item.rarity}★
@@ -214,7 +214,7 @@ export default function ResonatorHall() {
   const characters = state.status === 'ready' ? state.data : []
   const current = id ? characters.find((item) => item.id === id) : characters[0]
   const theme = themeOf(current?.element ?? '')
-  useTitle((id && current?.name) || 'Hall Resonator')
+  useTitle((id && current?.name) || 'Resonator Hall')
   // The hall also works without the Armory data; there is then no weapon to choose.
   const armory = useWeapons()
   const weapons =
@@ -233,7 +233,7 @@ export default function ResonatorHall() {
 
   const views: { id: View; label: string }[] = [
     { id: 'model', label: '3D' },
-    { id: 'art', label: current?.l2d ? 'L2D' : 'Ilustrasi' },
+    { id: 'art', label: current?.l2d ? 'L2D' : 'Artwork' },
   ]
 
   return (
@@ -256,7 +256,7 @@ export default function ResonatorHall() {
           <SoundButton />
           <div className="plate">
             <h1>
-              {current ? <bdi lang="en">{current.name}</bdi> : 'Hall Resonator'}
+              {current ? <bdi lang="en">{current.name}</bdi> : 'Resonator Hall'}
               {current && <span>{'★'.repeat(current.rarity)}</span>}
             </h1>
             {current && (
@@ -267,7 +267,7 @@ export default function ResonatorHall() {
           </div>
           {current && (
             <div className="switches">
-              <div role="group" aria-label="Tampilan">
+              <div role="group" aria-label="View">
                 {views.map((item) => (
                   <button
                     key={item.id}
@@ -302,14 +302,13 @@ export default function ResonatorHall() {
           <Stage key={current.id} character={current} view={view} weapons={weapons} />
         ) : (
           <div className="viewport">
-            {state.status === 'loading' && <p className="notice">Memuat data…</p>}
+            {state.status === 'loading' && <p className="notice">Loading data…</p>}
             {state.status === 'error' && (
               <p className="notice" role="alert">
-                Data karakter gagal dimuat ({state.message}). Pastikan file data/characters.json
-                ada.
+                Could not load character data ({state.message}). Check that data/characters.json exists.
               </p>
             )}
-            {state.status === 'ready' && <p className="notice">Karakter tidak ditemukan.</p>}
+            {state.status === 'ready' && <p className="notice">Character not found.</p>}
           </div>
         )}
 
@@ -318,15 +317,15 @@ export default function ResonatorHall() {
         <footer className="gallery-foot">
           <Disclaimer />
           <p className="disclaimer">
-            L2D diputar dengan Spine Runtimes © Esoteric Software (
-            <a href={assetUrl('spine-license.txt')}>lisensi</a>).
+            L2D is played with Spine Runtimes © Esoteric Software (
+            <a href={assetUrl('spine-license.txt')}>license</a>).
           </p>
         </footer>
 
         {reading && current && (
           <div className="drawer">
             <button type="button" className="pill close" onClick={() => setReading(false)}>
-              Tutup ✕
+              Close ✕
             </button>
             <Dossier key={current.id} character={current} />
           </div>

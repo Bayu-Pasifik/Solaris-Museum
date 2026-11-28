@@ -10,7 +10,7 @@ export default function WeaponReport({ weapon }: { weapon: Weapon }) {
         {weapon.stats.map((stat, index) => (
           <div key={index}>
             <dt>
-              <bdi lang="en">{stat.name}</bdi> · level awal → maksimum
+              <bdi lang="en">{stat.name}</bdi> · starting → max level
             </dt>
             <dd>
               {stat.min} → {stat.max}
@@ -22,12 +22,12 @@ export default function WeaponReport({ weapon }: { weapon: Weapon }) {
         <>
           <h3 lang="en">{weapon.skill.name}</h3>
           <GameText text={weapon.skill.description} />
-          <p className="ranks">Angka yang dipisah garis miring berlaku untuk rank 1 sampai 5.</p>
+          <p className="ranks">Values separated by slashes are for ranks 1 to 5.</p>
         </>
       )}
       {weapon.description && (
         <>
-          <h4>Kisah</h4>
+          <h4>Story</h4>
           <GameText text={weapon.description} />
         </>
       )}

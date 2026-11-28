@@ -47,7 +47,7 @@ export function useJson<T>(path: string, isValid: (data: T) => boolean): Loaded<
         return response.json() as Promise<T>
       })
       .then((data) => {
-        if (!isValid(data)) throw new Error('Format data salah')
+        if (!isValid(data)) throw new Error('Invalid data format')
         setState({ status: 'ready', data })
       })
       .catch((error: Error) => {

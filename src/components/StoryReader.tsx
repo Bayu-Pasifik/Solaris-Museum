@@ -45,12 +45,12 @@ function Pages({ story, sections, terms }: PagesProps) {
   }, [resumed])
 
   const nav = (
-    <nav className="turn" aria-label="Pindah halaman">
+    <nav className="turn" aria-label="Turn page">
       <button type="button" className="pill" disabled={open === 0} onClick={() => turn(open - 1)}>
-        ← Sebelumnya
+        ← Previous
       </button>
       <label>
-        Halaman{' '}
+        Page{' '}
         <select value={open} onChange={(event) => turn(Number(event.target.value))}>
           {pages.map((_, index) => (
             <option key={index} value={index}>
@@ -58,7 +58,7 @@ function Pages({ story, sections, terms }: PagesProps) {
             </option>
           ))}
         </select>{' '}
-        dari {pages.length}
+        of {pages.length}
       </label>
       <button
         type="button"
@@ -66,7 +66,7 @@ function Pages({ story, sections, terms }: PagesProps) {
         disabled={open === pages.length - 1}
         onClick={() => turn(open + 1)}
       >
-        Berikutnya →
+        Next →
       </button>
     </nav>
   )
@@ -75,9 +75,9 @@ function Pages({ story, sections, terms }: PagesProps) {
     <div className="panel script" ref={top}>
       {resumed > 0 && open === resumed && (
         <p className="resumed" role="status">
-          Melanjutkan dari halaman {open + 1} dari {pages.length}.
+          Resumed at page {open + 1} of {pages.length}.
           <button type="button" className="pill" onClick={() => turn(0)}>
-            Baca dari awal
+            Start over
           </button>
         </p>
       )}
@@ -89,7 +89,7 @@ function Pages({ story, sections, terms }: PagesProps) {
               {line.speaker && <b lang="en">{line.speaker}</b>}
               {line.text && <GameText text={line.text} terms={terms.byId} />}
               {line.choices && (
-                <ul aria-label="Pilihan jawaban">
+                <ul aria-label="Reply choices">
                   {line.choices.map((choice, number) => (
                     <li key={number} lang="en">
                       <Struck terms={terms.byId}>{choice}</Struck>
@@ -110,16 +110,16 @@ function Pages({ story, sections, terms }: PagesProps) {
 function Script({ story, terms }: { story: Story; terms: Terms }) {
   const state = useJson<StoryText>(`data/story/${story.id}.json`, isStoryText)
 
-  if (state.status === 'loading') return <p className="notice">Memuat cerita…</p>
+  if (state.status === 'loading') return <p className="notice">Loading story…</p>
   if (state.status === 'error') {
     return (
       <p className="notice" role="alert">
-        Naskah cerita ini belum tersedia.
+        The script of this story is not available yet.
       </p>
     )
   }
   if (state.data.sections.length === 0) {
-    return <p className="notice">Arsip ini tidak memiliki naskah dialog.</p>
+    return <p className="notice">This entry has no dialogue script.</p>
   }
   return <Pages story={story} sections={state.data.sections} terms={terms} />
 }
@@ -131,7 +131,7 @@ export default function StoryReader({ story }: { story: Story }) {
   const summary = terms.link(story.summary, new Set())
 
   return (
-    <section className="card dossier reader" aria-label={`Cerita ${story.name}`}>
+    <section className="card dossier reader" aria-label={`Story ${story.name}`}>
       <h2 lang="en">{story.name}</h2>
       <p className="how" lang="en">
         {story.category} · {story.group}

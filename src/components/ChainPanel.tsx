@@ -6,7 +6,7 @@ export default function ChainPanel({ profile }: { profile: Profile }) {
 
   return (
     <div className="panel">
-      {chain.length === 0 && <p>Belum ada resonance chain untuk karakter ini.</p>}
+      {chain.length === 0 && <p>No resonance chain for this character yet.</p>}
       <IconList entries={chain.map((node, index) => ({ ...node, label: `Node ${index + 1}` }))} />
     </div>
   )

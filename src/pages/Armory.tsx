@@ -40,7 +40,7 @@ function Exhibit({ weapon }: { weapon: Weapon }) {
 
   return (
     <div className="exhibit">
-      <section className="card viewer" aria-label={`Model 3D ${weapon.name}`} style={colors}>
+      <section className="card viewer" aria-label={`3D model of ${weapon.name}`} style={colors}>
         <h2 lang="en">
           {weapon.name}
           <span>{'★'.repeat(weapon.rarity)}</span>
@@ -57,7 +57,7 @@ function Exhibit({ weapon }: { weapon: Weapon }) {
         </div>
       </section>
 
-      <section className="card dossier" aria-label={`Data ${weapon.name}`} style={colors}>
+      <section className="card dossier" aria-label={`${weapon.name} details`} style={colors}>
         <WeaponReport weapon={weapon} />
       </section>
     </div>
@@ -78,7 +78,7 @@ export default function Armory() {
   const walk = useWalkChoice(characters.status === 'ready' ? characters.data : [])
 
   if (walk.mode !== 'tour' && state.status !== 'error') {
-    if (state.status === 'loading') return <p className="notice">Memuat data…</p>
+    if (state.status === 'loading') return <p className="notice">Loading data…</p>
     return <ArmoryWalk weapons={weapons} currentId={id} walk={walk} />
   }
 
@@ -86,7 +86,7 @@ export default function Armory() {
     <div className="wrap">
       <header>
         <h1>Armory</h1>
-        <p className="lede">Pilih senjata, putar modelnya, lalu baca kemampuan dan kisahnya.</p>
+        <p className="lede">Pick a weapon, rotate its model, then read its skill and story.</p>
         <p className="links">
           <Link to="/" className="pill">
             ← Lobby
@@ -94,19 +94,19 @@ export default function Armory() {
           <SearchButton />
           <SoundButton />
         </p>
-        <ModeSwitch walk={walk} onChoose={walk.choose} still="Daftar" />
+        <ModeSwitch walk={walk} onChoose={walk.choose} still="List" />
       </header>
 
       <main className="hall">
         <WeaponRack weapons={weapons} currentId={current?.id} />
 
-        {state.status === 'loading' && <p className="notice">Memuat data…</p>}
+        {state.status === 'loading' && <p className="notice">Loading data…</p>}
         {state.status === 'error' && (
           <p className="notice" role="alert">
-            Data senjata gagal dimuat ({state.message}). Pastikan file data/weapons.json ada.
+            Could not load weapon data ({state.message}). Check that data/weapons.json exists.
           </p>
         )}
-        {state.status === 'ready' && !current && <p className="notice">Senjata tidak ditemukan.</p>}
+        {state.status === 'ready' && !current && <p className="notice">Weapon not found.</p>}
         {current && <Exhibit key={current.id} weapon={current} />}
       </main>
 

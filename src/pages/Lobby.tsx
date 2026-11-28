@@ -235,7 +235,7 @@ export default function Lobby() {
         ref={stroll}
         onPointerDown={grab}
       >
-        <SceneBoundary message="Tampilan 3D gagal dimuat.">
+        <SceneBoundary message="The 3D view failed to load.">
           {/* Clicking a portal is a mouse shortcut. The buttons below are for keyboard and screen readers. */}
           <Canvas
             flat
@@ -271,17 +271,17 @@ export default function Lobby() {
       <header className="topbar" ref={setTop}>
         <div className="plate">
           <h1>Solaris Museum</h1>
-          <p>Museum 3D buatan penggemar</p>
+          <p>A fan-made 3D museum</p>
         </div>
-        <SearchButton label="Cari di museum" />
+        <SearchButton label="Search the museum" />
         <SoundButton />
         <ModeSwitch walk={walking} onChoose={choose} />
         {(unfinished || favorites > 0) && (
-          <nav className="memory" aria-label="Kunjunganmu">
+          <nav className="memory" aria-label="Your visit">
             {unfinished && (
               <Link to={`${unfinished.path}?baca`} className="pill resume">
                 <span>
-                  Lanjutkan: <bdi lang="en">{unfinished.name}</bdi>
+                  Continue: <bdi lang="en">{unfinished.name}</bdi>
                 </span>
               </Link>
             )}
@@ -293,7 +293,7 @@ export default function Lobby() {
                 onClick={() => openSearch(true)}
               >
                 <span aria-hidden="true">★</span>
-                Favorit {favorites}
+                Favorites {favorites}
               </button>
             )}
           </nav>
@@ -305,7 +305,7 @@ export default function Lobby() {
         {roaming && <Stick roam={roam} />}
         {door?.path && roaming && !entering && (
           <button type="button" className="button enter" onClick={() => onUse()}>
-            Masuk {door.name} <kbd aria-hidden="true">E</kbd>
+            Enter {door.name} <kbd aria-hidden="true">E</kbd>
           </button>
         )}
         {(roaming ? [] : [-1, 1]).map((by) => (
@@ -313,7 +313,7 @@ export default function Lobby() {
             key={by}
             type="button"
             className={by < 0 ? 'pill walk back' : 'pill walk'}
-            aria-label={by < 0 ? 'Ruangan sebelumnya' : 'Ruangan berikutnya'}
+            aria-label={by < 0 ? 'Previous room' : 'Next room'}
             disabled={by < 0 ? stop === 0 : stop === rooms.length - 1}
             onClick={() => go(stop + by)}
           >
@@ -337,11 +337,11 @@ export default function Lobby() {
       </div>
 
       <div ref={setBottom}>
-        <nav className="strip" aria-label="Ruangan">
+        <nav className="strip" aria-label="Rooms">
           <p className="steer">
             {roaming
-              ? 'WASD atau panah untuk berjalan · Shift lari · seret untuk melihat · E masuk'
-              : 'Gulir atau seret untuk berjalan · klik portal untuk masuk'}
+              ? 'WASD or arrows to walk · Shift to run · drag to look · E to enter'
+              : 'Scroll or drag to walk · click a portal to enter'}
           </p>
           <ul ref={wheel}>
             {rooms.map((room, index) => (
@@ -374,7 +374,7 @@ export default function Lobby() {
                   }}
                 >
                   <b>{room.name}</b>
-                  <small>{room.path ? room.description : 'Segera hadir'}</small>
+                  <small>{room.path ? room.description : 'Coming soon'}</small>
                 </button>
               </li>
             ))}

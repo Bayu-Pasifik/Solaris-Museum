@@ -83,18 +83,18 @@ export default function SearchPanel({ starred, onStarred, onClose }: Props) {
       <div className="search-head">
         <input
           type="search"
-          aria-label="Cari di seluruh museum"
-          placeholder="Cari karakter, senjata, monster, echo, cerita, dokumen"
+          aria-label="Search the whole museum"
+          placeholder="Search characters, weapons, monsters, echoes, stories, documents"
           autoComplete="off"
           value={query}
           onChange={(event) => setQuery(event.target.value)}
         />
         <button type="button" className="pill" onClick={onClose}>
-          Tutup ✕
+          Close ✕
         </button>
       </div>
 
-      <div className="search-groups" role="group" aria-label="Kategori">
+      <div className="search-groups" role="group" aria-label="Categories">
         <button
           type="button"
           className="pill"
@@ -102,7 +102,7 @@ export default function SearchPanel({ starred, onStarred, onClose }: Props) {
           onClick={() => onStarred(!starred)}
         >
           <span aria-hidden="true">{starred ? '★' : '☆'}</span>
-          Favorit
+          Favorites
         </button>
         {[undefined, ...GROUP_IDS].map((id) => (
           <button
@@ -112,7 +112,7 @@ export default function SearchPanel({ starred, onStarred, onClose }: Props) {
             aria-pressed={group === id}
             onClick={() => setGroup(id)}
           >
-            {id ? GROUPS[id] : 'Semua'}
+            {id ? GROUPS[id] : 'All'}
             {listing && <small>{id ? members(id).length : found.length}</small>}
           </button>
         ))}
@@ -120,19 +120,19 @@ export default function SearchPanel({ starred, onStarred, onClose }: Props) {
 
       <p className="search-status" role="status">
         {loading
-          ? 'Memuat data…'
+          ? 'Loading data…'
           : !listing
-            ? 'Ketik nama atau kata. Isi dokumen dan ringkasan cerita ikut dicari.'
+            ? 'Type a name or a word. Document text and story summaries are searched too.'
             : count > 0
               ? `${count} hasil`
               : starred && !asked
-                ? 'Belum ada favorit di sini. Buka sebuah koleksi, lalu tekan ☆ Favorit.'
-                : 'Tidak ditemukan.'}
+                ? 'No favorites here yet. Open an entry, then press ☆ Favorite.'
+                : 'Nothing found.'}
       </p>
       {failed.length > 0 && (
         <p className="search-status" role="alert">
-          Data {failed.map((id) => GROUPS[id]).join(', ')} gagal dimuat. Muat ulang halaman untuk
-          mencoba lagi.
+          Could not load data: {failed.map((id) => GROUPS[id]).join(', ')}. Reload the page to try
+          again.
         </p>
       )}
 
@@ -152,7 +152,7 @@ export default function SearchPanel({ starred, onStarred, onClose }: Props) {
               </ul>
               {shown.length < all.length && (
                 <button type="button" className="pill" onClick={() => setGroup(id)}>
-                  Lihat semua {all.length} →
+                  See all {all.length} →
                 </button>
               )}
             </section>

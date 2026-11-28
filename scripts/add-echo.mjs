@@ -127,7 +127,7 @@ const echoes = list.map((item, at) => {
   const { rank, cost } = CLASSES[item.Rarity]
   return {
     id: item.Id,
-    name: name || 'Tanpa nama',
+    name: name || 'Unnamed',
     rank,
     cost,
     element: item.Element?.Name ?? 'Physical',

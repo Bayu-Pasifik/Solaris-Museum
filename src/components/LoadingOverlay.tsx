@@ -41,7 +41,7 @@ export default function LoadingOverlay({ once = false }: Props) {
   if (!shown) return null
   return (
     <div className="loading">
-      <sakuga-progress ref={bar} label="Memuat model" done-label="Siap ✓" />
+      <sakuga-progress ref={bar} label="Loading model" done-label="Ready ✓" />
     </div>
   )
 }

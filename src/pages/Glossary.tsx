@@ -25,7 +25,7 @@ export default function Glossary() {
   const current = id
     ? terms.find((term) => String(term.id) === id)
     : (terms.find((term) => letterOf(term) === 'A') ?? terms[0])
-  useTitle((id && current?.name) || 'Glosarium')
+  useTitle((id && current?.name) || 'Glossary')
   const letter = current ? letterOf(current) : ''
   const shelf = terms.filter((term) => letterOf(term) === letter)
   const index = shelf.findIndex((term) => term.id === current?.id)
@@ -47,10 +47,10 @@ export default function Glossary() {
       theme={theme}
       base="/glossary"
       back={{ to: '/', label: 'Lobby' }}
-      title="Glosarium"
-      subtitle={current ? `${terms.length} istilah Solaris` : 'Istilah Solaris'}
+      title="Glossary"
+      subtitle={current ? `${terms.length} Solaris terms` : 'Terms of Solaris'}
       switches={{
-        label: 'Huruf',
+        label: 'Letter',
         children: letters.map((item) => {
           const first = terms.find((term) => letterOf(term) === item)!
           return (
@@ -69,23 +69,23 @@ export default function Glossary() {
       }}
       ids={shelf.map((term) => String(term.id))}
       current={current && String(current.id)}
-      noun="Istilah"
+      noun="Term"
       notice={
         state.status === 'loading' ? (
-          <p className="notice">Memuat data…</p>
+          <p className="notice">Loading data…</p>
         ) : state.status === 'error' ? (
           <p className="notice" role="alert">
-            Glosarium gagal dimuat ({state.message}). Pastikan file data/glossary.json ada.
+            Could not load the glossary ({state.message}). Check that data/glossary.json exists.
           </p>
         ) : (
-          !current && <p className="notice">Istilah tidak ditemukan.</p>
+          !current && <p className="notice">Term not found.</p>
         )
       }
       caption={
         current && {
           title: current.name,
-          detail: `Huruf ${letter} · ${index + 1} dari ${shelf.length}`,
-          action: 'Baca arti',
+          detail: `Letter ${letter} · ${index + 1} of ${shelf.length}`,
+          action: 'Read definition',
         }
       }
       scene={(stage) => (
@@ -99,8 +99,8 @@ export default function Glossary() {
       )}
       strip={(pick) => (
         <RingStrip
-          label="Daftar istilah"
-          search="Cari istilah"
+          label="Term list"
+          search="Search terms"
           base="/glossary"
           entries={matches.map((term) => ({
             id: String(term.id),
@@ -111,20 +111,20 @@ export default function Glossary() {
           query={query}
           onQuery={setQuery}
           onPick={pick}
-          count={`${matches.length} dari ${terms.length} istilah`}
+          count={`${matches.length} of ${terms.length} terms`}
           list={text || letter}
-          hint="Seret atau gulir untuk menyusuri · klik panel untuk membaca"
+          hint="Drag or scroll to browse · click a panel to read"
         />
       )}
       report={
         current && (
-          <section className="card dossier term-report" aria-label={`Istilah ${current.name}`}>
+          <section className="card dossier term-report" aria-label={`Term ${current.name}`}>
             <h2 lang="en">{current.name}</h2>
             <GameText text={current.text} />
           </section>
         )
       }
-      reportLabel="Arti istilah"
+      reportLabel="Definition"
     />
   )
 }

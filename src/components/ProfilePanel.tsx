@@ -5,9 +5,9 @@ import GameText, { Struck } from './GameText'
 export default function ProfilePanel({ profile }: { profile: Profile }) {
   const terms = useTerms()
   const facts = [
-    ['Ulang tahun', profile.birthday],
-    ['Asal', profile.country],
-    ['Afiliasi', profile.faction],
+    ['Birthday', profile.birthday],
+    ['Origin', profile.country],
+    ['Affiliation', profile.faction],
   ]
 
   return (
@@ -22,14 +22,14 @@ export default function ProfilePanel({ profile }: { profile: Profile }) {
           <div key={label}>
             <dt>{label}</dt>
             <dd lang={value ? 'en' : undefined}>
-              <Struck>{value || 'Tidak diketahui'}</Struck>
+              <Struck>{value || 'Unknown'}</Struck>
             </dd>
           </div>
         ))}
       </dl>
 
-      <h3>Cerita</h3>
-      {profile.stories.length === 0 && <p>Belum ada cerita untuk karakter ini.</p>}
+      <h3>Stories</h3>
+      {profile.stories.length === 0 && <p>No stories for this character yet.</p>}
       {profile.stories.map((story) => (
         <details key={story.title}>
           <summary lang="en">{story.title}</summary>

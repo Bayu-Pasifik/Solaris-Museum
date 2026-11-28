@@ -87,7 +87,7 @@ export default function GlobalSearch() {
     <dialog
       ref={dialog}
       className="search-box"
-      aria-label="Pencarian"
+      aria-label="Search"
       onKeyDown={onKeyDown}
       // The content fills the box, so a click on the box itself is one beside it.
       onClick={(event) => event.target === event.currentTarget && close()}

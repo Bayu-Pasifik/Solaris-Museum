@@ -18,7 +18,7 @@ function Head({ echo, current }: { echo: Echo; current: boolean }) {
       <Link
         to={`/echo/${echo.id}`}
         className="face"
-        title={echo.monster ? echo.name : `${echo.name} (tanpa model 3D)`}
+        title={echo.monster ? echo.name : `${echo.name} (no 3D model)`}
         aria-current={current ? 'page' : undefined}
       >
         <span className={echo.monster ? 'portrait' : 'portrait flat'}>
@@ -51,25 +51,25 @@ type Props = {
 /** The bar under the chamber: the search, the filters, and the echoes that pass them. */
 export default function EchoStrip({ echoes, currentId, query, onQuery, list, children }: Props) {
   return (
-    <nav className="strip" aria-label="Daftar echo">
-      <p className="steer">Seret untuk memutar · gulir untuk mendekat · panah untuk ganti echo</p>
+    <nav className="strip" aria-label="Echo list">
+      <p className="steer">Drag to rotate · scroll to zoom · arrows to switch echo</p>
       <div className="finder">
         <input
           type="search"
-          aria-label="Cari nama"
-          placeholder="Cari nama"
+          aria-label="Search by name"
+          placeholder="Search by name"
           value={query}
           onChange={(event) => onQuery(event.target.value)}
         />
         {children}
-        <span role="status">{echoes.length} echo</span>
+        <span role="status">{echoes.length} {echoes.length === 1 ? 'echo' : 'echoes'}</span>
       </div>
 
       <ul key={list} ref={wheel}>
         {echoes.map((echo) => (
           <Head key={echo.id} echo={echo} current={echo.id === currentId} />
         ))}
-        {echoes.length === 0 && <li>Tidak ditemukan.</li>}
+        {echoes.length === 0 && <li>Nothing found.</li>}
       </ul>
     </nav>
   )

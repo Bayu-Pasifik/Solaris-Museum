@@ -14,19 +14,19 @@ export const SECTIONS = [
   {
     id: 'namecard',
     label: 'Namecard',
-    unit: 'namecard',
+    unit: 'namecards',
     colors: { deep: '#0f6f63', accent: '#4fd1b5', pale: '#d8f7f0' },
   },
   {
     id: 'title',
     label: 'Title',
-    unit: 'title',
+    unit: 'titles',
     colors: { deep: '#8a4b00', accent: '#ffb02e', pale: '#fff0cf' },
   },
   {
     id: 'achievement',
     label: 'Achievement',
-    unit: 'grup achievement',
+    unit: 'achievement groups',
     colors: { deep: '#a02565', accent: '#ff5fa8', pale: '#ffe1ee' },
   },
 ] as const

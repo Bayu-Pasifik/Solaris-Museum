@@ -33,7 +33,7 @@ export type EchoArchive = { sets: SonataSet[]; echoes: Echo[] }
 export const KINDS: { id: Echo['kind']; label: string }[] = [
   { id: 'echo', label: 'Echo' },
   { id: 'phantom', label: 'Phantom' },
-  { id: 'other', label: 'Mode lain' },
+  { id: 'other', label: 'Other modes' },
 ]
 
 /**

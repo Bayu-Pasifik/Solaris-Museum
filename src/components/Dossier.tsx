@@ -11,11 +11,11 @@ import SkillPanel from './SkillPanel'
 import VoicePanel from './VoicePanel'
 
 const tabs = [
-  { name: 'Profil', Panel: ProfilePanel },
-  { name: 'Suara', Panel: VoicePanel },
+  { name: 'Profile', Panel: ProfilePanel },
+  { name: 'Voice', Panel: VoicePanel },
   { name: 'Skill', Panel: SkillPanel },
   { name: 'Resonance', Panel: ChainPanel },
-  { name: 'Kenangan', Panel: KeepsakePanel },
+  { name: 'Keepsake', Panel: KeepsakePanel },
 ]
 
 /** Everything about a character apart from the model. Render it with the character id as key. */
@@ -28,7 +28,7 @@ export default function Dossier({ character }: { character: Character }) {
   return (
     <section
       className="card dossier"
-      aria-label={`Data ${character.name}`}
+      aria-label={`${character.name} details`}
       style={
         {
           '--el-deep': theme.deep,
@@ -38,7 +38,7 @@ export default function Dossier({ character }: { character: Character }) {
       }
     >
       <Marks path={`/resonator/${character.id}`} />
-      <div className="tabs" role="group" aria-label="Bagian data">
+      <div className="tabs" role="group" aria-label="Detail sections">
         {tabs.map((tab) => (
           <button
             key={tab.name}
@@ -55,10 +55,10 @@ export default function Dossier({ character }: { character: Character }) {
         ))}
       </div>
 
-      {state.status === 'loading' && <p className="notice">Memuat profil…</p>}
+      {state.status === 'loading' && <p className="notice">Loading profile…</p>}
       {state.status === 'error' && (
         <p className="notice" role="alert">
-          Profil karakter ini belum tersedia.
+          The profile of this character is not available yet.
         </p>
       )}
       {state.status === 'ready' && <Panel profile={state.data} />}

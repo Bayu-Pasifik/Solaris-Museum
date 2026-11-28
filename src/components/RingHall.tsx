@@ -172,7 +172,7 @@ export default function RingHall({
         ref={roll}
         onPointerDown={grab}
       >
-        <SceneBoundary message="Tampilan 3D gagal dimuat.">
+        <SceneBoundary message="The 3D view failed to load.">
           {/* Clicking a panel is a mouse shortcut. The strip and the buttons do the same. */}
           <Canvas
             flat
@@ -217,7 +217,7 @@ export default function RingHall({
               key={by}
               type="button"
               className={by < 0 ? 'pill walk back' : 'pill walk'}
-              aria-label={`${noun} ${by < 0 ? 'sebelumnya' : 'berikutnya'}`}
+              aria-label={`${by < 0 ? 'Previous' : 'Next'} ${noun.toLowerCase()}`}
               disabled={ids[index + by] === undefined}
               onClick={() => move(by)}
             >
@@ -249,7 +249,7 @@ export default function RingHall({
         <aside key={current} className="drawer" aria-label={reportLabel} ref={setDrawer}>
           <p className="tools">
             <button type="button" className="pill" disabled={index <= 0} onClick={() => move(-1)}>
-              ← Sebelumnya
+              ← Previous
             </button>
             <button
               type="button"
@@ -257,10 +257,10 @@ export default function RingHall({
               disabled={index < 0 || index >= ids.length - 1}
               onClick={() => move(1)}
             >
-              Berikutnya →
+              Next →
             </button>
             <button type="button" className="pill close" onClick={close}>
-              Tutup ✕
+              Close ✕
             </button>
           </p>
           {report}
