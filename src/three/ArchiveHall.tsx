@@ -208,7 +208,7 @@ const LANTERNS: [number, number, number][] = [
   [7, 3.4, 0.4],
 ]
 
-function Lantern({ position }: { position: [number, number, number] }) {
+export function Lantern({ position }: { position: [number, number, number] }) {
   const glow = usePainting(128, paintGlow)
 
   return (

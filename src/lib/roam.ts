@@ -72,7 +72,13 @@ export type Gate = { position: [number, number, number]; turn: number; open: boo
 export type Circle = { x: number; z: number; radius: number }
 
 /** What a walker can walk on: the portals, the things in the way, and the far end. */
-export type Floor = { gates: Gate[]; circles: Circle[]; far: number }
+export type Floor = {
+  gates: Gate[]
+  circles: Circle[]
+  far: number
+  /** For a room that is narrower than the corridor. */
+  side?: number
+}
 
 /** A point as seen from a gate: "across" is along it, "front" is out of it. */
 function fromGate({ position, turn }: Gate, x: number, z: number) {
@@ -97,7 +103,7 @@ const SILL = 0.3
 export function advance(
   at: { x: number; z: number },
   to: { x: number; z: number },
-  { gates, circles, far }: Floor,
+  { gates, circles, far, side = SIDE }: Floor,
 ): { x: number; z: number; entered?: number } {
   const entered = gates.findIndex((gate) => {
     const next = fromGate(gate, to.x, to.z)
@@ -107,7 +113,7 @@ export function advance(
   if (entered >= 0) return { x: at.x, z: at.z, entered }
 
   const free = (x: number, z: number) => {
-    if (Math.abs(x) > SIDE || z > START || z < far) return false
+    if (Math.abs(x) > side || z > START || z < far) return false
     const solid = gates.some((gate) => {
       const next = fromGate(gate, x, z)
       // The gate and the back of its step are solid.

@@ -1,11 +1,15 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
+import { useCharacters } from '../lib/characters'
 import { reveal } from '../lib/insets'
 import { categoryTheme, useStories } from '../lib/stories'
 import { useTitle } from '../lib/title'
 import { getVisits, useVisits } from '../lib/visits'
+import { useWalkChoice } from '../lib/walkChoice'
 import { unique } from '../components/Chips'
 import GroupSelect from '../components/GroupSelect'
+import LibraryWalk from '../components/LibraryWalk'
+import ModeSwitch from '../components/ModeSwitch'
 import RingHall from '../components/RingHall'
 import RingStrip from '../components/RingStrip'
 import StoryReader from '../components/StoryReader'
@@ -32,6 +36,36 @@ export default function Library() {
   const done = useVisits(
     (visits) => shelf.filter((story) => visits.read.includes(`/library/${story.id}`)).length,
   )
+
+  const characters = useCharacters()
+  const walk = useWalkChoice(characters.status === 'ready' ? characters.data : [])
+  // The links of the Library, for both ways of looking around.
+  const links = (
+    <>
+      <Link to="/glossary" className="pill aside">
+        Glossary
+      </Link>
+      <Link to="/messages" className="pill aside">
+        Messages
+      </Link>
+      <Link to="/documents" className="pill aside">
+        Documents
+      </Link>
+    </>
+  )
+
+  if (walk.mode !== 'tour' && state.status !== 'error') {
+    if (state.status === 'loading') return <p className="notice">Loading data…</p>
+    return (
+      <LibraryWalk
+        stories={stories}
+        currentId={id}
+        startId={current?.id}
+        links={links}
+        walk={walk}
+      />
+    )
+  }
 
   const text = query.trim().toLowerCase()
   // A search looks through every category.
@@ -61,15 +95,8 @@ export default function Library() {
       }
       links={
         <>
-          <Link to="/glossary" className="pill">
-            Glossary
-          </Link>
-          <Link to="/messages" className="pill">
-            Messages
-          </Link>
-          <Link to="/documents" className="pill">
-            Documents
-          </Link>
+          {links}
+          <ModeSwitch walk={walk} onChoose={walk.choose} still="Ring" />
         </>
       }
       switches={{

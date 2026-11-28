@@ -2299,6 +2299,31 @@ h1 {
   margin-bottom: 4px;
 }
 
+/* Long names of wings stay on one line; the row of wings wraps instead. */
+.wing-hall .switches div {
+  flex-wrap: wrap;
+}
+
+.wing-hall .switches .pill {
+  white-space: nowrap;
+}
+
+/* On a phone the walk keeps the top bar low; the lobby has a door to each of these rooms. */
+@media (max-width: 760px) {
+  .wing-hall .topbar > .aside {
+    display: none;
+  }
+
+  .wing-hall .switches div {
+    flex-wrap: nowrap;
+  }
+
+  /* A story is read on the whole sheet. */
+  .open-hall.wing-hall .drawer:has(.reader) {
+    top: 12%;
+  }
+}
+
 .weapon-view {
   position: relative;
   height: min(44dvh, 400px);

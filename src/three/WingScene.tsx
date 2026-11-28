@@ -20,7 +20,7 @@ const LOBBY: Room = { name: 'Lobby', description: '', color: '#8f8df7', path: '/
 const noop = () => {}
 
 /** Something that stands on a podium of a wing. */
-export type Exhibit = { id: string; name: string; rarity: number }
+export type Exhibit = { id: string; name: string; rarity?: number }
 
 /** How the stands of a hall look. */
 export type Stands<T> = {
@@ -84,7 +84,7 @@ function Stand<T extends Exhibit>({ item, index, stands, active, shown, onPick }
             <Sign
               solid
               title={item.name}
-              note={'★'.repeat(item.rarity)}
+              note={'★'.repeat(item.rarity ?? 0)}
               shadow={theme.accent}
               position={[0, 0, 0]}
             />

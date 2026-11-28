@@ -284,13 +284,18 @@ node scripts/build-guards.mjs
 npm run upload
 ```
 
-## Walking in the Armory and the Resonator Hall
+## Walking in the Armory, the Resonator Hall and the Library
 
-Both rooms have the same three ways to look around. The one without walking is "List" in the
-Armory, with one weapon on the stage, and "Stage" in the Resonator Hall. When walking, every
-kind of weapon, or every element, has its own wing, with a stand at both sides of every bay.
-The key E opens the report of the weapon or the dossier of the Resonator, and only the models
-close by are loaded. The address ending `?stage` shows a Resonator on the stage also to a
+These rooms have the same three ways to look around. The one without walking is "List" in the
+Armory, with one weapon on the stage, "Stage" in the Resonator Hall and "Ring" in the Library.
+When walking, every kind of weapon and every element has its own wing, with a stand at both
+sides of every bay. The Library is one aisle between bookcases, with one book for every story:
+the book that the visitor looks at comes out of the shelf and shows its cover. The categories
+follow each other, each one under a board with its name, and their buttons jump to them. The
+key E opens the report of the weapon,
+the dossier of the Resonator or the script of the story. Only what is close by is loaded. The
+walk through the Library starts at the story that was read last. The aisle is laid out in
+`src/lib/shelves.ts` and drawn by `src/three/ShelfScene.tsx`. The address ending `?stage` shows a Resonator on the stage also to a
 visitor who walks. The shared layout is in `src/lib/wings.ts`, the scene in
 `src/three/WingScene.tsx` and the page around it in `src/components/WingWalk.tsx`. All walks
 use `src/three/Roamer.tsx`, which takes the floor of a room: its portals, what is in the way,

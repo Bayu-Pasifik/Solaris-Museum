@@ -1,8 +1,10 @@
 import type { WalkChoice } from '../lib/walkChoice'
 import { rarityTheme, type Weapon } from '../lib/weapons'
+import { byRank } from '../lib/wings'
 import SpinningWeapon from '../three/SpinningWeapon'
 import type { Stands } from '../three/WingScene'
 import Marks from './Marks'
+import standHall from './standHall'
 import WeaponReport from './WeaponReport'
 import WeaponViewer from './WeaponViewer'
 import WingWalk from './WingWalk'
@@ -19,6 +21,8 @@ const stands: Stands<Weapon> = {
   theme: (weapon) => rarityTheme(weapon.rarity),
   show: (weapon, place) => <SpinningWeapon weapon={weapon} {...place} />,
 }
+
+const hall = standHall(stands)
 
 type Props = {
   weapons: Weapon[]
@@ -37,7 +41,8 @@ export default function ArmoryWalk({ weapons, currentId, walk }: Props) {
       items={weapons}
       wingOf={(weapon) => weapon.type}
       order={ORDER}
-      stands={stands}
+      compare={byRank}
+      hall={hall}
       currentId={currentId}
       walk={walk}
       still="List"

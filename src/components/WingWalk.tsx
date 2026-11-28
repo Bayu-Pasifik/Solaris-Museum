@@ -4,17 +4,21 @@ import {
   useEffect,
   useRef,
   useState,
+  type ComponentType,
   type CSSProperties,
   type ReactNode,
+  type RefObject,
 } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Link, useNavigate } from 'react-router'
-import { reveal, useInsets } from '../lib/insets'
-import { spotBefore, type Mode, type Roam } from '../lib/roam'
+import type { Character } from '../lib/characters'
+import type { ElementTheme } from '../lib/elements'
+import { center, reveal, useInsets, type Insets } from '../lib/insets'
+import { spotBefore, type Mode, type Roam, type Spot } from '../lib/roam'
 import type { WalkChoice } from '../lib/walkChoice'
 import { wheel } from '../lib/wheel'
-import { byRank, spotAtStand, wingsOf } from '../lib/wings'
-import WingScene, { type Exhibit, type Stands } from '../three/WingScene'
+import { wingsOf } from '../lib/wings'
+import type { Exhibit } from '../three/WingScene'
 import Disclaimer from './Disclaimer'
 import LoadingOverlay from './LoadingOverlay'
 import ModeSwitch from './ModeSwitch'
@@ -22,6 +26,43 @@ import SceneBoundary from './SceneBoundary'
 import SearchButton from './SearchButton'
 import SoundButton from './SoundButton'
 import { lookAround, Stick, useWalkKeys } from './WalkControls'
+
+/** What the 3D scene of a hall gets. */
+export type HallProps<T> = {
+  /** What is in the open wing, in order. */
+  items: T[]
+  mode: Mode
+  roam: RefObject<Roam>
+  hero?: Character
+  insets: Insets
+  /** The row nearest along the wing, and the item the visitor is at. */
+  row: number
+  near?: number
+  /** The item whose report is open. */
+  picked?: number
+  /** Tells the row, the id of what the visitor is at, and whether the way out is near. */
+  onPlace: (row: number, near: string | undefined, exit: boolean) => void
+  onPick: (index: number) => void
+  onExit: () => void
+}
+
+/** How the wings of a room are laid out and drawn. */
+export type Hall<T> = {
+  theme: (item: T) => ElementTheme
+  /** A few words below the name of an item. */
+  note: (item: T) => string
+  /** Where a visitor stands to look at an item. */
+  spot: (index: number, third: boolean) => Spot
+  /** The row of an item along the wing, and the index of the first item of a row. */
+  rowOf: (index: number) => number
+  rowStart: (row: number) => number
+  /**
+   * For a room that holds all its wings in one, one after another. The button of a wing then
+   * brings the visitor to its first item, and shows where the visitor is.
+   */
+  jump?: (index: number) => Spot
+  Scene: ComponentType<HallProps<T>>
+}
 
 type Props<T> = {
   /** The name of the room, and the address of its page. */
@@ -34,9 +75,15 @@ type Props<T> = {
   /** The wing of an item, and the order of the wings. */
   wingOf: (item: T) => string
   order: readonly string[]
-  stands: Stands<T>
+  /** The order of the items in a wing; without it they keep the order of "items". */
+  compare?: (a: T, b: T) => number
+  hall: Hall<T>
   /** The item whose report is open, from the address of the page. */
   currentId?: string
+  /** Where the walk starts when no report is open. */
+  startId?: string
+  /** More buttons for the top bar. */
+  links?: ReactNode
   walk: WalkChoice
   /** What the view without walking is called in this room. */
   still: string
@@ -54,8 +101,11 @@ export default function WingWalk<T extends Exhibit>({
   items,
   wingOf,
   order,
-  stands,
+  compare,
+  hall,
   currentId,
+  startId,
+  links,
   walk,
   still,
   report,
@@ -64,28 +114,37 @@ export default function WingWalk<T extends Exhibit>({
   const navigate = useNavigate()
   const current = items.find((item) => item.id === currentId)
   const wings = wingsOf(items.map(wingOf), order)
-  const [open, setOpen] = useState(current ? wingOf(current) : wings[0])
+  const first = current ?? items.find((item) => item.id === startId)
+  const [open, setOpen] = useState(first ? wingOf(first) : wings[0])
   // An item from the search box can be in another wing, which stays open after it is closed.
   const [seen, setSeen] = useState(currentId)
   if (currentId !== seen) {
     setSeen(currentId)
     if (current) setOpen(wingOf(current))
   }
-  const shownWing = current ? wingOf(current) : open
-  const list = items.filter((item) => wingOf(item) === shownWing).sort(byRank)
+  const openWing = current ? wingOf(current) : open
+  /** What stands in the room now. */
+  const list = items.filter((item) => hall.jump || wingOf(item) === openWing)
+  if (compare) list.sort(compare)
   const picked = current ? list.indexOf(current) : undefined
   const third = walk.mode === 'third'
+  const begin = first ? list.indexOf(first) : -1
+  const { Scene } = hall
 
   const [start] = useState<Roam>(() => ({
-    ...(picked === undefined ? spotBefore(0) : spotAtStand(picked, third)),
+    ...(begin < 0 ? spotBefore(0) : hall.spot(begin, third)),
     keys: new Set<string>(),
     stick: { x: 0, y: 0 },
   }))
   const roam = useRef(start)
-  const [row, setRow] = useState(0)
+  // The row is known before the first frame, so a walk that starts far down is drawn at once.
+  const [row, setRow] = useState(() => (begin < 0 ? 0 : hall.rowOf(begin)))
   const [nearId, setNearId] = useState<string>()
   const found = list.findIndex((item) => item.id === nearId)
   const near = found < 0 ? undefined : found
+  /** The item that says where in the room the visitor is. */
+  const place = list[picked ?? near ?? hall.rowStart(row)]
+  const shownWing = hall.jump && place ? wingOf(place) : openWing
   const [atExit, setAtExit] = useState(false)
   const { insets, setTop, setBottom, setDrawer } = useInsets()
   /** The same as "nearId", at once. */
@@ -98,16 +157,16 @@ export default function WingWalk<T extends Exhibit>({
     setAtExit(exit)
   }, [])
 
-  // An item that is chosen from afar brings the visitor to its stand.
+  // An item that is chosen from afar brings the visitor to it.
   useEffect(() => {
     if (picked !== undefined && currentId !== here.current) {
-      Object.assign(roam.current, spotAtStand(picked, third))
+      Object.assign(roam.current, hall.spot(picked, third))
     }
     // A new way of looking around does not move the visitor.
   }, [picked, currentId])
 
   const show = (index: number) => {
-    if (face) Object.assign(roam.current, spotAtStand(index, third))
+    if (face) Object.assign(roam.current, hall.spot(index, third))
     navigate(`${base}/${list[index].id}`, { replace: true })
   }
   const close = useCallback(() => navigate(base, { replace: true }), [navigate, base])
@@ -137,11 +196,12 @@ export default function WingWalk<T extends Exhibit>({
   }, [current, close])
 
   const enterWing = (name: string) => {
+    const start = hall.jump ? list.findIndex((item) => wingOf(item) === name) : 0
     setOpen(name)
     setNearId(undefined)
-    setRow(0)
+    setRow(hall.jump ? hall.rowOf(start) : 0)
     here.current = undefined
-    Object.assign(roam.current, spotBefore(0))
+    Object.assign(roam.current, hall.jump?.(start) ?? spotBefore(0))
     if (current) close()
   }
 
@@ -150,7 +210,7 @@ export default function WingWalk<T extends Exhibit>({
     walk.choose(next)
   }
 
-  const theme = current && stands.theme(current)
+  const theme = current && hall.theme(current)
 
   return (
     <main className={`gallery open-hall lobby-hall wing-hall roaming${current ? ' reading' : ''}`}>
@@ -162,9 +222,8 @@ export default function WingWalk<T extends Exhibit>({
           {/* Clicking a stand is a mouse shortcut. The buttons below are for keyboard and screen readers. */}
           <Canvas flat aria-hidden="true" camera={{ position: [0, 1.6, 4] }} dpr={[1, 2]}>
             <Suspense fallback={null}>
-              <WingScene
+              <Scene
                 items={list}
-                stands={stands}
                 mode={walk.mode}
                 roam={roam}
                 hero={walk.hero}
@@ -190,11 +249,13 @@ export default function WingWalk<T extends Exhibit>({
         <div className="plate">
           <h1>{title}</h1>
           <p>
-            {list.length} {list.length === 1 ? one : many} in this wing
+            {list.length} {list.length === 1 ? one : many}
+            {!hall.jump && ' in this wing'}
           </p>
         </div>
         <SearchButton />
         <SoundButton />
+        {links}
         <ModeSwitch walk={walk} onChoose={choose} still={still} />
         <div className="switches">
           <div role="group" aria-label="Wings">
@@ -205,6 +266,7 @@ export default function WingWalk<T extends Exhibit>({
                 className="pill"
                 lang="en"
                 aria-pressed={name === shownWing}
+                ref={name === shownWing ? reveal : undefined}
                 onClick={(event) => {
                   if (event.detail > 0) event.currentTarget.blur()
                   enterWing(name)
@@ -241,19 +303,22 @@ export default function WingWalk<T extends Exhibit>({
           </p>
           <ul ref={wheel}>
             {list.map((item, index) => (
-              <li key={item.id} ref={index === (picked ?? near ?? row * 2) ? reveal : undefined}>
+              <li
+                key={item.id}
+                ref={index === (picked ?? near ?? hall.rowStart(row)) ? center : undefined}
+              >
                 <button
                   type="button"
                   className="door"
-                  style={{ '--door': stands.theme(item).accent } as CSSProperties}
+                  style={{ '--door': hall.theme(item).accent } as CSSProperties}
                   aria-current={index === (picked ?? near) ? 'location' : undefined}
                   onClick={() => {
-                    Object.assign(roam.current, spotAtStand(index, third))
+                    Object.assign(roam.current, hall.spot(index, third))
                     show(index)
                   }}
                 >
                   <b lang="en">{item.name}</b>
-                  <small>{'★'.repeat(item.rarity)}</small>
+                  <small lang="en">{hall.note(item)}</small>
                 </button>
               </li>
             ))}

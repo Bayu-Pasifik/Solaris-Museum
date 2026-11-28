@@ -37,3 +37,7 @@ export function useInsets() {
 /** For a ref: on a narrow screen the switches scroll sideways, so the open one comes in sight. */
 export const reveal = (element: HTMLElement | null) =>
   element?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+
+/** For a ref: brings an entry to the middle of its row, so those on both sides are in sight. */
+export const center = (element: HTMLElement | null) =>
+  element?.scrollIntoView({ block: 'nearest', inline: 'center' })

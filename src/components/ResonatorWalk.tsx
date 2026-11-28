@@ -2,9 +2,11 @@ import { Link } from 'react-router'
 import type { Character } from '../lib/characters'
 import { elementNames, themeOf } from '../lib/elements'
 import type { WalkChoice } from '../lib/walkChoice'
+import { byRank } from '../lib/wings'
 import Guard from '../three/Guard'
 import type { Stands } from '../three/WingScene'
 import Dossier from './Dossier'
+import standHall from './standHall'
 import WingWalk from './WingWalk'
 
 const stands: Stands<Character> = {
@@ -16,6 +18,8 @@ const stands: Stands<Character> = {
   theme: (character) => themeOf(character.element),
   show: (character, place) => <Guard character={character} {...place} />,
 }
+
+const hall = standHall(stands)
 
 type Props = {
   characters: Character[]
@@ -34,7 +38,8 @@ export default function ResonatorWalk({ characters, currentId, walk }: Props) {
       items={characters}
       wingOf={(character) => character.element}
       order={elementNames}
-      stands={stands}
+      compare={byRank}
+      hall={hall}
       currentId={currentId}
       walk={walk}
       still="Stage"

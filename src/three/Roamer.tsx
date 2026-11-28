@@ -124,8 +124,9 @@ export default function Roamer({
       const y = Math.sin(pose.pitch)
       const z = -Math.cos(pose.yaw) * level
       const eye = height.current + 1.35
+      const side = (floor.side ?? SIDE) + 0.5
       camera.position.set(
-        MathUtils.clamp(pose.x - x * 3.8, -SIDE - 0.5, SIDE + 0.5),
+        MathUtils.clamp(pose.x - x * 3.8, -side, side),
         Math.max(eye + 0.45 - y * 3.8, 0.35),
         pose.z - z * 3.8,
       )
