@@ -113,7 +113,10 @@ export default function Roamer({
       14,
       step,
     )
-    body.current?.position.set(pose.x, height.current, pose.z)
+    // The ground itself needs no easing: it has no steps.
+    const ground = floor.height?.(pose.x, pose.z) ?? 0
+    const feet = ground + height.current
+    body.current?.position.set(pose.x, feet, pose.z)
     body.current?.rotation.set(0, pose.heading, 0)
 
     const tall = size.height > size.width
@@ -123,16 +126,16 @@ export default function Roamer({
       const x = -Math.sin(pose.yaw) * level
       const y = Math.sin(pose.pitch)
       const z = -Math.cos(pose.yaw) * level
-      const eye = height.current + 1.35
+      const eye = feet + 1.35
       const side = (floor.side ?? SIDE) + 0.5
       camera.position.set(
         MathUtils.clamp(pose.x - x * 3.8, -side, side),
-        Math.max(eye + 0.45 - y * 3.8, 0.35),
+        Math.max(eye + 0.45 - y * 3.8, ground + 0.35),
         pose.z - z * 3.8,
       )
       camera.lookAt(pose.x, eye + 0.1, pose.z)
     } else {
-      camera.position.set(pose.x, height.current + 1.6, pose.z)
+      camera.position.set(pose.x, feet + 1.6, pose.z)
       camera.rotation.set(pose.pitch, pose.yaw, 0, 'YXZ')
     }
     // The picture slides to the middle of the free part, between the bars and the drawer.

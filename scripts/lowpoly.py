@@ -147,7 +147,7 @@ def add(scene, material, name, shape):
     print(f"[lowpoly] {name}: {len(shape.faces)} faces")
 
 
-def export(path):
+def export(path, normals=True):
     """Writes the open scene as a Meshopt-compressed GLB."""
     os.makedirs(os.path.dirname(path), exist_ok=True)
     bpy.ops.export_scene.gltf(
@@ -157,6 +157,7 @@ def export(path):
         export_vertex_color="ACTIVE",
         export_all_vertex_colors=False,
         export_texcoords=False,
+        export_normals=normals,
         export_animations=False,
         export_meshopt_compression_enable=True,
     )

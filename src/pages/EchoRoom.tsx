@@ -9,20 +9,21 @@ import {
 } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Link, useNavigate, useParams } from 'react-router'
-import { assetUrl } from '../lib/characters'
+import { assetUrl, useCharacters } from '../lib/characters'
 import { useBestiary } from '../lib/bestiary'
 import { KINDS, ordered, useEchoes, type Echo, type SonataSet } from '../lib/echoes'
 import { themeOf } from '../lib/elements'
-import { useTerms } from '../lib/glossary'
 import { reveal, useInsets } from '../lib/insets'
 import { entrance, pop, strike, tint, ultimate } from '../lib/sakuga'
 import { useTitle } from '../lib/title'
+import { useWalkChoice, type WalkChoice } from '../lib/walkChoice'
 import AnimationTabs from '../components/AnimationTabs'
 import Disclaimer from '../components/Disclaimer'
+import EchoReport from '../components/EchoReport'
 import EchoStrip from '../components/EchoStrip'
-import GameText from '../components/GameText'
+import EchoWalk from '../components/EchoWalk'
 import LoadingOverlay from '../components/LoadingOverlay'
-import Marks from '../components/Marks'
+import ModeSwitch from '../components/ModeSwitch'
 import SceneBoundary from '../components/SceneBoundary'
 import SearchButton from '../components/SearchButton'
 import SoundButton from '../components/SoundButton'
@@ -38,28 +39,29 @@ const ALL: Filter = { set: 0, cost: 0 }
 const passes = (echo: Echo, { set, cost }: Filter) =>
   (set === 0 || echo.sets.includes(set)) && (cost === 0 || echo.cost === cost)
 
-export default function EchoRoom() {
-  const { id } = useParams()
+type ChamberProps = {
+  state: ReturnType<typeof useEchoes>
+  bestiary: ReturnType<typeof useBestiary>
+  echoes: Echo[]
+  current?: Echo
+  walk: WalkChoice
+}
+
+/** One echo at a time, in the middle of the rings of its own sound. */
+function Chamber({ state, bestiary, echoes, current, walk }: ChamberProps) {
   const navigate = useNavigate()
-  const state = useEchoes()
-  const bestiary = useBestiary()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState(ALL)
   const [reading, setReading] = useState<'echo' | 'sets'>()
   const { insets, setTop, setBottom, setDrawer } = useInsets()
   const stage = useRef<HTMLDivElement>(null)
 
-  const echoes = useMemo(() => (state.status === 'ready' ? ordered(state.data.echoes) : []), [state])
   const sets = useMemo(
     () => new Map<number, SonataSet>(
       state.status === 'ready' ? state.data.sets.map((set) => [set.id, set]) : [],
     ),
     [state],
   )
-  const current = id
-    ? echoes.find((item) => String(item.id) === id)
-    : (echoes.find((item) => item.kind === 'echo' && item.monster) ?? echoes[0])
-  useTitle((id && current?.name) || 'Echo Room')
   const kind = current?.kind ?? 'echo'
   const round = echoes.filter((item) => item.kind === kind && passes(item, filter))
   const text = query.trim().toLowerCase()
@@ -67,9 +69,6 @@ export default function EchoRoom() {
   const shown = text ? echoes.filter((item) => item.name.toLowerCase().includes(text)) : round
 
   const own = current?.sets.flatMap((set) => sets.get(set) ?? []) ?? []
-  const terms = useTerms()
-  const seen = new Set<number>()
-
   const element = current?.element ?? ''
   const theme = themeOf(element)
   useEffect(() => tint(theme), [theme])
@@ -134,6 +133,15 @@ export default function EchoRoom() {
 
   const inSet = (set: number) => echoes.filter((item) => item.sets.includes(set)).length
   const chooseSet = (set: number) => choose({ set: set === filter.set ? 0 : set, cost: 0 })
+  const setCard = (set: SonataSet) => (
+    <SonataCard
+      key={set.id}
+      set={set}
+      count={inSet(set.id)}
+      chosen={set.id === filter.set}
+      onChoose={chooseSet}
+    />
+  )
 
   return (
     <>
@@ -186,6 +194,7 @@ export default function EchoRoom() {
           </Link>
           <SearchButton />
           <SoundButton />
+          <ModeSwitch walk={walk} onChoose={walk.choose} still="Chamber" />
           <div className="plate">
             <h1 lang={current ? 'en' : undefined}>{current?.name ?? 'Echo Room'}</h1>
             <p lang={current ? 'en' : undefined}>
@@ -336,55 +345,52 @@ export default function EchoRoom() {
                 Close ✕
               </button>
             </p>
-            <div className="report">
-              <h2 lang={reading === 'echo' ? 'en' : undefined}>
-                {reading === 'echo' ? current.name : 'Sonata sets'}
-              </h2>
-              {reading === 'echo' && <Marks path={`/echo/${current.id}`} />}
-              {reading === 'echo' && (
-                <>
-                  <p className="badges">
-                    <span>Cost {current.cost}</span>
-                    <small lang="en">
-                      {current.rank} · {current.element}
-                    </small>
-                  </p>
-                  {current.skill.text && (
-                    <article>
-                      <h3 className="skill">
-                        {current.skill.icon && <img src={assetUrl(current.skill.icon)} alt="" />}
-                        Echo skill (highest level)
-                      </h3>
-                      <GameText text={terms.link(current.skill.text, seen)} terms={terms.byId} />
-                    </article>
-                  )}
-                  {lender && (
-                    <article>
-                      <h3>3D model</h3>
-                      <p>
-                        Borrowed from{' '}
-                        <Link to={`/bestiary/${lender.id}`}>
-                          <bdi lang="en">{lender.name}</bdi> in the Bestiary
-                        </Link>
-                        .
-                      </p>
-                    </article>
-                  )}
-                </>
-              )}
-              {(reading === 'echo' ? own : [...sets.values()]).map((set) => (
-                <SonataCard
-                  key={set.id}
-                  set={set}
-                  count={inSet(set.id)}
-                  chosen={set.id === filter.set}
-                  onChoose={chooseSet}
-                />
-              ))}
-            </div>
+            {reading === 'echo' ? (
+              <EchoReport echo={current} lender={lender} sets={own}>
+                {setCard}
+              </EchoReport>
+            ) : (
+              <div className="report">
+                <h2>Sonata sets</h2>
+                {[...sets.values()].map(setCard)}
+              </div>
+            )}
           </aside>
         )}
       </main>
     </>
+  )
+}
+
+export default function EchoRoom() {
+  const { id } = useParams()
+  const state = useEchoes()
+  const bestiary = useBestiary()
+  const echoes = useMemo(() => (state.status === 'ready' ? ordered(state.data.echoes) : []), [state])
+  const current = id
+    ? echoes.find((item) => String(item.id) === id)
+    : (echoes.find((item) => item.kind === 'echo' && item.monster) ?? echoes[0])
+  useTitle((id && current?.name) || 'Echo Room')
+  const characters = useCharacters()
+  const walk = useWalkChoice(characters.status === 'ready' ? characters.data : [])
+
+  if (walk.mode !== 'tour' && state.status !== 'error') {
+    if (state.status === 'loading' || bestiary.status === 'loading') {
+      return <p className="notice">Loading data…</p>
+    }
+    // Without an id, the walk starts at the foot of the road.
+    return (
+      <EchoWalk
+        echoes={echoes}
+        sets={state.data.sets}
+        monsters={bestiary.status === 'ready' ? bestiary.data : []}
+        currentId={id}
+        walk={walk}
+      />
+    )
+  }
+
+  return (
+    <Chamber state={state} bestiary={bestiary} echoes={echoes} current={current} walk={walk} />
   )
 }

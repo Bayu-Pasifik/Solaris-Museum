@@ -80,6 +80,8 @@ export type Floor = {
   side?: number
   /** For ground of any shape. It then replaces the sides and the two ends. */
   inside?: (x: number, z: number) => boolean
+  /** The height of ground that is not flat. */
+  height?: (x: number, z: number) => number
 }
 
 /** A point as seen from a gate: "across" is along it, "front" is out of it. */

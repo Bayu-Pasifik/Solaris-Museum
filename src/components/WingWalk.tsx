@@ -51,8 +51,8 @@ export type Hall<T> = {
   theme: (item: T) => ElementTheme
   /** A few words below the name of an item. */
   note: (item: T) => string
-  /** Where a visitor stands to look at an item. */
-  spot: (index: number, third: boolean) => Spot
+  /** Where a visitor stands to look at an item of "list", which is what stands in the room. */
+  spot: (index: number, third: boolean, list: T[]) => Spot
   /** The row of an item along the wing, and the index of the first item of a row. */
   rowOf: (index: number) => number
   rowStart: (row: number) => number
@@ -134,7 +134,7 @@ export default function WingWalk<T extends Exhibit>({
   const { Scene } = hall
 
   const [start] = useState<Roam>(() => ({
-    ...(begin < 0 ? (hall.start ?? spotBefore(0)) : hall.spot(begin, third)),
+    ...(begin < 0 ? (hall.start ?? spotBefore(0)) : hall.spot(begin, third, list)),
     keys: new Set<string>(),
     stick: { x: 0, y: 0 },
   }))
@@ -162,13 +162,13 @@ export default function WingWalk<T extends Exhibit>({
   // An item that is chosen from afar brings the visitor to it.
   useEffect(() => {
     if (picked !== undefined && currentId !== here.current) {
-      Object.assign(roam.current, hall.spot(picked, third))
+      Object.assign(roam.current, hall.spot(picked, third, list))
     }
     // A new way of looking around does not move the visitor.
   }, [picked, currentId])
 
   const show = (index: number) => {
-    if (face) Object.assign(roam.current, hall.spot(index, third))
+    if (face) Object.assign(roam.current, hall.spot(index, third, list))
     navigate(`${base}/${list[index].id}`, { replace: true })
   }
   const close = useCallback(() => navigate(base, { replace: true }), [navigate, base])
@@ -203,7 +203,7 @@ export default function WingWalk<T extends Exhibit>({
     setNearId(undefined)
     setRow(hall.jump ? hall.rowOf(start) : 0)
     here.current = undefined
-    Object.assign(roam.current, hall.jump?.(start) ?? spotBefore(0))
+    Object.assign(roam.current, hall.jump?.(start) ?? hall.start ?? spotBefore(0))
     if (current) close()
   }
 
@@ -301,7 +301,7 @@ export default function WingWalk<T extends Exhibit>({
       <div ref={setBottom}>
         <nav className="strip" aria-label={`${title} stands`}>
           <p className="steer">
-            WASD or arrows to walk · Shift to run · drag to look · E to open a {one}
+            WASD or arrows to walk · Shift to run · drag to look · E to open {/^[aeiou]/.test(one) ? 'an' : 'a'} {one}
           </p>
           <ul ref={wheel}>
             {list.map((item, index) => (
@@ -315,7 +315,7 @@ export default function WingWalk<T extends Exhibit>({
                   style={{ '--door': hall.theme(item).accent } as CSSProperties}
                   aria-current={index === (picked ?? near) ? 'location' : undefined}
                   onClick={() => {
-                    Object.assign(roam.current, hall.spot(index, third))
+                    Object.assign(roam.current, hall.spot(index, third, list))
                     show(index)
                   }}
                 >

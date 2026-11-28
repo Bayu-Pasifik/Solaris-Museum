@@ -8,6 +8,7 @@ import { createScene, presets, type Scene } from './soundscapes'
  */
 
 const KEY = 'solaris-museum:sound'
+const frequency = (note: number) => 440 * 2 ** ((note - 69) / 12)
 const VOLUME = 0.8
 /** Seconds that are planned ahead; the timer is much faster. */
 const AHEAD = 1.5
@@ -91,6 +92,30 @@ document.addEventListener('visibilitychange', apply)
 export function setRoom(name: string) {
   room = name
   if (audio && wanted()) tick()
+}
+
+/** One short note over the sound of the room, such as the one of a key that is walked on. */
+export function playNote(note: number) {
+  if (!audio || !wanted() || audio.context.state !== 'running') return
+  const { context, power } = audio
+  const now = context.currentTime
+  const envelope = context.createGain()
+  envelope.gain.setValueAtTime(0, now)
+  envelope.gain.linearRampToValueAtTime(0.07, now + 0.012)
+  envelope.gain.exponentialRampToValueAtTime(0.0001, now + 1.1)
+  envelope.connect(power)
+  // The note and a quiet one an octave above it, which makes it ring like a bell.
+  for (const [ratio, type] of [
+    [1, 'triangle'],
+    [2, 'sine'],
+  ] as const) {
+    const source = context.createOscillator()
+    source.type = type
+    source.frequency.value = frequency(note) * ratio
+    source.connect(envelope)
+    source.start(now)
+    source.stop(now + 1.2)
+  }
 }
 
 /** Turns the room sound down while a voice line plays. */

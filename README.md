@@ -272,6 +272,31 @@ by the name without "Nightmare: " or "Reminiscence: ", else by the echo of
 `ParentMonsterId`. Echoes that find no monster show their picture. The room itself is drawn
 in the browser, by `src/three/ChamberScene.tsx`.
 
+## The Spire: walking in the Echo room
+
+The view of the Echo room without walking is "Chamber". Walking, the room is a road of piano
+keys that winds inwards and upwards around a resonating trunk, from a record on the ground
+floor to a stage with a tuning fork as high as a tower. The key under the walker sinks, shines
+and plays a note, higher the further up it is; the sound button silences it too. Every echo of
+the open kind (Echo, Phantom or Other modes) has a floating stand beside the road, and the
+climb goes from cost 1 to cost 4. An echo that is far away is a crystal, then a picture of
+light, and takes its body when the visitor comes close; at its stand, rings of sound climb
+around it and the emblems of its Sonata sets circle above. Headphones, waves and bells arch
+over the road, and harps, organ pipes, records, metronomes and a staff with its notes float
+around it, over a sea of bars that move to a beat.
+
+The model is original low-poly work that is in Git, in `src/assets/echo/spire.glb`, with its
+layout (the numbers of the road, the start, the way out and what turns) in `spire.json` beside
+it. To change it, edit `scripts/build-spire.py`, which writes both files, and run it:
+
+```bash
+blender --background --factory-startup --python scripts/build-spire.py
+```
+
+It also runs inside an open Blender, where it only makes its own `Solaris_Spire` scene. Where
+the stands are is in `src/lib/spire.ts`; the scene is drawn by `src/three/SpireScene.tsx`, and
+the keys by `src/three/Keyboard.tsx`.
+
 ## The lobby
 
 The lobby is a corridor that the visitor walks along, with the door of a room at the left or
@@ -322,7 +347,8 @@ walk through the Library starts at the story that was read last. The aisle is la
 visitor who walks. The shared layout is in `src/lib/wings.ts`, the scene in
 `src/three/WingScene.tsx` and the page around it in `src/components/WingWalk.tsx`. All walks
 use `src/three/Roamer.tsx`, which takes the floor of a room: its portals, what is in the way,
-and where it ends, or for ground of another shape, which points can be stood on.
+and where it ends, or for ground of another shape, which points can be stood on and, where it
+is not flat, how high they are.
 
 ## The search box
 

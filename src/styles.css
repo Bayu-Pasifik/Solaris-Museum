@@ -2020,7 +2020,8 @@ h1 {
   width: 250px;
 }
 
-.echo-room .badges span {
+.echo-room .badges span,
+.echo-report .badges span {
   background: var(--el-deep);
 }
 
