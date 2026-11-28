@@ -22,6 +22,7 @@ import EchoStrip from '../components/EchoStrip'
 import GameText from '../components/GameText'
 import LoadingOverlay from '../components/LoadingOverlay'
 import SceneBoundary from '../components/SceneBoundary'
+import SearchButton from '../components/SearchButton'
 import SonataCard from '../components/SonataCard'
 import ChamberScene from '../three/ChamberScene'
 import { MONSTER_FOV } from '../three/MonsterStand'
@@ -179,6 +180,7 @@ export default function EchoRoom() {
           <Link to="/" className="pill">
             ← Lobby
           </Link>
+          <SearchButton />
           <div className="plate">
             <h1>{current?.name ?? 'Ruang Echo'}</h1>
             <p>

@@ -18,6 +18,7 @@ import AnimationTabs from '../components/AnimationTabs'
 import CharacterModel from '../three/CharacterModel'
 import Podium from '../three/Podium'
 import SceneBoundary from '../components/SceneBoundary'
+import SearchButton from '../components/SearchButton'
 import LoadingOverlay from '../components/LoadingOverlay'
 import Disclaimer from '../components/Disclaimer'
 import StageBackdrop from '../components/StageBackdrop'
@@ -246,6 +247,7 @@ export default function ResonatorHall() {
           <Link to="/" className="pill">
             ← Lobby
           </Link>
+          <SearchButton />
           <div className="plate">
             <h1>
               {current?.name ?? 'Hall Resonator'}

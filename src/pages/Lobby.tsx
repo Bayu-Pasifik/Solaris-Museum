@@ -18,6 +18,7 @@ import { wheel } from '../lib/wheel'
 import LobbyScene, { LOBBY_FOV } from '../three/LobbyScene'
 import SceneBoundary from '../components/SceneBoundary'
 import LoadingOverlay from '../components/LoadingOverlay'
+import SearchButton from '../components/SearchButton'
 import Disclaimer from '../components/Disclaimer'
 
 const GREETINGS = [
@@ -185,6 +186,7 @@ export default function Lobby() {
           <h1>Solaris Museum</h1>
           <p>Museum 3D buatan penggemar</p>
         </div>
+        <SearchButton label="Cari di museum" />
       </header>
 
       {/* The free space between the bars. The corridor behind it takes the pointer. */}

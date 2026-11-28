@@ -8,6 +8,7 @@ import Disclaimer from '../components/Disclaimer'
 import LoadingOverlay from '../components/LoadingOverlay'
 import MapStrip from '../components/MapStrip'
 import SceneBoundary from '../components/SceneBoundary'
+import SearchButton from '../components/SearchButton'
 import WorldScene, { WORLD_FOV } from '../three/WorldScene'
 
 export default function MapRoom() {
@@ -114,6 +115,7 @@ export default function MapRoom() {
           <Link to="/" className="pill">
             ← Lobby
           </Link>
+          <SearchButton />
           <div className="plate">
             <h1>{region?.name ?? 'Ruang Peta'}</h1>
             <p>

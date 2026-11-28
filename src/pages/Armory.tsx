@@ -9,6 +9,7 @@ import Disclaimer from '../components/Disclaimer'
 import GameText from '../components/GameText'
 import LoadingOverlay from '../components/LoadingOverlay'
 import SceneBoundary from '../components/SceneBoundary'
+import SearchButton from '../components/SearchButton'
 import StageBackdrop from '../components/StageBackdrop'
 import WeaponRack from '../components/WeaponRack'
 import Podium from '../three/Podium'
@@ -119,6 +120,7 @@ export default function Armory() {
           <Link to="/" className="pill">
             ← Lobby
           </Link>
+          <SearchButton />
         </p>
       </header>
 

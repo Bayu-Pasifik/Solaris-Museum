@@ -263,6 +263,14 @@ blender --background --factory-startup --python scripts/build-lobby.py
 
 It also runs inside an open Blender, where it only makes its own `Solaris_Lobby` scene.
 
+## The search box
+
+One search box covers the Resonators, weapons, monsters, echoes, stories and documents. The
+search button of every room opens it, as do Ctrl+K and `/`. It reads the lists in
+`public/data/` when it is first opened, so there is no index to build. Of the stories it
+searches the names and summaries, not the scripts in `public/data/story/`. The code is in
+`src/lib/search.ts` and `src/components/GlobalSearch.tsx`.
+
 ## Deploy to shared hosting
 
 Manual: run `npm run build`, then upload the **contents** of `dist/` (including `.htaccess`)
