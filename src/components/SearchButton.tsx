@@ -9,7 +9,7 @@ export default function SearchButton({ label = 'Cari' }: { label?: string }) {
       aria-haspopup="dialog"
       aria-keyshortcuts="Control+K /"
       title="Cari di seluruh museum (Ctrl+K)"
-      onClick={openSearch}
+      onClick={() => openSearch()}
     >
       <span aria-hidden="true">🔍</span>
       {/* Small screens show only the icon, so the top bar keeps its height. */}

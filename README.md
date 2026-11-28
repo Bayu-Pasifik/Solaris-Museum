@@ -271,6 +271,15 @@ search button of every room opens it, as do Ctrl+K and `/`. It reads the lists i
 searches the names and summaries, not the scripts in `public/data/story/`. The code is in
 `src/lib/search.ts` and `src/components/GlobalSearch.tsx`.
 
+## The memory of a visit
+
+The museum remembers, in the `localStorage` of the browser: the favorites (Resonators,
+weapons, monsters, echoes, stories and documents), the stories and documents that are marked
+as read, and the page where each story was left. The lists show a sign on these entries, the
+Library opens at the story that was read last, the lobby offers to continue it, and the search
+box can show the favorites only. Nothing is sent to a server, and another browser or device
+starts empty. The code is in `src/lib/visits.ts`.
+
 ## Deploy to shared hosting
 
 Manual: run `npm run build`, then upload the **contents** of `dist/` (including `.htaccess`)

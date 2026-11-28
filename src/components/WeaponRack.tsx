@@ -4,6 +4,7 @@ import { assetUrl } from '../lib/characters'
 import { pop, type SakugaInput } from '../lib/sakuga'
 import { rarityTheme, type Weapon } from '../lib/weapons'
 import Chips, { allows, toggled, unique } from './Chips'
+import MarkBadge from './MarkBadge'
 
 type Filters = { type: string[]; rarity: number[] }
 
@@ -36,6 +37,7 @@ function Item({ weapon, current }: { weapon: Weapon; current: boolean }) {
           )}
         </span>
         <span className="name">{weapon.name}</span>
+        <MarkBadge path={`/armory/${weapon.id}`} />
       </Link>
     </li>
   )

@@ -8,6 +8,7 @@ import { rarityTheme, useWeapons, type Weapon } from '../lib/weapons'
 import Disclaimer from '../components/Disclaimer'
 import GameText from '../components/GameText'
 import LoadingOverlay from '../components/LoadingOverlay'
+import Marks from '../components/Marks'
 import SceneBoundary from '../components/SceneBoundary'
 import SearchButton from '../components/SearchButton'
 import StageBackdrop from '../components/StageBackdrop'
@@ -44,6 +45,7 @@ function Exhibit({ weapon }: { weapon: Weapon }) {
           <span>{'★'.repeat(weapon.rarity)}</span>
         </h2>
         <p className="how">{weapon.type}</p>
+        <Marks path={`/armory/${weapon.id}`} />
 
         <div className="viewport" ref={viewport}>
           <StageBackdrop />

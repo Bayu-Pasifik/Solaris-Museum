@@ -2473,6 +2473,107 @@ h1 {
   }
 }
 
+/* The memory of the visit: favorites, read marks and the place in a story. */
+
+.marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 10px 16px 0;
+}
+
+.report .marks,
+.script .marks {
+  padding: 0;
+}
+
+.report .marks {
+  margin-block: 8px;
+}
+
+.marks .pill.done {
+  border-color: var(--el-deep, var(--text));
+  background: var(--chip);
+}
+
+.resumed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  color: var(--mute);
+  font-size: 13px;
+}
+
+.resumed .pill {
+  color: var(--text);
+}
+
+.mark-badge {
+  align-self: flex-start;
+  padding: 0 6px;
+  border: 1.5px solid var(--text);
+  border-radius: 999px;
+  background: #ffc21c;
+  color: #1d1a4a;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* The sign lies over a corner, so a list keeps its height. */
+.face,
+.volume {
+  position: relative;
+}
+
+.face > .mark-badge,
+.volume > .mark-badge {
+  position: absolute;
+  top: 4px;
+}
+
+/* The other corner of a face shows the rarity. */
+.face > .mark-badge {
+  top: -4px;
+  left: 0;
+}
+
+.volume > .mark-badge {
+  right: 4px;
+}
+
+.hit .mark-badge {
+  margin-left: 6px;
+}
+
+.memory {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+  max-width: 100%;
+}
+
+.memory .pill {
+  background: var(--page);
+}
+
+.memory .resume {
+  max-width: min(320px, 100%);
+}
+
+.memory .resume span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* The search box: one field over whichever room is open. */
 
 .search-open {

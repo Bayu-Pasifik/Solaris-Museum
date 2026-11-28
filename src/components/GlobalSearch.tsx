@@ -26,14 +26,18 @@ export default function GlobalSearch() {
   const dialog = useRef<HTMLDialogElement>(null)
   // The lists are only loaded after the first opening. The query stays for the next one.
   const [used, setUsed] = useState(false)
+  const [starred, setStarred] = useState(false)
   const { key } = useLocation()
   const close = useCallback(() => dialog.current?.close(), [])
 
   useEffect(() => {
-    const open = () => {
+    const open = (event: Event) => {
       const box = dialog.current
       if (!box || box.open) return
-      flushSync(() => setUsed(true))
+      flushSync(() => {
+        setUsed(true)
+        setStarred((event as CustomEvent<boolean>).detail)
+      })
       box.showModal()
       box.querySelector('input')?.select()
     }
@@ -90,7 +94,7 @@ export default function GlobalSearch() {
     >
       {used && (
         <div>
-          <SearchPanel onClose={close} />
+          <SearchPanel starred={starred} onStarred={setStarred} onClose={close} />
         </div>
       )}
     </dialog>

@@ -2,6 +2,7 @@ import { assetUrl } from '../lib/characters'
 import { KINDS, type Shelved } from '../lib/documents'
 import { useTerms } from '../lib/glossary'
 import GameText from './GameText'
+import Marks from './Marks'
 
 /** One document: where it is from, its pictures and its text. */
 export default function DocumentReader({ document }: { document: Shelved }) {
@@ -14,6 +15,7 @@ export default function DocumentReader({ document }: { document: Shelved }) {
     <section className="card dossier reader" aria-label={`Dokumen ${title}`}>
       <h2>{title}</h2>
       <p className="how">{where.join(' · ')}</p>
+      <Marks path={`/documents/${document.id}`} readable />
 
       <div className="panel">
         {pictures?.map((picture) => (

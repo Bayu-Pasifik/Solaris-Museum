@@ -1,6 +1,7 @@
 import { rankColor, type Monster } from '../lib/bestiary'
 import { useTerms } from '../lib/glossary'
 import GameText from './GameText'
+import Marks from './Marks'
 
 const number = new Intl.NumberFormat('id-ID')
 
@@ -12,6 +13,7 @@ export default function MonsterReport({ monster }: { monster: Monster }) {
   return (
     <div className="report">
       <h2>{monster.name}</h2>
+      <Marks path={`/bestiary/${monster.id}`} />
       <p className="badges">
         <span style={{ background: rankColor(monster.rank) }}>{monster.rank}</span>
         <small>

@@ -5,6 +5,7 @@ import { isProfile, type Profile } from '../lib/profiles'
 import { pop } from '../lib/sakuga'
 import ChainPanel from './ChainPanel'
 import KeepsakePanel from './KeepsakePanel'
+import Marks from './Marks'
 import ProfilePanel from './ProfilePanel'
 import SkillPanel from './SkillPanel'
 import VoicePanel from './VoicePanel'
@@ -36,6 +37,7 @@ export default function Dossier({ character }: { character: Character }) {
         } as CSSProperties
       }
     >
+      <Marks path={`/resonator/${character.id}`} />
       <div className="tabs" role="group" aria-label="Bagian data">
         {tabs.map((tab) => (
           <button

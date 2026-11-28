@@ -8,12 +8,14 @@ import {
   type PointerEvent as ReactPointerEvent,
 } from 'react'
 import { Canvas } from '@react-three/fiber'
-import { useNavigate } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import { assetUrl, useCharacters } from '../lib/characters'
 import { clampStop, type Walk } from '../lib/corridor'
 import { reveal, useInsets } from '../lib/insets'
 import { rooms } from '../lib/rooms'
 import { impact } from '../lib/sakuga'
+import { openSearch } from '../lib/search'
+import { useVisits } from '../lib/visits'
 import { wheel } from '../lib/wheel'
 import LobbyScene, { LOBBY_FOV } from '../three/LobbyScene'
 import SceneBoundary from '../components/SceneBoundary'
@@ -50,6 +52,11 @@ export default function Lobby() {
   // One roll per visit decides who greets and what they say.
   const [roll] = useState(() => [Math.random(), Math.random()])
   const state = useCharacters()
+  const favorites = useVisits((visits) => visits.favorites.length)
+  // The story that was read last, as long as it is not finished.
+  const unfinished = useVisits((visits) =>
+    visits.last && !visits.read.includes(visits.last.path) ? visits.last : undefined,
+  )
   const characters = state.status === 'ready' ? state.data : []
   const greeter = characters[Math.floor(roll[0] * characters.length)]
   const greeting = GREETINGS[Math.floor(roll[1] * GREETINGS.length)]
@@ -187,6 +194,26 @@ export default function Lobby() {
           <p>Museum 3D buatan penggemar</p>
         </div>
         <SearchButton label="Cari di museum" />
+        {(unfinished || favorites > 0) && (
+          <nav className="memory" aria-label="Kunjunganmu">
+            {unfinished && (
+              <Link to={`${unfinished.path}?baca`} className="pill resume">
+                <span>Lanjutkan: {unfinished.name}</span>
+              </Link>
+            )}
+            {favorites > 0 && (
+              <button
+                type="button"
+                className="pill"
+                aria-haspopup="dialog"
+                onClick={() => openSearch(true)}
+              >
+                <span aria-hidden="true">★</span>
+                Favorit {favorites}
+              </button>
+            )}
+          </nav>
+        )}
       </header>
 
       {/* The free space between the bars. The corridor behind it takes the pointer. */}

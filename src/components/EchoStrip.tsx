@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { assetUrl } from '../lib/characters'
 import { wheel } from '../lib/wheel'
+import MarkBadge from './MarkBadge'
 import type { Echo } from '../lib/echoes'
 
 function Head({ echo, current }: { echo: Echo; current: boolean }) {
@@ -28,6 +29,7 @@ function Head({ echo, current }: { echo: Echo; current: boolean }) {
           )}
         </span>
         <span className="name">{echo.name}</span>
+        <MarkBadge path={`/echo/${echo.id}`} />
       </Link>
     </li>
   )

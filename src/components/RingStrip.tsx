@@ -2,6 +2,7 @@ import { useEffect, useRef, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { assetUrl } from '../lib/characters'
 import { wheel } from '../lib/wheel'
+import MarkBadge from './MarkBadge'
 
 export type Entry = {
   id: string
@@ -42,6 +43,7 @@ function Thumb({ entry, to, current, onPick }: ThumbProps) {
           />
         )}
         <b>{entry.title}</b>
+        <MarkBadge path={to} />
         <small>{entry.detail}</small>
       </Link>
     </li>

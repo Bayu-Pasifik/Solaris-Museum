@@ -1,8 +1,10 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { assetUrl, useJson } from '../lib/characters'
 import { useTerms, type Linker } from '../lib/glossary'
 import { isStoryText, pagesOf, type Section, type Story, type StoryText } from '../lib/stories'
+import { getVisits, keepPlace } from '../lib/visits'
 import GameText, { Struck } from './GameText'
+import Marks from './Marks'
 
 type Terms = ReturnType<typeof useTerms>
 
@@ -19,10 +21,15 @@ function explain(page: Section[], link: Linker) {
   }))
 }
 
-/** The dialogue of a story, one page at a time. */
-function Pages({ sections, terms }: { sections: Section[]; terms: Terms }) {
+type PagesProps = { story: Story; sections: Section[]; terms: Terms }
+
+/** The dialogue of a story, one page at a time. It opens where the visitor stopped. */
+function Pages({ story, sections, terms }: PagesProps) {
+  const path = `/library/${story.id}`
   const pages = useMemo(() => pagesOf(sections), [sections])
-  const [open, setOpen] = useState(0)
+  // A new import of the story can have fewer pages than the saved place.
+  const [resumed] = useState(() => Math.min(getVisits().pages[path] ?? 0, pages.length - 1))
+  const [open, setOpen] = useState(resumed)
   const top = useRef<HTMLDivElement>(null)
   const page = useMemo(() => explain(pages[open], terms.link), [pages, open, terms])
 
@@ -31,6 +38,11 @@ function Pages({ sections, terms }: { sections: Section[]; terms: Terms }) {
     setOpen(index)
     top.current?.scrollIntoView({ block: 'start' })
   }
+
+  useEffect(() => keepPlace(path, story.name, open), [path, story.name, open])
+  useEffect(() => {
+    if (resumed > 0) top.current?.scrollIntoView({ block: 'start' })
+  }, [resumed])
 
   const nav = (
     <nav className="turn" aria-label="Pindah halaman">
@@ -61,6 +73,14 @@ function Pages({ sections, terms }: { sections: Section[]; terms: Terms }) {
 
   return (
     <div className="panel script" ref={top}>
+      {resumed > 0 && open === resumed && (
+        <p className="resumed" role="status">
+          Melanjutkan dari halaman {open + 1} dari {pages.length}.
+          <button type="button" className="pill" onClick={() => turn(0)}>
+            Baca dari awal
+          </button>
+        </p>
+      )}
       {page.map((section, index) => (
         <section key={`${open} ${index}`}>
           {section.title && <h3>{section.title}</h3>}
@@ -82,12 +102,13 @@ function Pages({ sections, terms }: { sections: Section[]; terms: Terms }) {
         </section>
       ))}
       {pages.length > 1 && nav}
+      {open === pages.length - 1 && <Marks path={path} readable />}
     </div>
   )
 }
 
-function Script({ id, terms }: { id: string; terms: Terms }) {
-  const state = useJson<StoryText>(`data/story/${id}.json`, isStoryText)
+function Script({ story, terms }: { story: Story; terms: Terms }) {
+  const state = useJson<StoryText>(`data/story/${story.id}.json`, isStoryText)
 
   if (state.status === 'loading') return <p className="notice">Memuat cerita…</p>
   if (state.status === 'error') {
@@ -100,7 +121,7 @@ function Script({ id, terms }: { id: string; terms: Terms }) {
   if (state.data.sections.length === 0) {
     return <p className="notice">Arsip ini tidak memiliki naskah dialog.</p>
   }
-  return <Pages sections={state.data.sections} terms={terms} />
+  return <Pages story={story} sections={state.data.sections} terms={terms} />
 }
 
 /** One story: what it is about, then its script. Render it with the story id as key. */
@@ -116,6 +137,7 @@ export default function StoryReader({ story }: { story: Story }) {
         {story.category} · {story.group}
         {story.subtitle && story.subtitle !== story.group && ` · ${story.subtitle}`}
       </p>
+      <Marks path={`/library/${story.id}`} readable />
 
       {(story.picture || story.summary) && (
         <div className="panel">
@@ -130,7 +152,7 @@ export default function StoryReader({ story }: { story: Story }) {
         </div>
       )}
 
-      <Script id={story.id} terms={terms} />
+      <Script story={story} terms={terms} />
     </section>
   )
 }

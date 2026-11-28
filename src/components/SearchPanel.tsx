@@ -2,6 +2,8 @@ import { memo, useCallback, useDeferredValue, useMemo, useState, type MouseEvent
 import { Link } from 'react-router'
 import { assetUrl } from '../lib/characters'
 import { GROUP_IDS, GROUPS, quote, search, useSearchIndex, type Group, type Hit } from '../lib/search'
+import { useVisits } from '../lib/visits'
+import MarkBadge from './MarkBadge'
 
 /** Results of one group when all groups are shown. */
 const PREVIEW = 5
@@ -27,7 +29,10 @@ const Row = memo(function Row({ hit, query, onPick }: RowProps) {
           )}
         </span>
         <span>
-          <b>{hit.title}</b>
+          <b>
+            {hit.title}
+            <MarkBadge path={hit.to} />
+          </b>
           <small>{hit.detail}</small>
           {found && <q>{found}</q>}
         </span>
@@ -36,16 +41,30 @@ const Row = memo(function Row({ hit, query, onPick }: RowProps) {
   )
 })
 
+type Props = {
+  /** Only the favorites are shown, also without a query. */
+  starred: boolean
+  onStarred: (starred: boolean) => void
+  onClose: () => void
+}
+
 /** The inside of the search box: the field, the groups and the results. */
-export default function SearchPanel({ onClose }: { onClose: () => void }) {
+export default function SearchPanel({ starred, onStarred, onClose }: Props) {
   const { hits, loading, failed } = useSearchIndex()
   const [query, setQuery] = useState('')
   const [group, setGroup] = useState<Group>()
   // Typing stays smooth while a long list of results is drawn.
   const sought = useDeferredValue(query)
-  const found = useMemo(() => search(hits, sought), [hits, sought])
-  const members = (id: Group) => found.filter((item) => item.group === id)
+  const favorites = useVisits((visits) => visits.favorites)
   const asked = sought.trim() !== ''
+  const found = useMemo(() => {
+    if (!starred) return search(hits, sought)
+    const kept = hits.filter((item) => favorites.includes(item.to))
+    return asked ? search(kept, sought) : kept
+  }, [hits, sought, asked, starred, favorites])
+  const members = (id: Group) => found.filter((item) => item.group === id)
+  const listing = asked || starred
+  const count = (group ? members(group) : found).length
 
   // A click that opens a new tab leaves the box open.
   const pick = useCallback(
@@ -72,6 +91,15 @@ export default function SearchPanel({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="search-groups" role="group" aria-label="Kategori">
+        <button
+          type="button"
+          className="pill"
+          aria-pressed={starred}
+          onClick={() => onStarred(!starred)}
+        >
+          <span aria-hidden="true">{starred ? '★' : '☆'}</span>
+          Favorit
+        </button>
         {[undefined, ...GROUP_IDS].map((id) => (
           <button
             key={id ?? 'all'}
@@ -81,7 +109,7 @@ export default function SearchPanel({ onClose }: { onClose: () => void }) {
             onClick={() => setGroup(id)}
           >
             {id ? GROUPS[id] : 'Semua'}
-            {asked && <small>{id ? members(id).length : found.length}</small>}
+            {listing && <small>{id ? members(id).length : found.length}</small>}
           </button>
         ))}
       </div>
@@ -89,11 +117,13 @@ export default function SearchPanel({ onClose }: { onClose: () => void }) {
       <p className="search-status" role="status">
         {loading
           ? 'Memuat data…'
-          : !asked
+          : !listing
             ? 'Ketik nama atau kata. Isi dokumen dan ringkasan cerita ikut dicari.'
-            : (group ? members(group) : found).length === 0
-              ? 'Tidak ditemukan.'
-              : `${(group ? members(group) : found).length} hasil`}
+            : count > 0
+              ? `${count} hasil`
+              : starred && !asked
+                ? 'Belum ada favorit di sini. Buka sebuah koleksi, lalu tekan ☆ Favorit.'
+                : 'Tidak ditemukan.'}
       </p>
       {failed.length > 0 && (
         <p className="search-status" role="alert">
@@ -103,7 +133,7 @@ export default function SearchPanel({ onClose }: { onClose: () => void }) {
       )}
 
       {/* A new key starts every search at the top of the list. */}
-      <div className="search-results" key={`${group} ${sought}`}>
+      <div className="search-results" key={`${starred} ${group} ${sought}`}>
         {(group ? [group] : GROUP_IDS).map((id) => {
           const all = members(id)
           if (all.length === 0) return null

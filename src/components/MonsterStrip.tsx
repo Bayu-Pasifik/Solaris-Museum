@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Link } from 'react-router'
 import { assetUrl } from '../lib/characters'
 import { wheel } from '../lib/wheel'
+import MarkBadge from './MarkBadge'
 import type { Monster } from '../lib/bestiary'
 
 function Head({ monster, current }: { monster: Monster; current: boolean }) {
@@ -28,6 +29,7 @@ function Head({ monster, current }: { monster: Monster; current: boolean }) {
           )}
         </span>
         <span className="name">{monster.name}</span>
+        <MarkBadge path={`/bestiary/${monster.id}`} />
       </Link>
     </li>
   )

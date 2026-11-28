@@ -5,6 +5,7 @@ import { elementNames, themeOf } from '../lib/elements'
 import { pop, type SakugaInput } from '../lib/sakuga'
 import { wheel } from '../lib/wheel'
 import Chips, { allows, toggled, unique } from './Chips'
+import MarkBadge from './MarkBadge'
 
 type Filters = { element: string[]; weapon: string[]; rarity: number[] }
 
@@ -45,6 +46,7 @@ function Face({ character, current }: FaceProps) {
           )}
         </span>
         <span className="name">{character.name}</span>
+        <MarkBadge path={`/resonator/${character.id}`} />
       </Link>
     </li>
   )

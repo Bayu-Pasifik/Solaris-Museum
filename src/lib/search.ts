@@ -22,7 +22,9 @@ export const GROUP_IDS = Object.keys(GROUPS) as Group[]
 
 /** Opens the search box from anywhere. The box listens for this event on the window. */
 export const OPEN_SEARCH = 'museum:search'
-export const openSearch = () => window.dispatchEvent(new Event(OPEN_SEARCH))
+/** With "starred" the box shows the favorites. */
+export const openSearch = (starred = false) =>
+  window.dispatchEvent(new CustomEvent(OPEN_SEARCH, { detail: starred }))
 
 export type Hit = {
   group: Group

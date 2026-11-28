@@ -21,6 +21,7 @@ import Disclaimer from '../components/Disclaimer'
 import EchoStrip from '../components/EchoStrip'
 import GameText from '../components/GameText'
 import LoadingOverlay from '../components/LoadingOverlay'
+import Marks from '../components/Marks'
 import SceneBoundary from '../components/SceneBoundary'
 import SearchButton from '../components/SearchButton'
 import SonataCard from '../components/SonataCard'
@@ -333,6 +334,7 @@ export default function EchoRoom() {
             </p>
             <div className="report">
               <h2>{reading === 'echo' ? current.name : 'Set Sonata'}</h2>
+              {reading === 'echo' && <Marks path={`/echo/${current.id}`} />}
               {reading === 'echo' && (
                 <>
                   <p className="badges">

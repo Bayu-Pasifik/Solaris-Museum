@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { reveal } from '../lib/insets'
 import { categoryTheme, useStories } from '../lib/stories'
+import { getVisits, useVisits } from '../lib/visits'
 import { unique } from '../components/Chips'
 import GroupSelect from '../components/GroupSelect'
 import RingHall from '../components/RingHall'
@@ -16,11 +17,19 @@ export default function Library() {
 
   const stories = state.status === 'ready' ? state.data : []
   const categories = unique(stories.map((story) => story.category))
-  const current = id ? stories.find((story) => story.id === id) : stories[0]
+  // Without an id, the hall opens at the story that was read last.
+  const [last] = useState(() => getVisits().last?.path)
+  const current = id
+    ? stories.find((story) => story.id === id)
+    : (stories.find((story) => `/library/${story.id}` === last) ?? stories[0])
   const shelf = stories.filter((story) => story.category === current?.category)
   const index = shelf.findIndex((story) => story.id === current?.id)
   const theme = categoryTheme(categories, current?.category ?? '')
   const groups = unique(shelf.map((story) => story.group))
+  const place = useVisits((visits) => visits.pages[`/library/${current?.id}`] ?? 0)
+  const done = useVisits(
+    (visits) => shelf.filter((story) => visits.read.includes(`/library/${story.id}`)).length,
+  )
 
   const text = query.trim().toLowerCase()
   // A search looks through every category.
@@ -37,7 +46,11 @@ export default function Library() {
       base="/library"
       back={{ to: '/', label: 'Lobby' }}
       title="Perpustakaan"
-      subtitle={current ? `${shelf.length} cerita · ${current.category}` : 'Arsip cerita'}
+      subtitle={
+        current
+          ? `${shelf.length} cerita${done ? ` · ${done} dibaca` : ''} · ${current.category}`
+          : 'Arsip cerita'
+      }
       links={
         <>
           <Link to="/glossary" className="pill">
@@ -88,7 +101,7 @@ export default function Library() {
         current && {
           title: current.name,
           detail: `${current.group} · ${index + 1} dari ${shelf.length}`,
-          action: 'Baca cerita',
+          action: place ? `Lanjutkan · hal. ${place + 1}` : 'Baca cerita',
         }
       }
       scene={(stage) => (
