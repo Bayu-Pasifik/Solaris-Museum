@@ -39,7 +39,7 @@ export default function Documents() {
       name="paper-hall"
       theme={theme}
       base="/documents"
-      back={{ to: '/library', label: 'Perpustakaan' }}
+      back={{ to: '/', label: 'Lobby' }}
       title="Arsip Dokumen"
       subtitle={current ? `${shelf.length} entri · ${KINDS[current.kind]}` : 'Catatan Solaris'}
       switches={{

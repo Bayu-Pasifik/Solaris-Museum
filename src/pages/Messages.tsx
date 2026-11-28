@@ -62,7 +62,7 @@ export default function Messages() {
       name="signal-hall"
       theme={kind.theme}
       base="/messages"
-      back={{ to: '/library', label: 'Perpustakaan' }}
+      back={{ to: '/', label: 'Lobby' }}
       title="Pesan"
       subtitle="Obrolan ponsel dari Solaris"
       switches={{

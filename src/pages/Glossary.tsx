@@ -44,7 +44,7 @@ export default function Glossary() {
       name="star-hall"
       theme={theme}
       base="/glossary"
-      back={{ to: '/library', label: 'Perpustakaan' }}
+      back={{ to: '/', label: 'Lobby' }}
       title="Glosarium"
       subtitle={current ? `${terms.length} istilah Solaris` : 'Istilah Solaris'}
       switches={{
