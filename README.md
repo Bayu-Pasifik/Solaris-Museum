@@ -336,6 +336,8 @@ npm run upload
 
 ## Walking in the Armory, the Resonator Hall and the Library
 
+The Gallery can be walked through as well, and is described further below.
+
 These rooms have the same three ways to look around. The one without walking is "List" in the
 Armory, with one weapon on the stage, "Stage" in the Resonator Hall and "Ring" in the Library.
 When walking, the Armory is a foundry and the Resonator Hall is a train (both described
@@ -403,6 +405,34 @@ stands and the floor are laid out in `src/lib/foundry.ts`; the scene is drawn by
 `src/three/FoundryScene.tsx`, and the cavern, the smith and the lava by
 `src/three/FoundryMap.tsx`. A new kind of weapon needs a forge in the script and a name in
 `FORGE_NAMES`; until then its weapons share the Arcane Kiln.
+
+## The Endless Salon: walking in the Gallery
+
+The view of the Gallery without walking is "Wall". Walking, the whole collection hangs on easels
+along one ribbon with a half twist, after the strips of M. C. Escher. The namecards, the titles
+and the achievement groups follow each other, each collection behind a gilded frame that is
+walked through, and their buttons jump to it. After one round the visitor walks on the underside
+of where they began, and after two they are home: the way has no end. The floor is a
+tessellation that slowly turns from squares into fish and back, small mannequins carry paintings along the rims,
+and around the ribbon float a painting mannequin, endless stairs, an impossible triangle,
+frames within frames and a sky painted in strokes. Only the pictures close by are painted.
+
+The visitor walks on flat ground, and the page bends the world around them, so
+`src/three/Roamer.tsx` needs nothing special. The bending is in `src/lib/mobius.ts`, which also
+spreads the pieces over the ribbon, however many there are. The scene is drawn by
+`src/three/MobiusScene.tsx`, and the ribbon and the sky by `src/three/MobiusMap.tsx`.
+
+The model is original low-poly work that is in Git, in `src/assets/gallery/mobius.glb`, with its
+layout in `mobius.json` beside it. To change it, edit `scripts/build-mobius.py`, which writes
+both files, and run it:
+
+```bash
+blender --background --factory-startup --python scripts/build-mobius.py
+```
+
+It also runs inside an open Blender, where it only makes its own `Solaris_Mobius` scene. The
+shape of the ribbon is in both the script (`frame`) and the page (`frameAt`), so change them
+together.
 
 ## The search box
 

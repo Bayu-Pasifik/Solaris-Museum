@@ -9,13 +9,17 @@ import {
 } from 'react'
 import { Canvas } from '@react-three/fiber'
 import { Link, useNavigate, useParams } from 'react-router'
+import { useCharacters } from '../lib/characters'
 import { useGallery } from '../lib/gallery'
 import { pieceId, pieceName, pieces, SECTIONS, type Choosable } from '../lib/exhibits'
 import { reveal, useInsets } from '../lib/insets'
 import { useTitle } from '../lib/title'
+import { useWalkChoice, type WalkChoice } from '../lib/walkChoice'
 import Disclaimer from '../components/Disclaimer'
 import GalleryStrip from '../components/GalleryStrip'
+import GalleryWalk from '../components/GalleryWalk'
 import LoadingOverlay from '../components/LoadingOverlay'
+import ModeSwitch from '../components/ModeSwitch'
 import PieceReport from '../components/PieceReport'
 import SceneBoundary from '../components/SceneBoundary'
 import SearchButton from '../components/SearchButton'
@@ -26,10 +30,12 @@ import { DRAG } from '../three/Frame'
 const choosable = (list: ReturnType<typeof pieces>) =>
   list.filter((piece): piece is Choosable => piece.kind !== 'banner')
 
-export default function Gallery() {
+type WallProps = { state: ReturnType<typeof useGallery>; walk: WalkChoice }
+
+/** The collection on a curved wall, one kind at a time. */
+function Wall({ state, walk }: WallProps) {
   const params = useParams()
   const navigate = useNavigate()
-  const state = useGallery()
   const section = SECTIONS.find((item) => item.id === params.section) ?? SECTIONS[0]
   const [query, setQuery] = useState('')
   const [hovered, setHovered] = useState<string>()
@@ -183,6 +189,7 @@ export default function Gallery() {
           </Link>
           <SearchButton />
           <SoundButton />
+          <ModeSwitch walk={walk} onChoose={walk.choose} still="Wall" />
           <div className="plate">
             <h1>Gallery</h1>
             <p>{data ? `${all.length} ${section.unit}` : 'Namecard, title, achievement'}</p>
@@ -290,4 +297,18 @@ export default function Gallery() {
       </main>
     </>
   )
+}
+
+export default function Gallery() {
+  const { section, item } = useParams()
+  const state = useGallery()
+  const characters = useCharacters()
+  const walk = useWalkChoice(characters.status === 'ready' ? characters.data : [])
+
+  if (walk.mode !== 'tour' && state.status !== 'error') {
+    if (state.status === 'loading') return <p className="notice">Loading data…</p>
+    return <GalleryWalk data={state.data} section={section} item={item} walk={walk} />
+  }
+
+  return <Wall state={state} walk={walk} />
 }
