@@ -23,6 +23,9 @@ public/art/
 *.blend1
 *.glb
 
+# The islands of the Map room are made by scripts/build-map.py and hold no game assets.
+!src/assets/**/*.glb
+
 # Tool leftovers
 .playwright-mcp/
 *.log

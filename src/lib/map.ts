@@ -25,6 +25,18 @@ export type Region = {
 
 export type WorldMap = { regions: Region[] }
 
+/** The colors of a region: its beacons on the map and the frames of the page. */
+const COLORS: Record<number, { deep: string; accent: string; pale: string }> = {
+  1: { deep: '#9a5b00', accent: '#ffb02e', pale: '#fff0cf' },
+  900: { deep: '#14688c', accent: '#4fd8ff', pale: '#d9f6ff' },
+  3: { deep: '#5136b8', accent: '#8f6bff', pale: '#e8e0ff' },
+  4: { deep: '#a83c10', accent: '#ff7a45', pale: '#ffe4d8' },
+}
+
+/** The whole map, and a region that has no colors of its own. */
+export const regionColors = (id?: number) =>
+  (id !== undefined && COLORS[id]) || { deep: '#1d1a4a', accent: '#8f8df7', pale: '#e6e3fa' }
+
 const isWorldMap = (data: WorldMap) =>
   Array.isArray(data.regions) &&
   data.regions.length > 0 &&

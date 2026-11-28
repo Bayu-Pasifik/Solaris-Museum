@@ -130,6 +130,22 @@ the Map room: the list, with the full text of the reports, to `public/data/map.j
 `--force` it only downloads the pictures that are missing. It does not need Blender. The API
 has a description for some regions only.
 
+## The floating map
+
+The Map room shows the regions as floating islands, one per region, with a beacon for every
+area. The islands are original low-poly models, so unlike the other models they are in Git, in
+`src/assets/map/islands.glb`, and the build uploads them with the page. To change them, edit
+`scripts/build-map.py` and run it:
+
+```bash
+blender --background --factory-startup --python scripts/build-map.py
+```
+
+It also runs inside an open Blender, where it only makes its own `Solaris_Map` scene. An area
+stands on a pin of its island, in the order of `map.json`. A new region needs an island in the
+script and an entry in `ISLANDS` in `src/three/WorldScene.tsx`; until then it is only in the
+strip under the map.
+
 ## Deploy to shared hosting
 
 Manual: run `npm run build`, then upload the **contents** of `dist/` (including `.htaccess`)

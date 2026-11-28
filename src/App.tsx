@@ -23,6 +23,7 @@ export default function App() {
         <Route path="/gallery/:section" element={<Gallery />} />
         <Route path="/map" element={<MapRoom />} />
         <Route path="/map/:region" element={<MapRoom />} />
+        <Route path="/map/:region/:area" element={<MapRoom />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Suspense>

@@ -3,6 +3,7 @@ import { Link } from 'react-router'
 import { assetUrl, type Character } from '../lib/characters'
 import { elementNames, themeOf } from '../lib/elements'
 import { pop, type SakugaInput } from '../lib/sakuga'
+import { wheel } from '../lib/wheel'
 import Chips, { allows, toggled, unique } from './Chips'
 
 type Filters = { element: string[]; weapon: string[]; rarity: number[] }
@@ -50,18 +51,6 @@ function Face({ character, current }: FaceProps) {
 }
 
 type Props = { characters: Character[]; currentId?: string }
-
-/** Turns the wheel of a mouse into sideways scrolling. */
-function wheel(list: HTMLUListElement | null) {
-  if (!list) return
-  const onWheel = (event: WheelEvent) => {
-    if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return
-    event.preventDefault()
-    list.scrollLeft += event.deltaY
-  }
-  list.addEventListener('wheel', onWheel, { passive: false })
-  return () => list.removeEventListener('wheel', onWheel)
-}
 
 /** The character list of the Resonator hall: search, filters and a strip of faces. */
 export default function Roster({ characters, currentId }: Props) {
