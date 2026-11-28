@@ -16,6 +16,7 @@ import Disclaimer from './Disclaimer'
 import LoadingOverlay from './LoadingOverlay'
 import SceneBoundary from './SceneBoundary'
 import SearchButton from './SearchButton'
+import SoundButton from './SoundButton'
 
 /** Pixels at the foot of the hall that the name of the chosen panel covers. */
 const CAPTION = 80
@@ -193,6 +194,7 @@ export default function RingHall({
           ← {back.label}
         </Link>
         <SearchButton />
+        <SoundButton />
         <div className="plate">
           <h1>{title}</h1>
           <p>{subtitle}</p>

@@ -21,6 +21,7 @@ import MonsterReport from '../components/MonsterReport'
 import MonsterStrip from '../components/MonsterStrip'
 import SceneBoundary from '../components/SceneBoundary'
 import SearchButton from '../components/SearchButton'
+import SoundButton from '../components/SoundButton'
 import ArenaScene from '../three/ArenaScene'
 import { MONSTER_FOV } from '../three/MonsterStand'
 
@@ -134,6 +135,7 @@ export default function Bestiary() {
             ← Lobby
           </Link>
           <SearchButton />
+          <SoundButton />
           <div className="plate">
             <h1>{current?.name ?? 'Bestiary'}</h1>
             <p>{current ? `${current.rank} · ${current.element}` : 'Catatan monster'}</p>

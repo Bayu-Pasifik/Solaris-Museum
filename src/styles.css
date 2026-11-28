@@ -2576,8 +2576,15 @@ h1 {
 
 /* The search box: one field over whichever room is open. */
 
-.search-open {
+.search-open,
+.sound-toggle {
   background: var(--page);
+}
+
+.pill.sound-toggle {
+  justify-content: center;
+  width: 40px;
+  padding-inline: 0;
 }
 
 .lobby-hall .topbar .search-open {
@@ -2587,6 +2594,13 @@ h1 {
   border: var(--ink-border);
   box-shadow: 5px 6px 0 var(--el-accent);
   font-size: 14px;
+}
+
+.lobby-hall .topbar .sound-toggle {
+  width: 44px;
+  height: 44px;
+  border: var(--ink-border);
+  box-shadow: 5px 6px 0 var(--el-accent);
 }
 
 .search-box {
@@ -2784,12 +2798,17 @@ h1 {
   }
 
   .search-open ~ .plate {
-    flex: 1 1 180px;
+    flex: 1 1 130px;
     min-width: 0;
     padding-inline: 12px;
   }
 
   .search-open ~ .plate h1 {
     font-size: 19px;
+  }
+
+  /* The stars of a long name go to their own line. */
+  .search-open ~ .plate h1 span {
+    display: inline-block;
   }
 }

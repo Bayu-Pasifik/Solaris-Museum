@@ -18,6 +18,7 @@ import LoadingOverlay from '../components/LoadingOverlay'
 import PieceReport from '../components/PieceReport'
 import SceneBoundary from '../components/SceneBoundary'
 import SearchButton from '../components/SearchButton'
+import SoundButton from '../components/SoundButton'
 import GalleryScene, { GALLERY_FOV, newScroll, type Scroll } from '../three/GalleryScene'
 import { DRAG } from '../three/Frame'
 
@@ -179,6 +180,7 @@ export default function Gallery() {
             ← Lobby
           </Link>
           <SearchButton />
+          <SoundButton />
           <div className="plate">
             <h1>Galeri</h1>
             <p>{data ? `${all.length} ${section.unit}` : 'Namecard, title, achievement'}</p>

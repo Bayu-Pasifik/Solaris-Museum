@@ -24,6 +24,7 @@ import LoadingOverlay from '../components/LoadingOverlay'
 import Marks from '../components/Marks'
 import SceneBoundary from '../components/SceneBoundary'
 import SearchButton from '../components/SearchButton'
+import SoundButton from '../components/SoundButton'
 import SonataCard from '../components/SonataCard'
 import ChamberScene from '../three/ChamberScene'
 import { MONSTER_FOV } from '../three/MonsterStand'
@@ -182,6 +183,7 @@ export default function EchoRoom() {
             ← Lobby
           </Link>
           <SearchButton />
+          <SoundButton />
           <div className="plate">
             <h1>{current?.name ?? 'Ruang Echo'}</h1>
             <p>

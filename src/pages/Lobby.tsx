@@ -21,6 +21,7 @@ import LobbyScene, { LOBBY_FOV } from '../three/LobbyScene'
 import SceneBoundary from '../components/SceneBoundary'
 import LoadingOverlay from '../components/LoadingOverlay'
 import SearchButton from '../components/SearchButton'
+import SoundButton from '../components/SoundButton'
 import Disclaimer from '../components/Disclaimer'
 
 const GREETINGS = [
@@ -194,6 +195,7 @@ export default function Lobby() {
           <p>Museum 3D buatan penggemar</p>
         </div>
         <SearchButton label="Cari di museum" />
+        <SoundButton />
         {(unfinished || favorites > 0) && (
           <nav className="memory" aria-label="Kunjunganmu">
             {unfinished && (

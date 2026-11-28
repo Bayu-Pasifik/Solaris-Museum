@@ -11,6 +11,7 @@ import LoadingOverlay from '../components/LoadingOverlay'
 import Marks from '../components/Marks'
 import SceneBoundary from '../components/SceneBoundary'
 import SearchButton from '../components/SearchButton'
+import SoundButton from '../components/SoundButton'
 import StageBackdrop from '../components/StageBackdrop'
 import WeaponRack from '../components/WeaponRack'
 import Podium from '../three/Podium'
@@ -123,6 +124,7 @@ export default function Armory() {
             ← Lobby
           </Link>
           <SearchButton />
+          <SoundButton />
         </p>
       </header>
 

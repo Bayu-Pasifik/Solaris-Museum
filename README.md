@@ -280,6 +280,15 @@ Library opens at the story that was read last, the lobby offers to continue it, 
 box can show the favorites only. Nothing is sent to a server, and another browser or device
 starts empty. The code is in `src/lib/visits.ts`.
 
+## The sound of the rooms
+
+Every room has its own quiet music, air and small sounds. Web Audio makes them while they
+play, so there are no audio files to upload. A browser only allows sound after the visitor has
+pressed something, so it starts with the first click or key. The button beside the search
+button turns it off, and the browser remembers that. The sound gets quieter while a voice line
+plays and stops while the tab is hidden. The rooms are described in `src/lib/soundscapes.ts`
+and played by `src/lib/ambience.ts`.
+
 ## Deploy to shared hosting
 
 Manual: run `npm run build`, then upload the **contents** of `dist/` (including `.htaccess`)

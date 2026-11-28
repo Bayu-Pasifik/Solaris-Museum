@@ -1,6 +1,7 @@
-import { lazy, Suspense } from 'react'
-import { Navigate, Route, Routes } from 'react-router'
+import { lazy, Suspense, useEffect } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router'
 import GlobalSearch from './components/GlobalSearch'
+import { setRoom } from './lib/ambience'
 
 const Lobby = lazy(() => import('./pages/Lobby'))
 const ResonatorHall = lazy(() => import('./pages/ResonatorHall'))
@@ -15,6 +16,9 @@ const Messages = lazy(() => import('./pages/Messages'))
 const Documents = lazy(() => import('./pages/Documents'))
 
 export default function App() {
+  const room = useLocation().pathname.split('/')[1] ?? ''
+  useEffect(() => setRoom(room), [room])
+
   return (
     <>
       <Suspense fallback={<p className="notice">Memuat ruangan…</p>}>

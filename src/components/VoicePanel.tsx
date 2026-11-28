@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { duck } from '../lib/ambience'
 import { languages, type Language, type Profile, type Voice } from '../lib/profiles'
 
 type Playing = { id: number; state: 'loading' | 'playing' | 'failed' }
@@ -24,6 +25,7 @@ export default function VoicePanel({ profile }: { profile: Profile }) {
     const current = audio.current
     audio.current = null
     if (!current) return
+    duck(false)
     current.onplaying = current.onended = current.onerror = null
     current.pause()
   }
@@ -42,9 +44,12 @@ export default function VoicePanel({ profile }: { profile: Profile }) {
 
     const next = new Audio(url)
     audio.current = next
+    duck(true)
     // A line that was stopped in the meantime must not change the state.
     const report = (state: Playing['state']) => {
-      if (audio.current === next) setPlaying({ id: voice.id, state })
+      if (audio.current !== next) return
+      if (state === 'failed') duck(false)
+      setPlaying({ id: voice.id, state })
     }
     next.onplaying = () => report('playing')
     next.onerror = () => report('failed')
