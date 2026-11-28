@@ -1,13 +1,7 @@
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
-import {
-  AdditiveBlending,
-  BackSide,
-  CanvasTexture,
-  Color,
-  Object3D,
-  SRGBColorSpace,
-  type InstancedMesh,
-} from 'three'
+import { useMemo } from 'react'
+import { AdditiveBlending, BackSide } from 'three'
+import Boxes, { type Box } from './Boxes'
+import { noise, paintGlow, usePainting } from './painting'
 
 /** Color of the air. The fog fades everything far away into it. */
 const SKY = '#2c2766'
@@ -22,26 +16,12 @@ const CENTER = -1
 const RADIUS = 10.5
 /** Bookcases on each side of the window, and the angle between two of them. */
 const SIDE = 4
-const STEP = MathStep(24)
+const STEP = (24 * Math.PI) / 180
 const WIDTH = 3.9
 /** Floor height of the two levels, and the height of one shelf. */
 const LEVELS = [0, 5]
 const SHELF = 0.95
 const ROWS = 4
-
-function MathStep(degrees: number) {
-  return (degrees * Math.PI) / 180
-}
-
-/** A number from 0 to 1 that is always the same for the same seed. */
-const noise = (seed: number) => Math.abs((Math.sin(seed * 127.1) * 43758.5453) % 1)
-
-type Box = {
-  position: [number, number, number]
-  size: [number, number, number]
-  turn: number
-  color: string
-}
 
 /**
  * A place on the wall of the hall. The angle is 0 at the back; "along" goes sideways along the
@@ -119,52 +99,6 @@ function build() {
   return boxes
 }
 
-/** All boxes of the walls in one instanced mesh, so the whole library is one draw call. */
-function Walls() {
-  const boxes = useMemo(build, [])
-  const mesh = useRef<InstancedMesh>(null)
-
-  useLayoutEffect(() => {
-    const target = mesh.current
-    if (!target) return
-    const place = new Object3D()
-    const color = new Color()
-    boxes.forEach((box, index) => {
-      place.position.set(...box.position)
-      place.rotation.set(0, box.turn, 0)
-      place.scale.set(...box.size)
-      place.updateMatrix()
-      target.setMatrixAt(index, place.matrix)
-      target.setColorAt(index, color.set(box.color))
-    })
-    target.instanceMatrix.needsUpdate = true
-    if (target.instanceColor) target.instanceColor.needsUpdate = true
-    target.computeBoundingSphere()
-  }, [boxes])
-
-  return (
-    <instancedMesh ref={mesh} args={[undefined, undefined, boxes.length]} raycast={() => null}>
-      <boxGeometry />
-      <meshToonMaterial />
-    </instancedMesh>
-  )
-}
-
-/** A canvas as a texture that is freed with the component. */
-function usePainting(size: number, paint: (g: CanvasRenderingContext2D, size: number) => void) {
-  const texture = useMemo(() => {
-    const canvas = document.createElement('canvas')
-    canvas.width = canvas.height = size
-    paint(canvas.getContext('2d')!, size)
-    const result = new CanvasTexture(canvas)
-    result.colorSpace = SRGBColorSpace
-    result.anisotropy = 8
-    return result
-  }, [size, paint])
-  useEffect(() => () => texture.dispose(), [texture])
-  return texture
-}
-
 /** A round floor of rings and rays, like a compass of inlaid stone. */
 function paintFloor(g: CanvasRenderingContext2D, size: number) {
   const middle = size / 2
@@ -223,17 +157,6 @@ function paintSky(g: CanvasRenderingContext2D, size: number) {
     g.arc(noise(star + 3) * size, noise(star + 211) * size * 0.6, 1 + noise(star + 97) * 2, 0, 7)
     g.fill()
   }
-}
-
-/** A soft round light. */
-function paintGlow(g: CanvasRenderingContext2D, size: number) {
-  const middle = size / 2
-  const light = g.createRadialGradient(middle, middle, 0, middle, middle, middle)
-  light.addColorStop(0, '#ffe9a8ff')
-  light.addColorStop(0.3, '#ffc85a66')
-  light.addColorStop(1, '#ffc85a00')
-  g.fillStyle = light
-  g.fillRect(0, 0, size, size)
 }
 
 /** The tall arched window in the middle of the back wall. */
@@ -352,6 +275,12 @@ function Desk({ x, z, turn }: { x: number; z: number; turn: number }) {
       </group>
     </group>
   )
+}
+
+/** The two levels of bookcases, the balcony and the pillars. */
+function Walls() {
+  const boxes = useMemo(build, [])
+  return <Boxes boxes={boxes} />
 }
 
 /** The library: a round hall with two levels of bookcases around a floor of inlaid stone. */

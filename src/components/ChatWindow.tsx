@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router'
 import { assetUrl, useJson } from '../lib/characters'
 import { isConversation, play, type Contact, type Conversation, type Message } from '../lib/chats'
 import Avatar from './Avatar'
@@ -149,9 +148,6 @@ export default function ChatWindow({ contact }: { contact: Contact }) {
   return (
     <section className="card phone" aria-label={`Obrolan ${contact.name}`}>
       <header>
-        <Link to="/messages" className="pill back" aria-label="Daftar kontak">
-          ←
-        </Link>
         <Avatar name={contact.name} path={contact.avatar} />
         <div>
           <h2>{contact.name}</h2>

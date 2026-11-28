@@ -21,6 +21,7 @@ export default function App() {
         <Route path="/library" element={<Library />} />
         <Route path="/library/:id" element={<Library />} />
         <Route path="/glossary" element={<Glossary />} />
+        <Route path="/glossary/:id" element={<Glossary />} />
         <Route path="/messages" element={<Messages />} />
         <Route path="/messages/:id" element={<Messages />} />
         <Route path="/armory" element={<Armory />} />

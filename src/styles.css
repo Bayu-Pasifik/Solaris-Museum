@@ -1095,23 +1095,31 @@ h1 {
   object-fit: contain;
 }
 
-/* Library: the 3D archive hall fills the screen, with the stories in the strip below it and
-   the script of the chosen one in the drawer. */
+/* The ring halls (Library, Glossary and Messages): a 3D hall fills the screen, with every
+   entry in the strip below it and the chosen one in the drawer. */
 
-.archive-hall .backdrop.sky {
+.ring-hall .backdrop.sky {
   background: #2c2766;
   touch-action: none;
   user-select: none;
 }
 
-.archive-hall > .viewport {
+.ring-hall.star-hall .backdrop.sky {
+  background: #141038;
+}
+
+.ring-hall.signal-hall .backdrop.sky {
+  background: #241d5c;
+}
+
+.ring-hall > .viewport {
   align-items: center;
   justify-content: flex-end;
   padding: 0 14px;
 }
 
 /* The arrows stand at the sides, halfway up the free space. */
-.archive-hall .walk {
+.ring-hall .walk {
   position: absolute;
   top: calc(50% - 22px);
   right: 14px;
@@ -1125,12 +1133,12 @@ h1 {
   pointer-events: auto;
 }
 
-.archive-hall .walk.back {
+.ring-hall .walk.back {
   right: auto;
   left: 14px;
 }
 
-.archive-hall .walk:disabled {
+.ring-hall .walk:disabled {
   visibility: hidden;
 }
 
@@ -1166,7 +1174,7 @@ h1 {
   flex: none;
 }
 
-.archive-hall .switches div {
+.ring-hall .switches div {
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -1234,35 +1242,56 @@ h1 {
   font-size: 11.5px;
 }
 
+/* The letters are many and short. */
+.star-hall .switches .pill {
+  min-width: 34px;
+  justify-content: center;
+  padding-inline: 8px;
+}
+
+.volume .avatar {
+  align-self: flex-start;
+}
+
+.term-report {
+  gap: 10px;
+  padding: 18px;
+}
+
+.ring-hall .term-report h2 {
+  padding: 0;
+  font: italic 800 24px / 1.25 var(--display);
+}
+
 /* The scripts are long, so the reader gets more room than other drawers. */
-.archive-hall .drawer {
+.ring-hall .drawer {
   width: min(560px, 100%);
 }
 
 @media (min-width: 1100px) {
-  .gallery.archive-hall.reading > :not(.backdrop, .drawer) {
+  .gallery.ring-hall.reading > :not(.backdrop, .drawer) {
     margin-right: 560px;
   }
 }
 
 @media (min-width: 1000px) and (max-width: 1099px) {
-  .gallery.archive-hall.reading > :not(.backdrop, .drawer) {
+  .gallery.ring-hall.reading > :not(.backdrop, .drawer) {
     margin-right: 0;
   }
 }
 
 @media (max-width: 760px) {
-  .archive-hall .switches div {
+  .ring-hall .switches div {
     flex-wrap: nowrap;
     justify-content: flex-start;
   }
 
-  .archive-hall .finder select {
+  .ring-hall .finder select {
     flex: 1;
   }
 
   /* Still read aloud, but the search and the chapters need the whole row. */
-  .archive-hall .finder [role='status'] {
+  .ring-hall .finder [role='status'] {
     position: absolute;
     overflow: hidden;
     clip-path: inset(50%);
@@ -1294,7 +1323,7 @@ h1 {
   }
 
   /* A story is read on the whole sheet. */
-  .open-hall.archive-hall .drawer {
+  .open-hall.ring-hall .drawer {
     top: 12%;
   }
 }
@@ -2101,126 +2130,9 @@ h1 {
   }
 }
 
-.glossary .dossier {
-  margin-top: 18px;
-  padding: 16px;
-}
+/* Messages: the faces in the strip and the phone in the drawer. */
 
-.glossary sakuga-input {
-  --sk-input-width: 100%;
-  display: block;
-  max-width: 340px;
-}
-
-.glossary .count {
-  margin: 10px 0 0;
-  color: var(--mute);
-  font-size: 13px;
-}
-
-.glossary h2 {
-  margin: 22px 0 10px;
-  padding: 0;
-  font: italic 800 22px / 1.2 var(--display);
-}
-
-.glossary dl {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
-  gap: 10px;
-  margin: 0;
-}
-
-/* The letters below the screen are laid out when they come near. */
-.glossary section section {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 600px;
-}
-
-.glossary dl .panel {
-  gap: 6px;
-  padding: 12px 14px;
-  border: 1.5px solid var(--line);
-  border-radius: 12px;
-}
-
-.glossary dt {
-  font-weight: 800;
-}
-
-.glossary dd {
-  margin: 0;
-  font-size: 14px;
-}
-
-/* Messages: the contacts beside a phone. */
-
-.messages .hall {
-  --el-deep: #4a47b8;
-  --el-pale: #e6e5ff;
-  --el-accent: #8f8df7;
-  margin-top: 18px;
-}
-
-.messages .contacts,
-.messages .phone {
-  height: min(760px, calc(100dvh - 32px));
-  min-height: 460px;
-}
-
-.messages .contacts ul {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  gap: 4px;
-  min-height: 0;
-  max-height: none;
-  padding: 4px 6px 6px 4px;
-}
-
-.contacts a {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 7px 9px;
-  border: 1.5px solid transparent;
-  border-radius: 12px;
-  text-decoration: none;
-}
-
-.contacts a:hover {
-  border-color: var(--text);
-}
-
-.contacts a[aria-current='page'] {
-  border-color: var(--el-deep);
-  background: var(--el-pale);
-}
-
-/* The list is long, so rows outside of its view are not laid out. */
-.contacts li {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 58px;
-}
-
-.contacts a > span {
-  min-width: 0;
-}
-
-.contacts b,
-.contacts a > span > span {
-  display: block;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.contacts a > span > span {
-  color: var(--mute);
-  font-size: 12px;
-}
-
-.messages .avatar {
+.signal-hall .avatar {
   display: grid;
   flex: none;
   place-items: center;
@@ -2234,13 +2146,18 @@ h1 {
   font-weight: 800;
 }
 
-.messages .avatar img {
+.signal-hall .avatar img {
   width: 100%;
   height: 100%;
+  border-radius: 0;
   object-fit: cover;
 }
 
 .phone {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
   overflow: hidden;
   border: var(--ink-border);
   box-shadow: var(--hard-shadow);
@@ -2258,7 +2175,7 @@ h1 {
   min-width: 0;
 }
 
-.messages .phone h2 {
+.signal-hall .phone h2 {
   padding: 0;
   font: italic 800 18px / 1.25 var(--display);
 }
@@ -2267,10 +2184,6 @@ h1 {
   margin: 0;
   color: var(--mute);
   font-size: 12px;
-}
-
-.messages .phone .back {
-  display: none;
 }
 
 .phone .turn {
@@ -2443,25 +2356,6 @@ h1 {
 }
 
 @media (max-width: 760px) {
-  /* The list and a chat take turns on the screen. */
-  .messages .contacts {
-    order: 0;
-  }
-
-  .messages:not(.picked) .phone,
-  .messages.picked .contacts,
-  .messages.picked > header {
-    display: none;
-  }
-
-  .messages.picked {
-    padding-top: 12px;
-  }
-
-  .messages .phone .back {
-    display: inline-flex;
-  }
-
   .phone .long {
     display: none;
   }
