@@ -189,6 +189,20 @@ blender --background --factory-startup --python scripts/build-bestiary.py
 
 It also runs inside an open Blender, where it only makes its own `Solaris_Bestiary` scene.
 
+## The lobby
+
+The lobby is a corridor that the visitor walks along, with the door of a room at the left or
+the right of every bay. The corridor is an original low-poly model that is in Git, in
+`src/assets/lobby/corridor.glb`. The page repeats its bay once per room, so a new room only
+needs an entry in `src/lib/rooms.ts`; where the doors stand is in `src/lib/corridor.ts`. To
+change the model, edit `scripts/build-lobby.py` and run it:
+
+```bash
+blender --background --factory-startup --python scripts/build-lobby.py
+```
+
+It also runs inside an open Blender, where it only makes its own `Solaris_Lobby` scene.
+
 ## Deploy to shared hosting
 
 Manual: run `npm run build`, then upload the **contents** of `dist/` (including `.htaccess`)

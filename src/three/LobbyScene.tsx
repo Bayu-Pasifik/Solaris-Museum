@@ -1,90 +1,143 @@
-import { useRef } from 'react'
+import { useEffect, useMemo, useRef, type RefObject } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
-import { MathUtils, Vector3 } from 'three'
+import { useGLTF } from '@react-three/drei'
+import { DoubleSide, MathUtils, Mesh, MeshToonMaterial, PerspectiveCamera, Vector3 } from 'three'
 import type { Character } from '../lib/characters'
+import { BAY, door, type Walk } from '../lib/corridor'
+import type { Insets } from '../lib/insets'
 import type { Room } from '../lib/rooms'
+import corridorUrl from '../assets/lobby/corridor.glb?url'
 import Greeter from './Greeter'
-import Museum from './Museum'
 import Portal, { PORTAL_CENTER } from './Portal'
 
-/** Tangent of half the vertical field of view of the lobby camera. */
-export const LOBBY_FOV = 40
-const SLOPE = Math.tan(MathUtils.degToRad(LOBBY_FOV / 2))
-
-/** Above this many portals, the two rows of a narrow screen stand closer and smaller. */
-const ROOMY = 5
-
-/**
- * Portals stand on a curve around the visitor. On narrow screens they do not all fit side by
- * side, so every other one stands in front and the rest float smaller behind and above them.
- */
-function place(index: number, count: number, narrow: boolean) {
-  const offset = index - (count - 1) / 2
-  if (!narrow) {
-    const position: [number, number, number] = [offset * 2.35, 0, -1.6 + Math.abs(offset) * 0.35]
-    return { position, scale: 1, turn: -offset * 0.2 }
-  }
-  const raised = index % 2 === 0
-  // Each row stands in the middle on its own.
-  const inRow = raised ? Math.ceil(count / 2) : Math.floor(count / 2)
-  const across = Math.floor(index / 2) - (inRow - 1) / 2
-  const tight = count > ROOMY
-  const position: [number, number, number] = raised
-    ? [across * (tight ? 1.7 : 1.8), 3.9, -4.8]
-    : [across * (tight ? 1.85 : 2.3), 0, -1.6]
-  const scale = raised ? (tight ? 0.65 : 0.72) : tight ? 0.78 : 0.9
-  return { position, scale, turn: -across * 0.2 }
-}
+export const LOBBY_FOV = 45
+/** Color of the air. The fog fades everything far away into it. */
+const SKY = '#e4e0ff'
+/** Bays behind the first door, which the camera stands in, and behind the last one. */
+const BEFORE = 3
+const AFTER = 2
 
 type RigProps = {
-  narrow: boolean
-  /** Number of portals. */
-  count: number
-  /** Where the portal being entered stands. */
-  target?: [number, number, number]
+  walk: RefObject<Walk>
+  /** Where the visitor is now; the scene moves it toward the target. */
+  place: RefObject<number | null>
+  /** Index of the door being entered. */
+  entering?: number
+  insets: Insets
 }
 
-/** Keeps the room in view, follows the pointer a little and walks into a chosen portal. */
-function CameraRig({ narrow, count, target }: RigProps) {
+/**
+ * Walks along the corridor. A wide screen looks down the corridor, with a little turn to the
+ * nearest door; a tall screen has no room for both sides, so it turns to the door.
+ */
+function CameraRig({ walk, place, entering, insets }: RigProps) {
   const goal = useRef(new Vector3())
   const aim = useRef(new Vector3())
-  const look = useRef(new Vector3(0, 1.3, -1.6))
+  const look = useRef<Vector3>(null)
 
   useFrame(({ camera, size, pointer }, delta) => {
-    const calm = window.SakugaFX?.calm
-    // Half the width that must fit on screen, at the depth of the middle portal.
-    const half = narrow ? 2.7 : (count - 1) * 1.175 + 2.1
-    const distance = MathUtils.clamp(
-      half / (SLOPE * (size.width / size.height)),
-      // Far enough that both rows of a narrow screen fit in height.
-      narrow ? 8.5 : 6.6,
-      narrow ? (count > ROOMY ? 13 : 10.5) : 13.5,
-    )
+    if (!(camera instanceof PerspectiveCamera)) return
+    const calm = Boolean(window.SakugaFX?.calm)
+    const step = Math.min(delta, 0.05)
+    const target = walk.current.target
+    const stop = (place.current = calm
+      ? target
+      : MathUtils.damp(place.current ?? target, target, 5, step))
 
-    if (target && !calm) {
-      const height = target[1] + PORTAL_CENTER
-      goal.current.set(target[0] * 0.85, height + 0.15, target[2] + 2.6)
-      aim.current.set(target[0], height, target[2])
+    // Between two doors the side glides from one to the other.
+    const from = Math.floor(stop)
+    const side = MathUtils.lerp(
+      door(from).side,
+      door(from + 1).side,
+      MathUtils.smoothstep(stop - from, 0, 1),
+    )
+    const z = -stop * BAY
+    // 0 on a wide screen, 1 on a tall one.
+    const tall = MathUtils.clamp((1.5 - size.width / size.height) / 0.9, 0, 1)
+
+    if (entering !== undefined && !calm) {
+      const { position, turn } = door(entering)
+      const height = position[1] + PORTAL_CENTER
+      goal.current.set(
+        position[0] + Math.sin(turn) * 2.4,
+        height + 0.15,
+        position[2] + Math.cos(turn) * 2.4,
+      )
+      aim.current.set(position[0], height, position[2])
     } else {
       const sway = calm ? 0 : 1
-      goal.current.set(pointer.x * 0.5 * sway, 1.95 + pointer.y * 0.25 * sway, distance - 1.6)
-      // Narrow screens aim higher, so the raised portals fit too.
-      aim.current.set(0, narrow ? 2.4 : 1.3, -1.6)
+      goal.current.set(
+        MathUtils.lerp(-side * 0.5, -side * 0.7, tall) + pointer.x * 0.35 * sway,
+        MathUtils.lerp(2.35, 2.7, tall) + pointer.y * 0.2 * sway,
+        z + MathUtils.lerp(7.2, 8.6, tall),
+      )
+      aim.current.set(
+        side * MathUtils.lerp(0.7, 2.5, tall),
+        MathUtils.lerp(1.85, 1.75, tall),
+        z - MathUtils.lerp(1.4, 0, tall),
+      )
     }
 
-    // 1 jumps straight to the goal.
-    const ease = calm ? 1 : 1 - Math.exp(-(target ? 6 : 3) * Math.min(delta, 0.05))
+    // The first frame starts at the goal, also after a visit to a room.
+    const fresh = !look.current
+    const at = (look.current ??= aim.current.clone())
+    const ease = calm || fresh ? 1 : 1 - Math.exp(-(entering !== undefined ? 6 : 5) * step)
     camera.position.lerp(goal.current, ease)
-    look.current.lerp(aim.current, ease)
-    camera.lookAt(look.current)
+    at.lerp(aim.current, ease)
+    camera.lookAt(at)
+    // The picture slides to the middle of the free part, between the bars.
+    camera.setViewOffset(
+      size.width,
+      size.height,
+      0,
+      (insets.bottom - insets.top) / 2,
+      size.width,
+      size.height,
+    )
   })
 
   return null
 }
 
+/** The corridor itself, made by scripts/build-lobby.py. */
+function Corridor({ doors, carpet }: { doors: number; carpet: string }) {
+  // Draco is off (models use Meshopt), so no decoder is fetched from a CDN.
+  const { nodes } = useGLTF(corridorUrl, false, true)
+  const paint = useMemo(() => new MeshToonMaterial({ vertexColors: true, side: DoubleSide }), [])
+  const cloth = useMemo(() => new MeshToonMaterial({ vertexColors: true, side: DoubleSide }), [])
+  useEffect(() => () => paint.dispose(), [paint])
+  useEffect(() => () => cloth.dispose(), [cloth])
+  useEffect(() => {
+    cloth.color.set(carpet)
+  }, [cloth, carpet])
+
+  const { bay, runner, end } = nodes
+  if (!(bay instanceof Mesh && runner instanceof Mesh && end instanceof Mesh)) return null
+  const bays = Array.from({ length: BEFORE + doors + AFTER }, (_, index) => index - BEFORE)
+
+  return (
+    <group>
+      {bays.map((index) => (
+        <group key={index} position={[0, 0, -index * BAY]}>
+          <mesh geometry={bay.geometry} material={paint} raycast={() => null} />
+          <mesh geometry={runner.geometry} material={cloth} raycast={() => null} />
+        </group>
+      ))}
+      <mesh
+        geometry={end.geometry}
+        material={paint}
+        position={[0, 0, -(doors + AFTER - 0.5) * BAY]}
+        raycast={() => null}
+      />
+    </group>
+  )
+}
+
 type Props = {
   rooms: Room[]
-  /** Name of the room that is pointed at. */
+  walk: RefObject<Walk>
+  insets: Insets
+  /** Name of the room that is pointed at, or whose door the visitor stands at. */
   active?: string
   /** Path of the room being entered. */
   entering?: string
@@ -94,8 +147,11 @@ type Props = {
   onArrive: () => void
 }
 
+/** The lobby: a long corridor with the doors of the rooms at its sides. */
 export default function LobbyScene({
   rooms,
+  walk,
+  insets,
   active,
   entering,
   greeter,
@@ -103,52 +159,65 @@ export default function LobbyScene({
   onSelect,
   onArrive,
 }: Props) {
-  const narrow = useThree((state) => state.size.width / state.size.height < 1.5)
-  const spots = rooms.map((room, index) => ({ room, ...place(index, rooms.length, narrow) }))
+  const tall = useThree((state) => state.size.width < state.size.height)
+  const place = useRef<number>(null)
   // The greeter stands by the Resonator hall, and the carpet takes its color.
-  const main = spots.find((spot) => spot.room.path === '/resonator')
+  const main = rooms.findIndex((room) => room.path === '/resonator')
+  const home = door(Math.max(main, 0))
+  const opening = rooms.findIndex((room) => entering && room.path === entering)
 
   return (
     <>
+      <color attach="background" args={[SKY]} />
+      <fog attach="fog" args={[SKY, 14, 34]} />
       <ambientLight intensity={1.4} />
-      <directionalLight position={[-3, 5, 4]} intensity={1.8} />
-      <Museum carpet={main?.room.color ?? '#8f8df7'} />
+      <directionalLight position={[-3, 7, 5]} intensity={1.8} />
+      <Corridor doors={rooms.length} carpet={rooms[main]?.color ?? '#8f8df7'} />
 
-      {spots.map(({ room, position, scale, turn }) => (
-        <Portal
-          key={room.name}
-          room={room}
-          position={position}
-          scale={scale}
-          turn={turn}
-          active={active === room.name}
-          onHover={(over) => onHover(over ? room.name : undefined)}
-          onClick={(event) => {
-            event.stopPropagation()
-            if (room.path) onSelect(room.path, { x: event.clientX, y: event.clientY })
-          }}
-        />
-      ))}
+      {rooms.map((room, index) => {
+        const { position, turn } = door(index)
+        return (
+          <Portal
+            key={room.name}
+            room={room}
+            position={position}
+            scale={1}
+            turn={turn}
+            active={active === room.name}
+            onHover={(over) => onHover(over ? room.name : undefined)}
+            onClick={(event) => {
+              event.stopPropagation()
+              // A drag that walks along the corridor also ends in a click.
+              if (room.path && event.delta <= 6) {
+                onSelect(room.path, { x: event.clientX, y: event.clientY })
+              }
+            }}
+          />
+        )
+      })}
 
-      {greeter && main && (
+      {greeter && main >= 0 && (
         <Greeter
           key={greeter.id}
           character={greeter}
           position={[
-            main.position[0] + (narrow ? 1.15 : 1.4),
+            home.side * (tall ? 1.5 : 1.25),
             0,
-            main.position[2] + (narrow ? 0.7 : 2.2),
+            home.position[2] + (tall ? 1.7 : 1.5),
           ]}
-          turn={-0.3}
+          turn={-home.side * 0.25}
           onArrive={onArrive}
         />
       )}
 
       <CameraRig
-        narrow={narrow}
-        count={rooms.length}
-        target={spots.find((spot) => spot.room.path === entering && entering)?.position}
+        walk={walk}
+        place={place}
+        entering={opening < 0 ? undefined : opening}
+        insets={insets}
       />
     </>
   )
 }
+
+useGLTF.preload(corridorUrl, false, true)

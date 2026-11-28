@@ -52,10 +52,12 @@ const CLIPS = [
     'Stand2_Stage3',
     'Stand3',
     'Stand03',
+    // The Midnight Rangers have one set of clips per weapon.
+    'Stand2_Sword',
   ),
-  clip('Born', 'Muncul', 'Born'),
-  clip('Walk', 'Jalan', 'Walk_F'),
-  clip('Run', 'Lari', 'Run', 'Run_F'),
+  clip('Born', 'Muncul', 'Born', 'Born_Sword'),
+  clip('Walk', 'Jalan', 'Walk_F', 'Walk_F_Sword'),
+  clip('Run', 'Lari', 'Run', 'Run_F', 'Run_Sword'),
   clip('Death', 'Tumbang', 'Death'),
 ]
 

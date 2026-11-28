@@ -12,5 +12,5 @@ export const rooms: Room[] = [
   { name: 'Perpustakaan', description: 'Arsip cerita', color: '#8f8df7', path: '/library' },
   { name: 'Galeri', description: 'Namecard, title, achievement', color: '#4fd1b5', path: '/gallery' },
   { name: 'Ruang Peta', description: 'Wilayah dan laporan area', color: '#7ecb55', path: '/map' },
-  { name: 'Bestiary', description: 'Monster Overlord dan Calamity', color: '#e5544b', path: '/bestiary' },
+  { name: 'Bestiary', description: 'Monster dan catatannya', color: '#e5544b', path: '/bestiary' },
 ]
