@@ -263,6 +263,13 @@ blender --background --factory-startup --python scripts/build-lobby.py
 
 It also runs inside an open Blender, where it only makes its own `Solaris_Lobby` scene.
 
+There are three ways to look around, chosen in the top bar. "Tur" walks from door to door.
+"Orang pertama" and "Orang ketiga" walk freely: WASD or the arrows, Shift to run, a drag to
+look around, and a thumb stick on touch screens. A walker enters a room by walking into its
+portal or with the key E. In the third-person view the visitor picks the Resonator who walks;
+those without a `Walk` clip are listed in `src/lib/roam.ts`, so add a new one there if it
+has none. The walking and the collisions are in `src/lib/roam.ts` and `src/three/Roamer.tsx`.
+
 ## The search box
 
 One search box covers the Resonators, weapons, monsters, echoes, stories and documents. The

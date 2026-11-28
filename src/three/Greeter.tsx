@@ -1,22 +1,10 @@
-import { Component, Suspense, useCallback, useState, type ReactNode } from 'react'
+import { Suspense, useCallback, useState } from 'react'
 import { assetUrl, type Character } from '../lib/characters'
 import CharacterModel from './CharacterModel'
+import Optional from './Optional'
 
 /** Clips that work as a greeting, in order of preference. */
 const GREETINGS = [/^Stand1_Action/, /^Team_Stand/]
-
-/** A missing model only removes the greeter, not the whole room. */
-class Optional extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false }
-
-  static getDerivedStateFromError() {
-    return { failed: true }
-  }
-
-  render() {
-    return this.state.failed ? null : this.props.children
-  }
-}
 
 type Props = {
   character: Character

@@ -5,10 +5,12 @@ import { DoubleSide, MathUtils, Mesh, MeshToonMaterial, PerspectiveCamera, Vecto
 import type { Character } from '../lib/characters'
 import { BAY, door, type Walk } from '../lib/corridor'
 import type { Insets } from '../lib/insets'
+import type { Mode, Roam } from '../lib/roam'
 import type { Room } from '../lib/rooms'
 import corridorUrl from '../assets/lobby/corridor.glb?url'
 import Greeter from './Greeter'
 import Portal, { PORTAL_CENTER } from './Portal'
+import Roamer from './Roamer'
 
 export const LOBBY_FOV = 45
 /** Color of the air. The fog fades everything far away into it. */
@@ -24,13 +26,15 @@ type RigProps = {
   /** Index of the door being entered. */
   entering?: number
   insets: Insets
+  /** True while the visitor walks freely, so only a walk into a room moves the camera. */
+  idle: boolean
 }
 
 /**
  * Walks along the corridor. A wide screen looks down the corridor, with a little turn to the
  * nearest door; a tall screen has no room for both sides, so it turns to the door.
  */
-function CameraRig({ walk, place, entering, insets }: RigProps) {
+function CameraRig({ walk, place, entering, insets, idle }: RigProps) {
   const goal = useRef(new Vector3())
   const aim = useRef(new Vector3())
   const look = useRef<Vector3>(null)
@@ -38,6 +42,12 @@ function CameraRig({ walk, place, entering, insets }: RigProps) {
   useFrame(({ camera, size, pointer }, delta) => {
     if (!(camera instanceof PerspectiveCamera)) return
     const calm = Boolean(window.SakugaFX?.calm)
+    if (idle && (entering === undefined || calm)) {
+      // Follow where the walker looks, so the way into a room starts from there.
+      look.current ??= new Vector3()
+      camera.getWorldDirection(look.current).multiplyScalar(5).add(camera.position)
+      return
+    }
     const step = Math.min(delta, 0.05)
     const target = walk.current.target
     const stop = (place.current = calm
@@ -85,6 +95,7 @@ function CameraRig({ walk, place, entering, insets }: RigProps) {
     camera.position.lerp(goal.current, ease)
     at.lerp(aim.current, ease)
     camera.lookAt(at)
+    camera.fov = MathUtils.lerp(camera.fov, LOBBY_FOV, ease)
     // The picture slides to the middle of the free part, between the bars.
     camera.setViewOffset(
       size.width,
@@ -145,6 +156,12 @@ type Props = {
   onHover: (name: string | undefined) => void
   onSelect: (path: string, pointer: { x: number; y: number }) => void
   onArrive: () => void
+  mode: Mode
+  roam: RefObject<Roam>
+  /** The Resonator who walks in the third-person view. */
+  hero?: Character
+  onPlace: (stop: number, ahead: number | undefined) => void
+  onEnter: (path: string) => void
 }
 
 /** The lobby: a long corridor with the doors of the rooms at its sides. */
@@ -158,6 +175,11 @@ export default function LobbyScene({
   onHover,
   onSelect,
   onArrive,
+  mode,
+  roam,
+  hero,
+  onPlace,
+  onEnter,
 }: Props) {
   const tall = useThree((state) => state.size.width < state.size.height)
   const place = useRef<number>(null)
@@ -165,6 +187,12 @@ export default function LobbyScene({
   const main = rooms.findIndex((room) => room.path === '/resonator')
   const home = door(Math.max(main, 0))
   const opening = rooms.findIndex((room) => entering && room.path === entering)
+  const greeterAt: [number, number, number] = [
+    home.side * (tall ? 1.5 : 1.25),
+    0,
+    home.position[2] + (tall ? 1.7 : 1.5),
+  ]
+  const roaming = mode !== 'tour'
 
   return (
     <>
@@ -200,11 +228,7 @@ export default function LobbyScene({
         <Greeter
           key={greeter.id}
           character={greeter}
-          position={[
-            home.side * (tall ? 1.5 : 1.25),
-            0,
-            home.position[2] + (tall ? 1.7 : 1.5),
-          ]}
+          position={greeterAt}
           turn={-home.side * 0.25}
           onArrive={onArrive}
         />
@@ -215,7 +239,24 @@ export default function LobbyScene({
         place={place}
         entering={opening < 0 ? undefined : opening}
         insets={insets}
+        idle={roaming}
       />
+
+      {roaming && (
+        <Roamer
+          rooms={rooms}
+          roam={roam}
+          third={mode === 'third'}
+          hero={hero}
+          obstacles={
+            greeter && main >= 0 ? [{ x: greeterAt[0], z: greeterAt[2], radius: 0.7 }] : []
+          }
+          entering={opening >= 0}
+          insets={insets}
+          onPlace={onPlace}
+          onEnter={onEnter}
+        />
+      )}
     </>
   )
 }

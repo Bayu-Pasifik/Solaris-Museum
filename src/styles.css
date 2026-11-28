@@ -2183,6 +2183,88 @@ h1 {
   }
 }
 
+/* Walking freely: the switch of the ways to look around, the stick and the way in. */
+
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.modes select {
+  max-width: 190px;
+  font-family: inherit;
+}
+
+.lobby-hall > .viewport .enter {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  z-index: 2;
+  pointer-events: auto;
+  translate: -50% 0;
+  white-space: nowrap;
+}
+
+.enter kbd {
+  margin-left: 8px;
+  padding: 0 7px;
+  border: 1.5px solid var(--line);
+  border-radius: 6px;
+  font: 600 13px / 1.5 var(--display);
+}
+
+.stick {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  z-index: 2;
+  display: none;
+  place-items: center;
+  width: 128px;
+  height: 128px;
+  border: var(--ink-border);
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.55);
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+}
+
+.stick span {
+  width: 54px;
+  height: 54px;
+  border: var(--ink-border);
+  border-radius: 50%;
+  background: var(--el-accent);
+}
+
+/* The keys are of no use on a touch screen, and the stick is of no use without one. */
+@media (any-pointer: coarse) {
+  .stick {
+    display: grid;
+  }
+
+  .enter kbd {
+    display: none;
+  }
+
+  /* Beside the stick; a long room name takes two lines on a narrow screen. */
+  .lobby-hall > .viewport .enter {
+    right: 16px;
+    left: auto;
+    max-width: calc(100% - 176px);
+    translate: none;
+    white-space: normal;
+  }
+}
+
+/* The stick takes the lower corner. */
+.lobby-hall.roaming .dialogue {
+  top: 8px;
+  bottom: auto;
+}
+
 /* Glossary */
 
 /* A term in a story: a word with a dotted line under it. */
