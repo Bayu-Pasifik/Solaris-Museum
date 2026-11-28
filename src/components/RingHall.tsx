@@ -39,7 +39,7 @@ type Props = {
   base: string
   back: { to: string; label: string }
   title: string
-  subtitle: string
+  subtitle: ReactNode
   /** Buttons beside the title. */
   links?: ReactNode
   /** The groups to choose from, as pills at the right of the top bar. */
@@ -51,7 +51,8 @@ type Props = {
   noun: string
   /** Shown while the data loads, or when there is nothing to show. */
   notice?: ReactNode
-  caption?: { title: string; detail: string; action: string }
+  /** The title is text of the game. */
+  caption?: { title: string; detail: ReactNode; action: string }
   scene: (stage: Stage) => ReactNode
   /** The strip below the hall. "pick" is called when a link in it is used. */
   strip: (pick: () => void) => ReactNode
@@ -226,7 +227,7 @@ export default function RingHall({
         {caption && current !== undefined && !reading && (
           <div className="caption">
             <p role="status">
-              <b>{caption.title}</b>
+              <b lang="en">{caption.title}</b>
               {caption.detail}
             </p>
             <button type="button" className="button" onClick={() => open(current, true)}>

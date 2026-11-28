@@ -28,7 +28,9 @@ function Head({ echo, current }: { echo: Echo; current: boolean }) {
             <b>{echo.name[0]}</b>
           )}
         </span>
-        <span className="name">{echo.name}</span>
+        <span className="name" lang="en">
+          {echo.name}
+        </span>
         <MarkBadge path={`/echo/${echo.id}`} />
       </Link>
     </li>

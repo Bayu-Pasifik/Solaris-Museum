@@ -7,7 +7,7 @@ import MarkBadge from './MarkBadge'
 export type Entry = {
   id: string
   title: string
-  detail: string
+  detail: ReactNode
   /** Path inside public/. */
   picture?: string
   /** Shown above the title instead of a picture. */
@@ -42,7 +42,7 @@ function Thumb({ entry, to, current, onPick }: ThumbProps) {
             onError={(event) => (event.currentTarget.hidden = true)}
           />
         )}
-        <b>{entry.title}</b>
+        <b lang="en">{entry.title}</b>
         <MarkBadge path={to} />
         <small>{entry.detail}</small>
       </Link>

@@ -83,15 +83,15 @@ function Pages({ story, sections, terms }: PagesProps) {
       )}
       {page.map((section, index) => (
         <section key={`${open} ${index}`}>
-          {section.title && <h3>{section.title}</h3>}
+          {section.title && <h3 lang="en">{section.title}</h3>}
           {section.lines.map((line, at) => (
             <div key={at} className={line.note ? 'say note' : 'say'}>
-              {line.speaker && <b>{line.speaker}</b>}
+              {line.speaker && <b lang="en">{line.speaker}</b>}
               {line.text && <GameText text={line.text} terms={terms.byId} />}
               {line.choices && (
                 <ul aria-label="Pilihan jawaban">
                   {line.choices.map((choice, number) => (
-                    <li key={number}>
+                    <li key={number} lang="en">
                       <Struck terms={terms.byId}>{choice}</Struck>
                     </li>
                   ))}
@@ -132,8 +132,8 @@ export default function StoryReader({ story }: { story: Story }) {
 
   return (
     <section className="card dossier reader" aria-label={`Cerita ${story.name}`}>
-      <h2>{story.name}</h2>
-      <p className="how">
+      <h2 lang="en">{story.name}</h2>
+      <p className="how" lang="en">
         {story.category} · {story.group}
         {story.subtitle && story.subtitle !== story.group && ` · ${story.subtitle}`}
       </p>

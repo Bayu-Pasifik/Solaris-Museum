@@ -31,6 +31,9 @@ export type Hit = {
   /** The page of the entry. */
   to: string
   title: string
+  /** Words of the museum before the detail, such as the name of a shelf. */
+  label?: string
+  /** Words of the game. */
   detail: string
   /** Path inside public/. */
   picture?: string
@@ -64,7 +67,7 @@ function hit({ also = [], body = '', ...shown }: Source): Hit {
     ...shown,
     body: text,
     name: fold(shown.title),
-    rest: fold([shown.detail, ...also, text].join('\n')),
+    rest: fold([shown.label ?? '', shown.detail, ...also, text].join('\n')),
   }
 }
 
@@ -169,11 +172,8 @@ export function useSearchIndex() {
         group: 'echo',
         to: `/echo/${item.id}`,
         title: item.name,
-        detail: [
-          ECHO_KINDS.find((kind) => kind.id === item.kind)?.label,
-          `Cost ${item.cost}`,
-          item.element,
-        ].join(' · '),
+        label: ECHO_KINDS.find((kind) => kind.id === item.kind)?.label,
+        detail: `Cost ${item.cost} · ${item.element}`,
         picture: item.icon,
         also: [item.rank, ...item.sets.map((id) => sets.get(id) ?? '')],
       }),
@@ -203,7 +203,8 @@ export function useSearchIndex() {
           group: 'document',
           to: `/documents/${item.id}`,
           title: item.title,
-          detail: [SHELVES[item.kind], item.place ?? item.region].filter(Boolean).join(' · '),
+          label: SHELVES[item.kind],
+          detail: item.place ?? item.region ?? '',
           picture: item.picture,
           also: [item.region ?? '', item.source ?? ''],
           body: item.text,

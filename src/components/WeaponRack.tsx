@@ -36,7 +36,9 @@ function Item({ weapon, current }: { weapon: Weapon; current: boolean }) {
             />
           )}
         </span>
-        <span className="name">{weapon.name}</span>
+        <span className="name" lang="en">
+          {weapon.name}
+        </span>
         <MarkBadge path={`/armory/${weapon.id}`} />
       </Link>
     </li>

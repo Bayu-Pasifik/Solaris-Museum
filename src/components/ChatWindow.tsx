@@ -8,22 +8,40 @@ function Bubble({ message, group }: { message: Message; group: boolean }) {
   const { speaker, me, system, avatar, text, sticker, picture, missing } = message
 
   if (!text && !sticker && !picture && !missing) return null
-  if (system) return <li className="system">{text ?? 'Pesan tidak tersedia'}</li>
+  if (system) {
+    return (
+      <li className="system" lang={text ? 'en' : undefined}>
+        {text ?? 'Pesan tidak tersedia'}
+      </li>
+    )
+  }
 
   return (
     <li className={me ? 'bubble mine' : 'bubble'}>
       <Avatar name={speaker} path={avatar} />
       <div>
         {/* In a private chat the name stands above the window already. */}
-        <b className={group && !me ? undefined : 'hidden-name'}>{speaker}</b>
+        <b className={group && !me ? undefined : 'hidden-name'} lang="en">
+          {speaker}
+        </b>
         {sticker ? (
-          <img className="sticker" src={assetUrl(sticker)} alt={text ?? 'Stiker'} />
+          <img
+            className="sticker"
+            src={assetUrl(sticker)}
+            alt={text ?? 'Stiker'}
+            lang={text ? 'en' : undefined}
+          />
         ) : picture ? (
           <a href={assetUrl(picture)} target="_blank" rel="noreferrer">
-            <img className="photo" src={assetUrl(picture)} alt={text ?? 'Foto'} />
+            <img
+              className="photo"
+              src={assetUrl(picture)}
+              alt={text ?? 'Foto'}
+              lang={text ? 'en' : undefined}
+            />
           </a>
         ) : (
-          <p className={missing ? 'gone' : undefined}>
+          <p className={missing ? 'gone' : undefined} lang={missing ? undefined : 'en'}>
             {missing ? 'Pesan tidak tersedia' : <Struck>{text ?? ''}</Struck>}
           </p>
         )}
@@ -75,6 +93,7 @@ function Thread({ thread, group }: { thread: Message[]; group: boolean }) {
               key={`${question.index} ${number}`}
               type="button"
               className="pill"
+              lang="en"
               onClick={() => setAnswers({ ...answers, [question.index]: number })}
             >
               {choice.text}
@@ -150,8 +169,10 @@ export default function ChatWindow({ contact }: { contact: Contact }) {
       <header>
         <Avatar name={contact.name} path={contact.avatar} />
         <div>
-          <h2>{contact.name}</h2>
-          <p>{group ? `Grup · ${contact.members} orang` : contact.description}</p>
+          <h2 lang="en">{contact.name}</h2>
+          <p lang={group ? undefined : 'en'}>
+            {group ? `Grup · ${contact.members} orang` : contact.description}
+          </p>
         </div>
       </header>
       <Threads id={contact.id} group={group} />

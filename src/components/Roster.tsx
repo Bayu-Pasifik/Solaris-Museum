@@ -45,7 +45,9 @@ function Face({ character, current }: FaceProps) {
             />
           )}
         </span>
-        <span className="name">{character.name}</span>
+        <span className="name" lang="en">
+          {character.name}
+        </span>
         <MarkBadge path={`/resonator/${character.id}`} />
       </Link>
     </li>

@@ -30,7 +30,8 @@ export const KINDS: Record<DocumentKind, string> = {
   foreign: 'Teks asing',
 }
 
-export const regionOf = (document: GameDocument) => document.region ?? 'Wilayah tidak tercatat'
+export const NO_REGION = 'Wilayah tidak tercatat'
+export const regionOf = (document: GameDocument) => document.region ?? NO_REGION
 
 const NONE: Shelved[] = []
 

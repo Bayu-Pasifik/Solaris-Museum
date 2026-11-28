@@ -121,7 +121,7 @@ export default function MapRoom() {
           <SearchButton />
           <SoundButton />
           <div className="plate">
-            <h1>{region?.name ?? 'Ruang Peta'}</h1>
+            <h1 lang={region ? 'en' : undefined}>{region?.name ?? 'Ruang Peta'}</h1>
             <p>
               {region
                 ? `${region.areas.length} area`
@@ -145,6 +145,7 @@ export default function MapRoom() {
                   key={item.id ?? 'all'}
                   to={item.id === undefined ? '/map' : `/map/${item.id}`}
                   className="pill"
+                  lang={item.id === undefined ? undefined : 'en'}
                   aria-current={item.id === region?.id ? 'page' : undefined}
                   ref={item.id === region?.id ? reveal : undefined}
                   onClick={settle}
@@ -205,8 +206,8 @@ export default function MapRoom() {
               <AreaReport area={area} />
             ) : (
               <div className="report">
-                <h2>{region.name}</h2>
-                <p>{region.description}</p>
+                <h2 lang="en">{region.name}</h2>
+                <p lang="en">{region.description}</p>
               </div>
             )}
           </aside>

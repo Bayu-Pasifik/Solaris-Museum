@@ -212,6 +212,7 @@ export default function Gallery() {
                       key={item.key}
                       type="button"
                       className="pill"
+                      lang="en"
                       onClick={() => {
                         close()
                         setJump({ key: item.key })

@@ -89,7 +89,11 @@ export default function VoicePanel({ profile }: { profile: Profile }) {
           ))}
         </div>
       )}
-      {profile.voiceActors[language] && <p>Pengisi suara: {profile.voiceActors[language]}</p>}
+      {profile.voiceActors[language] && (
+        <p>
+          Pengisi suara: <bdi lang="en">{profile.voiceActors[language]}</bdi>
+        </p>
+      )}
 
       <div className="chips" role="group" aria-label="Jenis baris suara">
         <span aria-hidden="true">Jenis</span>
@@ -127,8 +131,8 @@ export default function VoicePanel({ profile }: { profile: Profile }) {
                 >
                   <i aria-hidden="true">{silent ? '—' : state ? icons[state] : '▶'}</i>
                   <span>
-                    <b>{voice.title}</b>
-                    <span>{voice.text}</span>
+                    <b lang="en">{voice.title}</b>
+                    <span lang="en">{voice.text}</span>
                     {state === 'failed' && <b role="alert">Audio gagal diputar.</b>}
                   </span>
                 </button>

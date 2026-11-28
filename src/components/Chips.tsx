@@ -6,7 +6,7 @@ export const toggled = <T,>(chosen: T[], value: T) =>
 
 export const unique = <T,>(values: T[]) => [...new Set(values)]
 
-/** One row of filter buttons. Several can be on at the same time. */
+/** One row of filter buttons for values of the game. Several can be on at the same time. */
 export default function Chips<T extends string | number>({
   label,
   options,
@@ -31,6 +31,7 @@ export default function Chips<T extends string | number>({
           key={option}
           type="button"
           className="pill"
+          lang="en"
           aria-pressed={chosen.includes(option)}
           onClick={() => onToggle(option)}
         >

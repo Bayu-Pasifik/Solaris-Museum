@@ -30,11 +30,15 @@ const Row = memo(function Row({ hit, query, onPick }: RowProps) {
         </span>
         <span>
           <b>
-            {hit.title}
+            <bdi lang="en">{hit.title}</bdi>
             <MarkBadge path={hit.to} />
           </b>
-          <small>{hit.detail}</small>
-          {found && <q>{found}</q>}
+          <small>
+            {hit.label}
+            {hit.label && hit.detail && ' · '}
+            {hit.detail && <bdi lang="en">{hit.detail}</bdi>}
+          </small>
+          {found && <q lang="en">{found}</q>}
         </span>
       </Link>
     </li>

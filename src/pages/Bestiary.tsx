@@ -139,8 +139,10 @@ export default function Bestiary() {
           <SearchButton />
           <SoundButton />
           <div className="plate">
-            <h1>{current?.name ?? 'Bestiary'}</h1>
-            <p>{current ? `${current.rank} · ${current.element}` : 'Catatan monster'}</p>
+            <h1 lang={current ? 'en' : undefined}>{current?.name ?? 'Bestiary'}</h1>
+            <p lang={current ? 'en' : undefined}>
+              {current ? `${current.rank} · ${current.element}` : 'Catatan monster'}
+            </p>
           </div>
           {current && (
             <div className="switches">
@@ -153,6 +155,7 @@ export default function Bestiary() {
                         key={item}
                         to={`/bestiary/${first?.id}`}
                         className="pill"
+                        lang="en"
                         aria-current={item === rank ? 'true' : undefined}
                         ref={item === rank ? reveal : undefined}
                         onClick={() => setQuery('')}

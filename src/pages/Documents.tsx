@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router'
-import { KINDS, regionOf, useDocuments, type Shelved } from '../lib/documents'
+import { KINDS, NO_REGION, regionOf, useDocuments, type Shelved } from '../lib/documents'
 import { reveal } from '../lib/insets'
 import { categoryTheme } from '../lib/stories'
 import { useTitle } from '../lib/title'
@@ -10,6 +10,11 @@ import GroupSelect from '../components/GroupSelect'
 import RingHall from '../components/RingHall'
 import RingStrip from '../components/RingStrip'
 import DocumentsScene from '../three/DocumentsScene'
+
+/** A place from the game, or the words of the museum when none is recorded. */
+function Where({ name }: { name?: string }) {
+  return name ? <bdi lang="en">{name}</bdi> : NO_REGION
+}
 
 export default function Documents() {
   const { id } = useParams()
@@ -80,7 +85,11 @@ export default function Documents() {
       caption={
         current && {
           title: current.title,
-          detail: `${regionOf(current)} · ${index + 1} dari ${shelf.length}`,
+          detail: (
+            <>
+              <Where name={current.region} /> · {index + 1} dari {shelf.length}
+            </>
+          ),
           action: 'Baca',
         }
       }
@@ -95,9 +104,13 @@ export default function Documents() {
           entries={matches.map((item) => ({
             id: String(item.id),
             title: item.title,
-            detail: text
-              ? `${KINDS[item.kind]} · ${item.place ?? regionOf(item)}`
-              : (item.place ?? item.text.replace(/<\/?s>/g, '')),
+            detail: text ? (
+              <>
+                {KINDS[item.kind]} · <Where name={item.place ?? item.region} />
+              </>
+            ) : (
+              <bdi lang="en">{item.place ?? item.text.replace(/<\/?s>/g, '')}</bdi>
+            ),
             picture: item.picture,
           }))}
           current={current && String(current.id)}
@@ -111,6 +124,7 @@ export default function Documents() {
           {!text && regions.length > 1 && (
             <GroupSelect
               label="Wilayah"
+              own={NO_REGION}
               groups={regions}
               value={current && regionOf(current)}
               to={(region) => `/documents/${shelf.find((item) => regionOf(item) === region)!.id}`}

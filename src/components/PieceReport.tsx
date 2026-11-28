@@ -15,7 +15,7 @@ export default function PieceReport({ piece, text }: Props) {
     return (
       <div className="report">
         {picture && <img className="view card-view" src={picture} alt="" />}
-        <h2>{piece.card.name}</h2>
+        <h2 lang="en">{piece.card.name}</h2>
         <small>Namecard</small>
         {picture && (
           <p>
@@ -34,7 +34,7 @@ export default function PieceReport({ piece, text }: Props) {
         <div className="plate-view">
           <TitlePlate title={piece.title} name />
         </div>
-        <h2>{piece.title.name}</h2>
+        <h2 lang="en">{piece.title.name}</h2>
         <small>Title</small>
       </div>
     )
@@ -49,9 +49,9 @@ export default function PieceReport({ piece, text }: Props) {
       <header className="group-head">
         {group.icon && <img src={assetUrl(group.icon)} alt="" />}
         <div>
-          <h2>{group.name}</h2>
+          <h2 lang="en">{group.name}</h2>
           <small>
-            {category.name} ·{' '}
+            <bdi lang="en">{category.name}</bdi> ·{' '}
             {filtered
               ? `${list.length} dari ${group.achievements.length} achievement`
               : `${group.achievements.length} achievement`}
@@ -61,14 +61,14 @@ export default function PieceReport({ piece, text }: Props) {
       <ul className="feats">
         {list.map((item) => (
           <li key={item.id}>
-            <h3>
+            <h3 lang="en">
               {item.name}
-              <span role="img" aria-label={`Tingkat ${item.level}`}>
+              <span role="img" lang="id" aria-label={`Tingkat ${item.level}`}>
                 {'★'.repeat(item.level)}
               </span>
-              {item.hidden && <small>Tersembunyi</small>}
+              {item.hidden && <small lang="id">Tersembunyi</small>}
             </h3>
-            <p>{item.description}</p>
+            <p lang="en">{item.description}</p>
           </li>
         ))}
       </ul>

@@ -49,9 +49,14 @@ export default function Library() {
       back={{ to: '/', label: 'Lobby' }}
       title="Perpustakaan"
       subtitle={
-        current
-          ? `${shelf.length} cerita${done ? ` · ${done} dibaca` : ''} · ${current.category}`
-          : 'Arsip cerita'
+        current ? (
+          <>
+            {shelf.length} cerita{done ? ` · ${done} dibaca` : ''} ·{' '}
+            <bdi lang="en">{current.category}</bdi>
+          </>
+        ) : (
+          'Arsip cerita'
+        )
       }
       links={
         <>
@@ -76,6 +81,7 @@ export default function Library() {
               key={category}
               to={`/library/${first.id}`}
               className="pill"
+              lang="en"
               aria-current={chosen ? 'page' : undefined}
               ref={chosen ? reveal : undefined}
               onClick={() => setQuery('')}
@@ -102,7 +108,11 @@ export default function Library() {
       caption={
         current && {
           title: current.name,
-          detail: `${current.group} · ${index + 1} dari ${shelf.length}`,
+          detail: (
+            <>
+              <bdi lang="en">{current.group}</bdi> · {index + 1} dari {shelf.length}
+            </>
+          ),
           action: place ? `Lanjutkan · hal. ${place + 1}` : 'Baca cerita',
         }
       }
@@ -118,7 +128,9 @@ export default function Library() {
           entries={matches.map((story) => ({
             id: story.id,
             title: story.name,
-            detail: text ? `${story.category} · ${story.group}` : story.group,
+            detail: (
+              <bdi lang="en">{text ? `${story.category} · ${story.group}` : story.group}</bdi>
+            ),
             picture: story.picture,
           }))}
           current={current?.id}

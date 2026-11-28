@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { assetUrl } from '../lib/characters'
 import type { Area, Region } from '../lib/map'
@@ -9,7 +9,7 @@ export type Found = { region: Region; area: Area }
 type PlaceProps = {
   to: string
   name: string
-  note?: string
+  note?: ReactNode
   picture?: string
   /** The picture is the white emblem of a region. */
   emblem?: boolean
@@ -49,7 +49,7 @@ function Place({ to, name, note, picture, emblem, current, lit, onHover, onPick 
             loading="lazy"
           />
         )}
-        <b>{name}</b>
+        <b lang="en">{name}</b>
         {note && <small>{note}</small>}
       </Link>
     </li>
@@ -108,7 +108,7 @@ export default function MapStrip({
                 key={item.area.id}
                 to={`/map/${item.region.id}/${item.area.id}`}
                 name={item.area.name}
-                note={found ? item.region.name : undefined}
+                note={found ? <bdi lang="en">{item.region.name}</bdi> : undefined}
                 picture={item.area.picture}
                 current={item.area.id === area?.id}
                 lit={item.area.id === hovered}

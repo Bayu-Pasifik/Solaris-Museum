@@ -159,6 +159,8 @@ function Stage({ character, view, weapons }: StageProps) {
                       type="button"
                       className="pill"
                       aria-pressed={index === worn}
+                      // Only the first outfit can be without a name of the game.
+                      lang={index > 0 || character.skinName ? 'en' : undefined}
                       onClick={(event) => {
                         pop(event.currentTarget)
                         wear(index)
@@ -181,7 +183,7 @@ function Stage({ character, view, weapons }: StageProps) {
                 >
                   <option value="">Tanpa senjata</option>
                   {weapons.map((item) => (
-                    <option key={item.id} value={item.id}>
+                    <option key={item.id} value={item.id} lang="en">
                       {item.name} {item.rarity}★
                     </option>
                   ))}
@@ -254,11 +256,11 @@ export default function ResonatorHall() {
           <SoundButton />
           <div className="plate">
             <h1>
-              {current?.name ?? 'Hall Resonator'}
+              {current ? <bdi lang="en">{current.name}</bdi> : 'Hall Resonator'}
               {current && <span>{'★'.repeat(current.rarity)}</span>}
             </h1>
             {current && (
-              <p>
+              <p lang="en">
                 {current.element} · {current.weapon}
               </p>
             )}

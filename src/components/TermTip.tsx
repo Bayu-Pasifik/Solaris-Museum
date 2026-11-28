@@ -43,6 +43,7 @@ export default function TermTip({ term, word }: { term: Term; word: string }) {
         role="tooltip"
         popover="auto"
         className="definition"
+        lang="en"
         style={{ positionAnchor: anchor } as CSSProperties}
       >
         <b>{term.name}</b>

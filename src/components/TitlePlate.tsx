@@ -13,7 +13,7 @@ export default function TitlePlate({ title, name }: { title: Title; name?: boole
           )
         )
       })}
-      {name && <span>{title.name}</span>}
+      {name && <span lang="en">{title.name}</span>}
     </span>
   )
 }

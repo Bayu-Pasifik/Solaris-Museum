@@ -16,7 +16,7 @@ export default function KeepsakePanel({ profile }: { profile: Profile }) {
         {keepsakes.map((item) => (
           <li key={item.name}>
             {item.picture && <img src={assetUrl(item.picture)} alt="" loading="lazy" />}
-            <h3>{item.name}</h3>
+            <h3 lang="en">{item.name}</h3>
             <GameText text={terms.link(item.text, seen)} terms={terms.byId} />
           </li>
         ))}

@@ -202,7 +202,9 @@ export default function Lobby() {
           <nav className="memory" aria-label="Kunjunganmu">
             {unfinished && (
               <Link to={`${unfinished.path}?baca`} className="pill resume">
-                <span>Lanjutkan: {unfinished.name}</span>
+                <span>
+                  Lanjutkan: <bdi lang="en">{unfinished.name}</bdi>
+                </span>
               </Link>
             )}
             {favorites > 0 && (
@@ -243,7 +245,7 @@ export default function Lobby() {
               onError={(event) => (event.currentTarget.hidden = true)}
             />
             <p>
-              <b>{greeter.name}</b>
+              <b lang="en">{greeter.name}</b>
               {greeting}
             </p>
           </div>

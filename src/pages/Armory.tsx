@@ -42,11 +42,13 @@ function Exhibit({ weapon }: { weapon: Weapon }) {
   return (
     <div className="exhibit">
       <section className="card viewer" aria-label={`Model 3D ${weapon.name}`} style={colors}>
-        <h2>
+        <h2 lang="en">
           {weapon.name}
           <span>{'★'.repeat(weapon.rarity)}</span>
         </h2>
-        <p className="how">{weapon.type}</p>
+        <p className="how" lang="en">
+          {weapon.type}
+        </p>
         <Marks path={`/armory/${weapon.id}`} />
 
         <div className="viewport" ref={viewport}>
@@ -79,7 +81,9 @@ function Exhibit({ weapon }: { weapon: Weapon }) {
             {/* Two stats can share a name: "ATK" as a number and as a percentage. */}
             {weapon.stats.map((stat, index) => (
               <div key={index}>
-                <dt>{stat.name} · level awal → maksimum</dt>
+                <dt>
+                  <bdi lang="en">{stat.name}</bdi> · level awal → maksimum
+                </dt>
                 <dd>
                   {stat.min} → {stat.max}
                 </dd>
@@ -88,7 +92,7 @@ function Exhibit({ weapon }: { weapon: Weapon }) {
           </dl>
           {weapon.skill.name && (
             <>
-              <h3>{weapon.skill.name}</h3>
+              <h3 lang="en">{weapon.skill.name}</h3>
               <GameText text={weapon.skill.description} />
               <p className="ranks">Angka yang dipisah garis miring berlaku untuk rank 1 sampai 5.</p>
             </>

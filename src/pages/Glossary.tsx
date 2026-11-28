@@ -105,7 +105,7 @@ export default function Glossary() {
           entries={matches.map((term) => ({
             id: String(term.id),
             title: term.name,
-            detail: term.text.replace(/<\/?s>/g, ''),
+            detail: <bdi lang="en">{term.text.replace(/<\/?s>/g, '')}</bdi>,
           }))}
           current={current && String(current.id)}
           query={query}
@@ -119,7 +119,7 @@ export default function Glossary() {
       report={
         current && (
           <section className="card dossier term-report" aria-label={`Istilah ${current.name}`}>
-            <h2>{current.name}</h2>
+            <h2 lang="en">{current.name}</h2>
             <GameText text={current.text} />
           </section>
         )

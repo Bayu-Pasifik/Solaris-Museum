@@ -16,7 +16,7 @@ export default function SonataCard({ set, count, chosen, onChoose }: Props) {
     <article className="sonata">
       <header>
         {set.icon && <img src={assetUrl(set.icon)} alt="" loading="lazy" />}
-        <h3>{set.name}</h3>
+        <h3 lang="en">{set.name}</h3>
         <button type="button" className="pill" aria-pressed={chosen} onClick={() => onChoose(set.id)}>
           {count} echo
         </button>
@@ -25,7 +25,7 @@ export default function SonataCard({ set, count, chosen, onChoose }: Props) {
         {set.effects.map((effect) => (
           <div key={effect.pieces}>
             <dt>{effect.pieces} set</dt>
-            <dd>{effect.text}</dd>
+            <dd lang="en">{effect.text}</dd>
           </div>
         ))}
       </dl>

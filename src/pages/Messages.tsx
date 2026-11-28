@@ -124,7 +124,11 @@ export default function Messages() {
           entries={matches.map((contact) => ({
             id: contact.id,
             title: contact.name,
-            detail: contact.preview || 'Pesan tidak tersedia',
+            detail: contact.preview ? (
+              <bdi lang="en">{contact.preview}</bdi>
+            ) : (
+              'Pesan tidak tersedia'
+            ),
             lead: <Avatar name={contact.name} path={contact.avatar} />,
           }))}
           current={current?.id}

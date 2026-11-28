@@ -12,12 +12,14 @@ export default function MonsterReport({ monster }: { monster: Monster }) {
   const seen = new Set<number>()
   return (
     <div className="report">
-      <h2>{monster.name}</h2>
+      <h2 lang="en">{monster.name}</h2>
       <Marks path={`/bestiary/${monster.id}`} />
       <p className="badges">
-        <span style={{ background: rankColor(monster.rank) }}>{monster.rank}</span>
+        <span style={{ background: rankColor(monster.rank) }} lang="en">
+          {monster.rank}
+        </span>
         <small>
-          {monster.element}
+          <bdi lang="en">{monster.element}</bdi>
           {height ? ` · tinggi sekitar ${number.format(Math.round(height * 10) / 10)} m` : ''}
         </small>
       </p>
@@ -49,7 +51,9 @@ export default function MonsterReport({ monster }: { monster: Monster }) {
             <tbody>
               {monster.stats.map((stat) => (
                 <tr key={stat.name}>
-                  <th scope="row">{stat.name}</th>
+                  <th scope="row" lang="en">
+                    {stat.name}
+                  </th>
                   <td>{number.format(stat.min)}</td>
                   <td>{stat.max === undefined ? '–' : number.format(stat.max)}</td>
                 </tr>
@@ -73,7 +77,7 @@ export default function MonsterReport({ monster }: { monster: Monster }) {
                     : undefined
                 }
               >
-                {item.name} <b>{number.format(item.value)}%</b>
+                <bdi lang="en">{item.name}</bdi> <b>{number.format(item.value)}%</b>
               </li>
             ))}
           </ul>

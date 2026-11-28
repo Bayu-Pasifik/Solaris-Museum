@@ -9,12 +9,20 @@ export default function DocumentReader({ document }: { document: Shelved }) {
   const terms = useTerms()
   const { title, kind, region, place, source, pictures, text } = document
   // A place can have the name of its region.
-  const where = [...new Set([KINDS[kind], region, place, source].filter(Boolean))]
+  const where = [...new Set([region, place, source].filter(Boolean))].join(' · ')
 
   return (
     <section className="card dossier reader" aria-label={`Dokumen ${title}`}>
-      <h2>{title}</h2>
-      <p className="how">{where.join(' · ')}</p>
+      <h2 lang="en">{title}</h2>
+      <p className="how">
+        {KINDS[kind]}
+        {where && (
+          <>
+            {' · '}
+            <bdi lang="en">{where}</bdi>
+          </>
+        )}
+      </p>
       <Marks path={`/documents/${document.id}`} readable />
 
       <div className="panel">

@@ -21,7 +21,7 @@ export default function IconList({ entries }: { entries: Entry[] }) {
               <span className="skill-icon">
                 {entry.icon && <img src={assetUrl(entry.icon)} alt="" loading="lazy" />}
               </span>
-              <span>
+              <span lang="en">
                 <small>{entry.label}</small>
                 {entry.name}
               </span>

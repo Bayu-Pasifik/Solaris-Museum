@@ -28,7 +28,9 @@ function Head({ monster, current }: { monster: Monster; current: boolean }) {
             <b>{monster.name[0]}</b>
           )}
         </span>
-        <span className="name">{monster.name}</span>
+        <span className="name" lang="en">
+          {monster.name}
+        </span>
         <MarkBadge path={`/bestiary/${monster.id}`} />
       </Link>
     </li>

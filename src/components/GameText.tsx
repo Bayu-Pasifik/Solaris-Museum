@@ -32,7 +32,7 @@ export function Struck({ children, terms }: { children: string; terms?: Terms })
 /** Long text from a profile: one paragraph per line, and "# " lines as sub-headings. */
 export default function GameText({ text, terms }: { text: string; terms?: Terms }) {
   return (
-    <div className="prose">
+    <div className="prose" lang="en">
       {text
         .split('\n')
         .filter(Boolean)

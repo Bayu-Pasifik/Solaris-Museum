@@ -187,8 +187,8 @@ export default function EchoRoom() {
           <SearchButton />
           <SoundButton />
           <div className="plate">
-            <h1>{current?.name ?? 'Ruang Echo'}</h1>
-            <p>
+            <h1 lang={current ? 'en' : undefined}>{current?.name ?? 'Ruang Echo'}</h1>
+            <p lang={current ? 'en' : undefined}>
               {current
                 ? `Cost ${current.cost} · ${current.rank} · ${current.element}`
                 : 'Echo dan set Sonata'}
@@ -284,7 +284,7 @@ export default function EchoRoom() {
               >
                 <option value={0}>Semua set</option>
                 {[...sets.values()].map((set) => (
-                  <option key={set.id} value={set.id}>
+                  <option key={set.id} value={set.id} lang="en">
                     {set.name}
                   </option>
                 ))}
@@ -337,13 +337,15 @@ export default function EchoRoom() {
               </button>
             </p>
             <div className="report">
-              <h2>{reading === 'echo' ? current.name : 'Set Sonata'}</h2>
+              <h2 lang={reading === 'echo' ? 'en' : undefined}>
+                {reading === 'echo' ? current.name : 'Set Sonata'}
+              </h2>
               {reading === 'echo' && <Marks path={`/echo/${current.id}`} />}
               {reading === 'echo' && (
                 <>
                   <p className="badges">
                     <span>Cost {current.cost}</span>
-                    <small>
+                    <small lang="en">
                       {current.rank} · {current.element}
                     </small>
                   </p>
@@ -361,7 +363,10 @@ export default function EchoRoom() {
                       <h3>Model 3D</h3>
                       <p>
                         Dipinjam dari{' '}
-                        <Link to={`/bestiary/${lender.id}`}>{lender.name} di Bestiary</Link>.
+                        <Link to={`/bestiary/${lender.id}`}>
+                          <bdi lang="en">{lender.name}</bdi> di Bestiary
+                        </Link>
+                        .
                       </p>
                     </article>
                   )}

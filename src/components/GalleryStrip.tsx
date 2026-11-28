@@ -45,8 +45,8 @@ function Thumb({ piece, to, current, lit, onHover }: ThumbProps) {
             <img className="emblem" src={assetUrl(piece.group.icon)} alt="" loading="lazy" />
           )
         )}
-        <b>{pieceName(piece)}</b>
-        {piece.kind === 'group' && <small>{piece.category.name}</small>}
+        <b lang="en">{pieceName(piece)}</b>
+        {piece.kind === 'group' && <small lang="en">{piece.category.name}</small>}
       </Link>
     </li>
   )

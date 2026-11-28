@@ -12,14 +12,16 @@ export default function ProfilePanel({ profile }: { profile: Profile }) {
 
   return (
     <div className="panel">
-      {profile.nickname && <h3 className="nickname">{profile.nickname}</h3>}
+      {profile.nickname && <h3 className="nickname" lang="en">
+          {profile.nickname}
+        </h3>}
       <GameText text={terms.link(profile.introduction, new Set())} terms={terms.byId} />
 
       <dl className="facts">
         {facts.map(([label, value]) => (
           <div key={label}>
             <dt>{label}</dt>
-            <dd>
+            <dd lang={value ? 'en' : undefined}>
               <Struck>{value || 'Tidak diketahui'}</Struck>
             </dd>
           </div>
@@ -30,7 +32,7 @@ export default function ProfilePanel({ profile }: { profile: Profile }) {
       {profile.stories.length === 0 && <p>Belum ada cerita untuk karakter ini.</p>}
       {profile.stories.map((story) => (
         <details key={story.title}>
-          <summary>{story.title}</summary>
+          <summary lang="en">{story.title}</summary>
           {/* A story opens on its own, so it explains its own terms. */}
           <GameText text={terms.link(story.text, new Set())} terms={terms.byId} />
         </details>
