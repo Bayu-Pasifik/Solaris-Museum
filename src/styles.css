@@ -176,23 +176,6 @@ h1 {
 
 /* Lobby */
 
-.lobby {
-  position: relative;
-  height: min(70dvh, 600px);
-  min-height: 380px;
-  margin-top: 24px;
-  overflow: hidden;
-  border: var(--ink-border);
-  border-radius: 18px;
-  box-shadow: var(--hard-shadow);
-  background: var(--chip);
-  isolation: isolate;
-}
-
-.lobby.pointing {
-  cursor: pointer;
-}
-
 /* What the greeter says, like a dialogue box in the game. */
 .dialogue {
   position: absolute;
@@ -242,10 +225,6 @@ h1 {
 }
 
 @media (max-width: 760px) {
-  .lobby {
-    height: 460px;
-  }
-
   .dialogue {
     right: 14px;
     gap: 10px;
@@ -1116,109 +1095,208 @@ h1 {
   object-fit: contain;
 }
 
-/* Library: the 3D archive, the catalog and the reader. */
+/* Library: the 3D archive hall fills the screen, with the stories in the strip below it and
+   the script of the chosen one in the drawer. */
 
-.shelf {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 20px;
+.archive-hall .backdrop.sky {
+  background: #2c2766;
+  touch-action: none;
+  user-select: none;
 }
 
-.shelf p {
+.archive-hall > .viewport {
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 14px;
+}
+
+/* The arrows stand at the sides, halfway up the free space. */
+.archive-hall .walk {
+  position: absolute;
+  top: calc(50% - 22px);
+  right: 14px;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0 0 4px;
+  border: var(--ink-border);
+  box-shadow: 4px 5px 0 var(--el-accent);
+  font-size: 26px;
+  pointer-events: auto;
+}
+
+.archive-hall .walk.back {
+  right: auto;
+  left: 14px;
+}
+
+.archive-hall .walk:disabled {
+  visibility: hidden;
+}
+
+/* The name of the chosen story, and the button that opens it. */
+.caption {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  max-width: min(640px, 100%);
+  margin-bottom: 40px;
+  padding: 10px 14px 10px 20px;
+  border: var(--ink-border);
+  border-radius: 16px;
+  background: var(--page);
+  box-shadow: 5px 6px 0 var(--el-accent);
+  pointer-events: auto;
+}
+
+.caption p {
   min-width: 0;
   margin: 0;
   color: var(--mute);
   font-size: 13px;
-  text-align: center;
 }
 
-.shelf b {
+.caption b {
   display: block;
   color: var(--text);
   font: italic 800 18px / 1.25 var(--display);
 }
 
-.shelf .button {
+.caption .button {
   flex: none;
 }
 
-.shelf .button:disabled {
-  box-shadow: none;
-  opacity: 0.35;
-  cursor: default;
-  transform: none;
+.archive-hall .switches div {
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-.catalog a.pill[aria-current] {
-  border-color: var(--text);
-  background: var(--text);
-  color: var(--page);
+.finder select {
+  min-width: 0;
+  padding: 6px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+  background: var(--page);
+  font: inherit;
+  font-size: 13px;
+  color: var(--text);
 }
 
-/* Long category names wrap instead of widening the list. */
-.catalog .chips .pill {
-  height: auto;
-  min-height: 28px;
-  padding-block: 3px;
-}
-
-.catalog .count {
-  justify-content: flex-start;
-}
-
-.entries {
-  max-height: 560px;
-  padding: 2px 6px 6px 2px;
-  overflow-y: auto;
-}
-
-.entries h3 {
-  margin: 12px 0 6px;
-  color: var(--mute);
-  font-size: 12px;
-}
-
-.entries section:first-child h3 {
-  margin-top: 0;
-}
-
-.roster .entries ul {
+.volume {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  max-height: none;
-  padding: 0;
-  overflow: visible;
-}
-
-.entries a {
-  display: block;
-  padding: 8px 11px;
+  gap: 3px;
+  width: 168px;
+  height: 100%;
+  padding: 8px 10px;
   border: 1.5px solid var(--line);
   border-radius: 12px;
   text-decoration: none;
 }
 
-.entries a:hover {
+.volume:hover {
   border-color: var(--text);
 }
 
-.entries a[aria-current='page'] {
+.volume[aria-current='page'] {
   border-color: var(--el-deep);
   background: var(--el-pale);
   box-shadow: 3px 4px 0 var(--el-accent);
 }
 
-.entries b {
-  display: block;
-  font-size: 13px;
+.volume img {
+  width: 100%;
+  height: 64px;
+  border-radius: 8px;
+  background: var(--chip);
+  object-fit: cover;
 }
 
-.entries span {
+.volume img[hidden] {
+  display: none;
+}
+
+.volume b,
+.volume small {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.volume b {
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.volume small {
   color: var(--mute);
-  font-size: 12px;
+  font-size: 11.5px;
+}
+
+/* The scripts are long, so the reader gets more room than other drawers. */
+.archive-hall .drawer {
+  width: min(560px, 100%);
+}
+
+@media (min-width: 1100px) {
+  .gallery.archive-hall.reading > :not(.backdrop, .drawer) {
+    margin-right: 560px;
+  }
+}
+
+@media (min-width: 1000px) and (max-width: 1099px) {
+  .gallery.archive-hall.reading > :not(.backdrop, .drawer) {
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  .archive-hall .switches div {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+  }
+
+  .archive-hall .finder select {
+    flex: 1;
+  }
+
+  /* Still read aloud, but the search and the chapters need the whole row. */
+  .archive-hall .finder [role='status'] {
+    position: absolute;
+    overflow: hidden;
+    clip-path: inset(50%);
+    width: 1px;
+    height: 1px;
+    white-space: nowrap;
+  }
+
+  .volume {
+    width: 136px;
+  }
+
+  .volume img {
+    height: 48px;
+  }
+
+  .caption {
+    gap: 10px;
+    margin-bottom: 8px;
+    padding: 8px 10px 8px 14px;
+  }
+
+  .caption b {
+    font-size: 15px;
+  }
+
+  .caption .button {
+    padding-inline: 14px;
+  }
+
+  /* A story is read on the whole sheet. */
+  .open-hall.archive-hall .drawer {
+    top: 12%;
+  }
 }
 
 .reader .panel > img {
@@ -1385,15 +1463,6 @@ h1 {
 
   .roster {
     order: 2;
-  }
-
-  /* Only the arrows stay beside the story name. */
-  .shelf span {
-    display: none;
-  }
-
-  .shelf .button {
-    padding-inline: 18px;
   }
 
   /* Shorter viewer on narrow screens, so the podium fits the width. */

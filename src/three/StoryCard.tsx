@@ -202,7 +202,7 @@ export default function StoryCard({ story, theme, offset, onClick, onHover }: Pr
 
   const over = (value: boolean) => {
     setHovered(value)
-    onHover(value && !current)
+    onHover(value)
   }
 
   return (
@@ -216,7 +216,8 @@ export default function StoryCard({ story, theme, offset, onClick, onHover }: Pr
         onPointerOut={() => over(false)}
         onClick={(event) => {
           event.stopPropagation()
-          if (!current) onClick()
+          // A swipe to the next story also ends in a click.
+          if (event.delta <= 6) onClick()
         }}
       >
         <mesh>
