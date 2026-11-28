@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { reveal } from '../lib/insets'
 import { categoryTheme, useStories } from '../lib/stories'
+import { useTitle } from '../lib/title'
 import { getVisits, useVisits } from '../lib/visits'
 import { unique } from '../components/Chips'
 import GroupSelect from '../components/GroupSelect'
@@ -22,6 +23,7 @@ export default function Library() {
   const current = id
     ? stories.find((story) => story.id === id)
     : (stories.find((story) => `/library/${story.id}` === last) ?? stories[0])
+  useTitle((id && current?.name) || 'Perpustakaan')
   const shelf = stories.filter((story) => story.category === current?.category)
   const index = shelf.findIndex((story) => story.id === current?.id)
   const theme = categoryTheme(categories, current?.category ?? '')

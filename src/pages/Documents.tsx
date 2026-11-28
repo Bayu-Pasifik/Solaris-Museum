@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router'
 import { KINDS, regionOf, useDocuments, type Shelved } from '../lib/documents'
 import { reveal } from '../lib/insets'
 import { categoryTheme } from '../lib/stories'
+import { useTitle } from '../lib/title'
 import { unique } from '../components/Chips'
 import DocumentReader from '../components/DocumentReader'
 import GroupSelect from '../components/GroupSelect'
@@ -19,6 +20,7 @@ export default function Documents() {
   const current = id
     ? documents.find((item) => String(item.id) === id)
     : documents.find((item) => item.kind === kinds[0])
+  useTitle((id && current?.title) || 'Dokumen')
   const shelf = documents.filter((item) => item.kind === current?.kind)
   const index = shelf.findIndex((item) => item.id === current?.id)
   const theme = categoryTheme(kinds, current?.kind ?? '')

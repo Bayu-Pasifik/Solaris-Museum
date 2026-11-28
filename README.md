@@ -325,5 +325,13 @@ connection to continue.
 `work/upload-assets.json`. A file that it has no record of, and that has the right size on the
 server, counts as uploaded, except for the data files, which it sends again.
 
+### Link previews
+
+The host needs PHP (7.4 or newer). `public/share.php` answers every page address with
+`index.html` plus the title and the Open Graph tags of that page, so a shared link shows a
+preview in Discord and elsewhere. It reads `data/` and `art/` on the server. `npm run dev` and
+`npm run preview` do not run it; there only the tab titles change. A new room needs its name in
+`ROOMS` in that file.
+
 If the site lives in a subfolder, change `base` in `vite.config.ts`, `RewriteBase` in
 `public/.htaccess`, and `server-dir` in `.github/workflows/deploy.yml`.

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router'
 import { useGlossary, type Term } from '../lib/glossary'
 import { reveal } from '../lib/insets'
 import { categoryTheme } from '../lib/stories'
+import { useTitle } from '../lib/title'
 import { unique } from '../components/Chips'
 import GameText from '../components/GameText'
 import RingHall from '../components/RingHall'
@@ -24,6 +25,7 @@ export default function Glossary() {
   const current = id
     ? terms.find((term) => String(term.id) === id)
     : (terms.find((term) => letterOf(term) === 'A') ?? terms[0])
+  useTitle((id && current?.name) || 'Glosarium')
   const letter = current ? letterOf(current) : ''
   const shelf = terms.filter((term) => letterOf(term) === letter)
   const index = shelf.findIndex((term) => term.id === current?.id)

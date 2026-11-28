@@ -14,6 +14,7 @@ import { assetUrl, useCharacters, type Character } from '../lib/characters'
 import { themeOf } from '../lib/elements'
 import { entrance, pop, strike, tint, ultimate } from '../lib/sakuga'
 import { useWeapons, type Weapon } from '../lib/weapons'
+import { useTitle } from '../lib/title'
 import AnimationTabs from '../components/AnimationTabs'
 import CharacterModel from '../three/CharacterModel'
 import Podium from '../three/Podium'
@@ -211,6 +212,7 @@ export default function ResonatorHall() {
   const characters = state.status === 'ready' ? state.data : []
   const current = id ? characters.find((item) => item.id === id) : characters[0]
   const theme = themeOf(current?.element ?? '')
+  useTitle((id && current?.name) || 'Hall Resonator')
   // The hall also works without the Armory data; there is then no weapon to choose.
   const armory = useWeapons()
   const weapons =

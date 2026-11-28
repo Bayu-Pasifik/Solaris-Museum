@@ -17,6 +17,7 @@ import { impact } from '../lib/sakuga'
 import { openSearch } from '../lib/search'
 import { useVisits } from '../lib/visits'
 import { wheel } from '../lib/wheel'
+import { useTitle } from '../lib/title'
 import LobbyScene, { LOBBY_FOV } from '../three/LobbyScene'
 import SceneBoundary from '../components/SceneBoundary'
 import LoadingOverlay from '../components/LoadingOverlay'
@@ -38,6 +39,7 @@ const STRIDE = 220
 let lastStop = 0
 
 export default function Lobby() {
+  useTitle()
   const navigate = useNavigate()
   const timer = useRef<number>(undefined)
   const rest = useRef<number>(undefined)

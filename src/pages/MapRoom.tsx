@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { Link, useNavigate, useParams } from 'react-router'
 import { regionColors, useWorldMap } from '../lib/map'
 import { reveal, useInsets } from '../lib/insets'
+import { useTitle } from '../lib/title'
 import AreaReport from '../components/AreaReport'
 import Disclaimer from '../components/Disclaimer'
 import LoadingOverlay from '../components/LoadingOverlay'
@@ -26,6 +27,7 @@ export default function MapRoom() {
   const regions = state.status === 'ready' ? state.data.regions : []
   const region = regions.find((item) => String(item.id) === params.region)
   const area = region?.areas.find((item) => String(item.id) === params.area)
+  useTitle(area?.name ?? region?.name ?? 'Ruang Peta')
   const describing = !area && region !== undefined && about === region.id
   const colors = regionColors(region?.id)
 

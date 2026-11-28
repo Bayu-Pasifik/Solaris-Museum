@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router'
 import { useContacts, type Contact } from '../lib/chats'
 import type { ElementTheme } from '../lib/elements'
+import { useTitle } from '../lib/title'
 import Avatar from '../components/Avatar'
 import ChatWindow from '../components/ChatWindow'
 import RingHall from '../components/RingHall'
@@ -47,6 +48,7 @@ export default function Messages() {
 
   const contacts = state.status === 'ready' ? state.data : NONE
   const current = id ? contacts.find((contact) => contact.id === id) : contacts[0]
+  useTitle((id && current?.name) || 'Pesan')
   // A link or a search can open a contact of another kind; then all of them are in the ring.
   const kind = current && !chosen.has(current) ? KINDS[0] : chosen
   const shelf = contacts.filter(kind.has)

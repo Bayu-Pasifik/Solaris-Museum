@@ -14,6 +14,7 @@ import { ordered, useBestiary } from '../lib/bestiary'
 import { themeOf } from '../lib/elements'
 import { reveal, useInsets } from '../lib/insets'
 import { entrance, pop, strike, tint, ultimate } from '../lib/sakuga'
+import { useTitle } from '../lib/title'
 import AnimationTabs from '../components/AnimationTabs'
 import Disclaimer from '../components/Disclaimer'
 import LoadingOverlay from '../components/LoadingOverlay'
@@ -38,6 +39,7 @@ export default function Bestiary() {
   const current = id
     ? monsters.find((item) => String(item.id) === id)
     : (monsters.find((item) => item.model) ?? monsters[0])
+  useTitle((id && current?.name) || 'Bestiary')
   const ranks = useMemo(() => [...new Set(monsters.map((item) => item.rank))], [monsters])
   const rank = current?.rank ?? ranks[0]
   const round = monsters.filter((item) => item.rank === rank)

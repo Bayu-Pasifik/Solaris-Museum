@@ -16,6 +16,7 @@ import { themeOf } from '../lib/elements'
 import { useTerms } from '../lib/glossary'
 import { reveal, useInsets } from '../lib/insets'
 import { entrance, pop, strike, tint, ultimate } from '../lib/sakuga'
+import { useTitle } from '../lib/title'
 import AnimationTabs from '../components/AnimationTabs'
 import Disclaimer from '../components/Disclaimer'
 import EchoStrip from '../components/EchoStrip'
@@ -58,6 +59,7 @@ export default function EchoRoom() {
   const current = id
     ? echoes.find((item) => String(item.id) === id)
     : (echoes.find((item) => item.kind === 'echo' && item.monster) ?? echoes[0])
+  useTitle((id && current?.name) || 'Ruang Echo')
   const kind = current?.kind ?? 'echo'
   const round = echoes.filter((item) => item.kind === kind && passes(item, filter))
   const text = query.trim().toLowerCase()

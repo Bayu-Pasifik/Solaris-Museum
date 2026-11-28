@@ -10,8 +10,9 @@ import {
 import { Canvas } from '@react-three/fiber'
 import { Link, useNavigate, useParams } from 'react-router'
 import { useGallery } from '../lib/gallery'
-import { pieceId, pieces, SECTIONS, type Choosable } from '../lib/exhibits'
+import { pieceId, pieceName, pieces, SECTIONS, type Choosable } from '../lib/exhibits'
 import { reveal, useInsets } from '../lib/insets'
+import { useTitle } from '../lib/title'
 import Disclaimer from '../components/Disclaimer'
 import GalleryStrip from '../components/GalleryStrip'
 import LoadingOverlay from '../components/LoadingOverlay'
@@ -48,6 +49,7 @@ export default function Gallery() {
   const piece = all.find((item) => String(pieceId(item)) === params.item)
   const round = piece && found.some((item) => item.key === piece.key) ? found : all
   const at = piece ? round.findIndex((item) => item.key === piece.key) : -1
+  useTitle(piece ? pieceName(piece) : 'Galeri')
 
   // Every collection and every search starts at the left end of the wall.
   const scroll = useMemo<{ current: Scroll }>(() => ({ current: newScroll() }), [section, text])

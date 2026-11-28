@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router'
 import { assetUrl } from '../lib/characters'
 import { entrance, tint } from '../lib/sakuga'
 import { rarityTheme, useWeapons, type Weapon } from '../lib/weapons'
+import { useTitle } from '../lib/title'
 import Disclaimer from '../components/Disclaimer'
 import GameText from '../components/GameText'
 import LoadingOverlay from '../components/LoadingOverlay'
@@ -113,6 +114,7 @@ export default function Armory() {
   const current = id
     ? weapons.find((item) => item.id === id)
     : [...weapons].sort((a, b) => b.rarity - a.rarity || a.name.localeCompare(b.name))[0]
+  useTitle((id && current?.name) || 'Armory')
 
   return (
     <div className="wrap">
