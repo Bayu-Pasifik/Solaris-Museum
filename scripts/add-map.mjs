@@ -76,10 +76,13 @@ for (const country of countries.sort((a, b) => b.SortIndex - a.SortIndex)) {
       }
     },
   )
+  const description = plain(country.Desc)
   regions.push({
     id: country.Id,
     name: plain(country.Title),
-    description: plain(country.Desc),
+    // The API gives The Black Shores the text of Huanglong. A copy of an earlier region's
+    // description is left out.
+    description: regions.some((region) => region.description === description) ? '' : description,
     icon: await picture(country.Icon),
     logo: await picture(country.Logo),
     areas,
