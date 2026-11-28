@@ -18,7 +18,6 @@ import { spotBefore, type Mode, type Roam, type Spot } from '../lib/roam'
 import type { WalkChoice } from '../lib/walkChoice'
 import { wheel } from '../lib/wheel'
 import { wingsOf } from '../lib/wings'
-import type { Exhibit } from '../three/WingScene'
 import Disclaimer from './Disclaimer'
 import LoadingOverlay from './LoadingOverlay'
 import ModeSwitch from './ModeSwitch'
@@ -26,6 +25,9 @@ import SceneBoundary from './SceneBoundary'
 import SearchButton from './SearchButton'
 import SoundButton from './SoundButton'
 import { lookAround, Stick, useWalkKeys } from './WalkControls'
+
+/** Something that is on show in a hall. */
+export type Exhibit = { id: string; name: string }
 
 /** What the 3D scene of a hall gets. */
 export type HallProps<T> = {

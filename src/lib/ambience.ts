@@ -148,6 +148,31 @@ export function playClack() {
   }
 }
 
+/** A hammer on hot steel; "level" goes from 0, far away, to 1, beside the anvil. */
+export function playClang(level: number) {
+  if (level <= 0 || !audio || !wanted() || audio.context.state !== 'running') return
+  const { context, power } = audio
+  const now = context.currentTime
+  // A low thud, and over it tones that do not fit each other, which is what sounds like metal.
+  for (const [pitch, volume, length] of [
+    [82, 0.28, 0.35],
+    [523, 0.09, 1.6],
+    [1444, 0.06, 1.1],
+    [2825, 0.035, 0.6],
+    [4660, 0.02, 0.25],
+  ]) {
+    const source = context.createOscillator()
+    const envelope = context.createGain()
+    source.frequency.value = pitch
+    envelope.gain.setValueAtTime(0, now)
+    envelope.gain.linearRampToValueAtTime(volume * level ** 2, now + 0.006)
+    envelope.gain.exponentialRampToValueAtTime(0.0001, now + length)
+    source.connect(envelope).connect(power)
+    source.start(now)
+    source.stop(now + length + 0.05)
+  }
+}
+
 /** Turns the room sound down while a voice line plays. */
 export function duck(value: boolean) {
   ducked = value

@@ -1,28 +1,32 @@
+import { byForge, KINDS, spotAtForge, spotAtStand, standsOf, START } from '../lib/foundry'
 import type { WalkChoice } from '../lib/walkChoice'
 import { rarityTheme, type Weapon } from '../lib/weapons'
 import { byRank } from '../lib/wings'
-import SpinningWeapon from '../three/SpinningWeapon'
-import type { Stands } from '../three/WingScene'
+import FoundryScene from '../three/FoundryScene'
 import Marks from './Marks'
-import standHall from './standHall'
 import WeaponReport from './WeaponReport'
 import WeaponViewer from './WeaponViewer'
-import WingWalk from './WingWalk'
+import WingWalk, { type Hall } from './WingWalk'
 
-/** The order of the wings. */
-const ORDER = ['Broadblade', 'Sword', 'Pistols', 'Gauntlets', 'Rectifier']
+/** The order of the wings, which is that of the forges. */
+const ORDER = KINDS.map((kind) => kind[0].toUpperCase() + kind.slice(1))
 
-const stands: Stands<Weapon> = {
-  carpet: '#ffb86b',
-  top: 0.48,
-  sign: 2.35,
-  // Farther ones are lost in the haze.
-  reach: 6,
+/** The foundry as a hall: every wing is a forge, and all of them lie around one smith. */
+const foundry: Hall<Weapon> = {
   theme: (weapon) => rarityTheme(weapon.rarity),
-  show: (weapon, place) => <SpinningWeapon weapon={weapon} {...place} />,
+  note: (weapon) => '★'.repeat(weapon.rarity),
+  spot: (index, third, list) => spotAtStand(standsOf(list)[index], third),
+  // The strip has no rows here: every weapon is its own.
+  rowOf: (index) => index,
+  rowStart: (row) => row,
+  // The button of a kind brings the visitor to the way into its forge.
+  jump: (index, list) => spotAtForge(standsOf(list)[index].forge),
+  start: START,
+  Scene: FoundryScene,
 }
 
-const hall = standHall(stands)
+/** The forges in their order, with the best weapons by the way in. */
+const racked = (a: Weapon, b: Weapon) => byForge(a, b) || byRank(a, b)
 
 type Props = {
   weapons: Weapon[]
@@ -31,7 +35,7 @@ type Props = {
   walk: WalkChoice
 }
 
-/** The Armory that is walked through: one wing for every kind of weapon. */
+/** The Armory that is walked through: a foundry with one forge for every kind of weapon. */
 export default function ArmoryWalk({ weapons, currentId, walk }: Props) {
   return (
     <WingWalk
@@ -41,8 +45,8 @@ export default function ArmoryWalk({ weapons, currentId, walk }: Props) {
       items={weapons}
       wingOf={(weapon) => weapon.type}
       order={ORDER}
-      compare={byRank}
-      hall={hall}
+      compare={racked}
+      hall={foundry}
       currentId={currentId}
       walk={walk}
       still="List"

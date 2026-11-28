@@ -20,6 +20,13 @@ export default function LoadingOverlay({ once = false }: Props) {
     bar.current?.set(active ? progress / 100 : 1)
   }, [shown, active, progress])
 
+  // A room can start with nothing to load. Its first loading then counts as already over.
+  useEffect(() => {
+    if (!once || shown) return
+    const timer = window.setTimeout(() => setDone(true), 2000)
+    return () => window.clearTimeout(timer)
+  }, [once, shown])
+
   // Stay until the bar has reached the end and its last effect has played.
   useEffect(() => {
     const element = bar.current

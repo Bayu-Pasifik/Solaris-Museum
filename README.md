@@ -338,16 +338,15 @@ npm run upload
 
 These rooms have the same three ways to look around. The one without walking is "List" in the
 Armory, with one weapon on the stage, "Stage" in the Resonator Hall and "Ring" in the Library.
-When walking in the Armory, every kind of weapon has its own wing, with a stand at both sides
-of every bay; the Resonator Hall is a train (see below). The Library is one aisle between bookcases, with one book for every story:
+When walking, the Armory is a foundry and the Resonator Hall is a train (both described
+below). The Library is one aisle between bookcases, with one book for every story:
 the book that the visitor looks at comes out of the shelf and shows its cover. The categories
 follow each other, each one under a board with its name, and their buttons jump to them. The
 key E opens the report of the weapon,
 the dossier of the Resonator or the script of the story. Only what is close by is loaded. The
 walk through the Library starts at the story that was read last. The aisle is laid out in
 `src/lib/shelves.ts` and drawn by `src/three/ShelfScene.tsx`. The address ending `?stage` shows a Resonator on the stage also to a
-visitor who walks. The layout of the wings is in `src/lib/wings.ts`, their scene in
-`src/three/WingScene.tsx` and the page around every walk in `src/components/WingWalk.tsx`. All walks
+visitor who walks. The page around every walk is in `src/components/WingWalk.tsx`. All walks
 use `src/three/Roamer.tsx`, which takes the floor of a room: its portals, what is in the way,
 and where it ends, or for ground of another shape, which points can be stood on and, where it
 is not flat, how high they are.
@@ -378,6 +377,32 @@ train is put together in `src/lib/express.ts`; the scene is drawn by
 `src/three/ExpressScene.tsx`, and the train and the country by `src/three/ExpressMap.tsx`.
 A new element needs a carriage in the script and a name in `CAR_NAMES`; until then its
 Resonators ride in the parlor.
+
+## The Foundry: walking in the Armory
+
+Walking, the Armory is a cavern with a lake of lava. In its middle a smith as tall as a tower
+beats a blade on its anvil: every blow throws sparks, sends a ring of light over the floor and
+rings out, the louder the closer the visitor stands. Five bridges lead to five forges, one for
+every kind of weapon, with the weapons on a ring of stands around a landmark: the Anvil Yard
+(broadblades), the Quenching Spring (swords), the Gunworks (pistols), the Piston Press
+(gauntlets) and the Arcane Kiln (rectifiers). The light of a stand has the color of the rarity,
+and a shaft of light stands over the best weapons. A sixth bridge leads back to the lobby, and
+the buttons of the kinds jump to a forge. Only the weapons of the forge that the visitor is at
+are loaded.
+
+The model is original low-poly work that is in Git, in `src/assets/armory/foundry.glb`, with
+its layout in `foundry.json` beside it. To change it, edit `scripts/build-foundry.py`, which
+writes both files, and run it:
+
+```bash
+blender --background --factory-startup --python scripts/build-foundry.py
+```
+
+It also runs inside an open Blender, where it only makes its own `Solaris_Foundry` scene. The
+stands and the floor are laid out in `src/lib/foundry.ts`; the scene is drawn by
+`src/three/FoundryScene.tsx`, and the cavern, the smith and the lava by
+`src/three/FoundryMap.tsx`. A new kind of weapon needs a forge in the script and a name in
+`FORGE_NAMES`; until then its weapons share the Arcane Kiln.
 
 ## The search box
 
