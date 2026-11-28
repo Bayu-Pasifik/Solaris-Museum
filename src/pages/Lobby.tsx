@@ -12,21 +12,12 @@ import { Link, useNavigate } from 'react-router'
 import { assetUrl, useCharacters } from '../lib/characters'
 import { clampStop, type Walk } from '../lib/corridor'
 import { reveal, useInsets } from '../lib/insets'
-import {
-  canWalk,
-  loadChoice,
-  MODES,
-  saveChoice,
-  spotBefore,
-  spotOutside,
-  type Mode,
-  type Roam,
-  type Spot,
-} from '../lib/roam'
+import { spotBefore, spotOutside, type Mode, type Roam, type Spot } from '../lib/roam'
 import { rooms } from '../lib/rooms'
 import { impact } from '../lib/sakuga'
 import { openSearch } from '../lib/search'
-import { getVisits, useVisits } from '../lib/visits'
+import { useVisits } from '../lib/visits'
+import { useWalkChoice } from '../lib/walkChoice'
 import { wheel } from '../lib/wheel'
 import { useTitle } from '../lib/title'
 import LobbyScene, { LOBBY_FOV } from '../three/LobbyScene'
@@ -35,27 +26,16 @@ import LoadingOverlay from '../components/LoadingOverlay'
 import SearchButton from '../components/SearchButton'
 import SoundButton from '../components/SoundButton'
 import Disclaimer from '../components/Disclaimer'
-import { Stick, useWalkKeys } from '../components/WalkControls'
-
-const GREETINGS = [
-  'Selamat datang di Solaris Museum!',
-  'Halo! Koleksi Resonator ada di balik portal ini.',
-  'Kamu datang juga. Ayo, masuk lewat portal ini.',
-  'Hai! Mau lihat-lihat? Aku tunggu di dalam.',
-]
+import ModeSwitch from '../components/ModeSwitch'
+import { lookAround, Stick, useWalkKeys } from '../components/WalkControls'
 
 /** Pixels of a drag that walk from one door to the next. */
 const STRIDE = 220
-
-/** Radians of a turn for one pixel of a drag, while walking freely. */
-const LOOK = 0.005
 
 /** The door where the visitor left, so coming back from a room starts there. */
 let lastStop = 0
 /** The same for a free walker, who can stand anywhere. */
 let lastSpot: Spot | undefined
-/** Picks the walker of a visitor who chose none, the same one until the page is closed. */
-const walkerRoll = Math.random()
 
 export default function Lobby() {
   useTitle()
@@ -67,12 +47,7 @@ export default function Lobby() {
   const [stop, setStop] = useState(lastStop)
   const [hovered, setHovered] = useState<string>()
   const [entering, setEntering] = useState<string>()
-  const [arrived, setArrived] = useState(false)
-  const onArrive = useCallback(() => setArrived(true), [])
   const { insets, setTop, setBottom } = useInsets()
-  const [choice, setChoice] = useState(loadChoice)
-  const { mode } = choice
-  const roaming = mode !== 'tour'
   /** The door that a free walker stands before, and can enter. */
   const [ahead, setAhead] = useState<number>()
   const [start] = useState<Roam>(() => ({
@@ -82,27 +57,22 @@ export default function Lobby() {
   }))
   const roam = useRef(start)
 
-  // One roll per visit decides who greets and what they say.
-  const [roll] = useState(() => [Math.random(), Math.random()])
+  /** The door whose guard a free walker stands near. */
+  const [met, setMet] = useState<number>()
   const state = useCharacters()
+  const characters = state.status === 'ready' ? state.data : []
+  const walking = useWalkChoice(characters)
+  const { mode, hero } = walking
+  const roaming = mode !== 'tour'
   const favorites = useVisits((visits) => visits.favorites.length)
   // The story that was read last, as long as it is not finished.
   const unfinished = useVisits((visits) =>
     visits.last && !visits.read.includes(visits.last.path) ? visits.last : undefined,
   )
-  const characters = state.status === 'ready' ? state.data : []
-  const walkers = characters.filter((character) => canWalk(character.id))
-  // The chosen walker, or else a favorite one, or else one by chance.
-  const [startFavorites] = useState(() => getVisits().favorites)
-  const hero =
-    walkers.find((character) => character.id === choice.hero) ??
-    walkers.find((character) => startFavorites.includes(`/resonator/${character.id}`)) ??
-    walkers[Math.floor(walkerRoll * walkers.length)]
-  // One model cannot stand in two places, so the walker is never greeted by themself.
-  const pick = Math.floor(roll[0] * characters.length)
-  const twice = mode === 'third' && characters[pick]?.id === hero?.id
-  const greeter = characters[twice ? (pick + 1) % characters.length : pick]
-  const greeting = GREETINGS[Math.floor(roll[1] * GREETINGS.length)]
+  // On the tour the guard of the door where the visitor stands says hello.
+  const greeting = roaming ? met : stop
+  const words = greeting === undefined ? undefined : rooms[greeting]?.guard
+  const speaker = characters.find((character) => character.id === words?.id)
 
   useEffect(() => {
     const pose = roam.current
@@ -169,21 +139,26 @@ export default function Lobby() {
   const onUse = useCallback(() => use.current?.(), [])
   useWalkKeys(roam, roaming, onUse)
 
-  const onPlace = useCallback((at: number, near: number | undefined) => {
-    lastStop = at
-    walk.current.target = at
-    setStop(at)
-    setAhead(near)
-  }, [])
+  const onPlace = useCallback(
+    (at: number, near: number | undefined, guard: number | undefined) => {
+      lastStop = at
+      walk.current.target = at
+      setStop(at)
+      setAhead(near)
+      setMet(guard)
+    },
+    [],
+  )
 
   const choose = (next: { mode?: Mode; hero?: string }) => {
-    const chosen = { ...choice, ...next }
     // A walk starts where the tour stands.
-    if (!roaming && chosen.mode !== 'tour') Object.assign(roam.current, spotBefore(stop))
+    if (!roaming && next.mode && next.mode !== 'tour') {
+      Object.assign(roam.current, spotBefore(stop))
+    }
     roam.current.pitch = 0
     setAhead(undefined)
-    setChoice(chosen)
-    saveChoice(chosen)
+    setMet(undefined)
+    walking.choose(next)
   }
 
   /** Brings the visitor to a door: to its stop on the tour, or to stand before it. */
@@ -228,26 +203,19 @@ export default function Lobby() {
    */
   const grab = (event: ReactPointerEvent) => {
     if (event.button !== 0) return
+    if (roaming) return lookAround(event, roam, mode === 'third')
     const { pointerId } = event
     let x = event.clientX
     let y = event.clientY
     const drag = (next: PointerEvent) => {
-      // Another finger can be on the stick.
       if (next.pointerId !== pointerId) return
-      if (roaming) {
-        const pose = roam.current
-        const [low, high] = mode === 'third' ? [-0.5, 0.35] : [-0.8, 0.8]
-        pose.yaw -= (next.clientX - x) * LOOK
-        pose.pitch = Math.min(Math.max(pose.pitch - (next.clientY - y) * LOOK, low), high)
-      } else {
-        go(walk.current.target + (y - next.clientY + x - next.clientX) / STRIDE)
-      }
+      go(walk.current.target + (y - next.clientY + x - next.clientX) / STRIDE)
       x = next.clientX
       y = next.clientY
     }
     const drop = (next: PointerEvent) => {
       if (next.pointerId !== pointerId) return
-      if (!roaming) settle()
+      settle()
       window.removeEventListener('pointermove', drag)
       window.removeEventListener('pointerup', drop)
       window.removeEventListener('pointercancel', drop)
@@ -287,14 +255,16 @@ export default function Lobby() {
                 onPlace={onPlace}
                 onEnter={walkIn}
                 entering={entering}
-                greeter={greeter}
+                characters={characters}
+                stop={stop}
+                greeting={greeting}
                 onHover={setHovered}
                 onSelect={select}
-                onArrive={onArrive}
               />
             </Suspense>
           </Canvas>
-          <LoadingOverlay />
+          {/* Guards load while the visitor walks, so only the first loading is shown. */}
+          <LoadingOverlay once />
         </SceneBoundary>
       </div>
 
@@ -305,42 +275,7 @@ export default function Lobby() {
         </div>
         <SearchButton label="Cari di museum" />
         <SoundButton />
-        <div className="modes" role="group" aria-label="Cara berkeliling">
-          {(Object.keys(MODES) as Mode[]).map((key) => (
-            <button
-              key={key}
-              type="button"
-              className="pill"
-              aria-pressed={mode === key}
-              onClick={(event) => {
-                // The focus leaves the button, so Enter and Space do not press it again.
-                if (event.detail > 0) event.currentTarget.blur()
-                choose({ mode: key })
-              }}
-            >
-              {MODES[key]}
-            </button>
-          ))}
-          {mode === 'third' && hero && (
-            <select
-              className="pill"
-              aria-label="Resonator yang berjalan"
-              lang="en"
-              value={hero.id}
-              onChange={(event) => {
-                // The arrows then walk again instead of changing the Resonator.
-                event.target.blur()
-                choose({ hero: event.target.value })
-              }}
-            >
-              {walkers.map((character) => (
-                <option key={character.id} value={character.id}>
-                  {character.name}
-                </option>
-              ))}
-            </select>
-          )}
-        </div>
+        <ModeSwitch walk={walking} onChoose={choose} />
         {(unfinished || favorites > 0) && (
           <nav className="memory" aria-label="Kunjunganmu">
             {unfinished && (
@@ -385,17 +320,17 @@ export default function Lobby() {
             {by < 0 ? '‹' : '›'}
           </button>
         ))}
-        {/* The greeter stands near the entrance, so the words go with those doors. */}
-        {greeter && arrived && stop < 2 && (
-          <div className="dialogue" role="status">
+        {speaker && words && !entering && (
+          // A new guard brings a new box, which also plays its entrance again.
+          <div className="dialogue" role="status" key={speaker.id}>
             <img
-              src={assetUrl(`art/faces/${greeter.id}.webp`)}
+              src={assetUrl(`art/faces/${speaker.id}.webp`)}
               alt=""
               onError={(event) => (event.currentTarget.hidden = true)}
             />
             <p>
-              <b lang="en">{greeter.name}</b>
-              {greeting}
+              <b lang="en">{speaker.name}</b>
+              {words.line}
             </p>
           </div>
         )}

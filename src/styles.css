@@ -2265,6 +2265,74 @@ h1 {
   bottom: auto;
 }
 
+/* The switch of the Armory list stands under its links. */
+.wrap > header .modes {
+  margin-top: 8px;
+}
+
+.wrap > header .pill[aria-pressed='true'] {
+  border-color: var(--text);
+  background: var(--text);
+  color: var(--page);
+}
+
+/* The walk through the Armory shares the look of the lobby, with a drawer for the weapon. */
+.armory-hall .door {
+  width: 170px;
+}
+
+.armory-hall .report h2 {
+  margin-bottom: 4px;
+}
+
+.weapon-view {
+  position: relative;
+  height: min(44dvh, 400px);
+  min-height: 240px;
+  margin-top: 12px;
+  overflow: hidden;
+  border: var(--ink-border);
+  border-radius: 14px;
+  background: var(--el-pale);
+}
+
+/* The buttons that zoom a model, in a corner of its stage. */
+.zoom {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 2;
+  display: flex;
+  gap: 6px;
+}
+
+.zoom .pill {
+  justify-content: center;
+  width: 34px;
+  padding: 0;
+  background: var(--page);
+  font-size: 17px;
+}
+
+/* A taller sheet and a lower stage, so the whole model is in sight on a phone. */
+@media (max-width: 760px) {
+  .open-hall.armory-hall .drawer {
+    top: 40%;
+  }
+
+  .weapon-view {
+    height: 240px;
+  }
+}
+
+/* On a narrow screen the switches make room for the weapon above the report. */
+@media (max-width: 760px) {
+  .armory-hall.reading .modes,
+  .armory-hall.reading .switches {
+    display: none;
+  }
+}
+
 /* Glossary */
 
 /* A term in a story: a word with a dotted line under it. */

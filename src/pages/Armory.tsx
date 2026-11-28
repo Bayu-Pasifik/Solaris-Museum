@@ -1,22 +1,21 @@
-import { Suspense, useCallback, useEffect, useRef, type CSSProperties } from 'react'
-import { Canvas } from '@react-three/fiber'
-import { OrbitControls } from '@react-three/drei'
+import { useCallback, useEffect, useRef, type CSSProperties } from 'react'
 import { Link, useParams } from 'react-router'
-import { assetUrl } from '../lib/characters'
+import { useCharacters } from '../lib/characters'
 import { entrance, tint } from '../lib/sakuga'
 import { rarityTheme, useWeapons, type Weapon } from '../lib/weapons'
 import { useTitle } from '../lib/title'
+import { useWalkChoice } from '../lib/walkChoice'
+import ArmoryWalk from '../components/ArmoryWalk'
 import Disclaimer from '../components/Disclaimer'
-import GameText from '../components/GameText'
 import LoadingOverlay from '../components/LoadingOverlay'
 import Marks from '../components/Marks'
-import SceneBoundary from '../components/SceneBoundary'
+import ModeSwitch from '../components/ModeSwitch'
 import SearchButton from '../components/SearchButton'
 import SoundButton from '../components/SoundButton'
 import StageBackdrop from '../components/StageBackdrop'
 import WeaponRack from '../components/WeaponRack'
-import Podium from '../three/Podium'
-import WeaponModel from '../three/WeaponModel'
+import WeaponReport from '../components/WeaponReport'
+import WeaponViewer from '../components/WeaponViewer'
 
 /** One weapon on its stand, with its numbers and its story. Render it with the id as key. */
 function Exhibit({ weapon }: { weapon: Weapon }) {
@@ -53,57 +52,13 @@ function Exhibit({ weapon }: { weapon: Weapon }) {
 
         <div className="viewport" ref={viewport}>
           <StageBackdrop />
-          <SceneBoundary message={`Model ${weapon.name} gagal dimuat.`}>
-            {/* flat: no tone mapping, so unlit anime textures keep their colors. */}
-            <Canvas flat camera={{ position: [0, 1.15, 3.65], fov: 35 }} dpr={[1, 2]}>
-              <Podium theme={theme} />
-              <Suspense fallback={null}>
-                <WeaponModel url={assetUrl(weapon.model)} onReady={onReady} />
-              </Suspense>
-              <OrbitControls
-                target={[0, 0.8, 0]}
-                enablePan={false}
-                minDistance={1.2}
-                maxDistance={5}
-                maxPolarAngle={Math.PI / 1.9}
-                autoRotate={!window.SakugaFX?.calm}
-                autoRotateSpeed={1.5}
-              />
-            </Canvas>
-            <LoadingOverlay />
-          </SceneBoundary>
+          <WeaponViewer weapon={weapon} onReady={onReady} />
+          <LoadingOverlay />
         </div>
       </section>
 
       <section className="card dossier" aria-label={`Data ${weapon.name}`} style={colors}>
-        <div className="panel">
-          <dl className="facts">
-            {/* Two stats can share a name: "ATK" as a number and as a percentage. */}
-            {weapon.stats.map((stat, index) => (
-              <div key={index}>
-                <dt>
-                  <bdi lang="en">{stat.name}</bdi> · level awal → maksimum
-                </dt>
-                <dd>
-                  {stat.min} → {stat.max}
-                </dd>
-              </div>
-            ))}
-          </dl>
-          {weapon.skill.name && (
-            <>
-              <h3 lang="en">{weapon.skill.name}</h3>
-              <GameText text={weapon.skill.description} />
-              <p className="ranks">Angka yang dipisah garis miring berlaku untuk rank 1 sampai 5.</p>
-            </>
-          )}
-          {weapon.description && (
-            <>
-              <h4>Kisah</h4>
-              <GameText text={weapon.description} />
-            </>
-          )}
-        </div>
+        <WeaponReport weapon={weapon} />
       </section>
     </div>
   )
@@ -119,6 +74,13 @@ export default function Armory() {
     ? weapons.find((item) => item.id === id)
     : [...weapons].sort((a, b) => b.rarity - a.rarity || a.name.localeCompare(b.name))[0]
   useTitle((id && current?.name) || 'Armory')
+  const characters = useCharacters()
+  const walk = useWalkChoice(characters.status === 'ready' ? characters.data : [])
+
+  if (walk.mode !== 'tour' && state.status !== 'error') {
+    if (state.status === 'loading') return <p className="notice">Memuat data…</p>
+    return <ArmoryWalk weapons={weapons} currentId={id} walk={walk} />
+  }
 
   return (
     <div className="wrap">
@@ -132,6 +94,7 @@ export default function Armory() {
           <SearchButton />
           <SoundButton />
         </p>
+        <ModeSwitch walk={walk} onChoose={walk.choose} still="Daftar" />
       </header>
 
       <main className="hall">

@@ -1,23 +1,21 @@
-import { useEffect, useMemo, useRef, type RefObject } from 'react'
-import { useFrame, useThree } from '@react-three/fiber'
-import { useGLTF } from '@react-three/drei'
-import { DoubleSide, MathUtils, Mesh, MeshToonMaterial, PerspectiveCamera, Vector3 } from 'three'
+import { useMemo, useRef, type RefObject } from 'react'
+import { useFrame } from '@react-three/fiber'
+import { MathUtils, PerspectiveCamera, Vector3 } from 'three'
 import type { Character } from '../lib/characters'
-import { BAY, door, type Walk } from '../lib/corridor'
+import { BAY, door, guardSpot, type Walk } from '../lib/corridor'
 import type { Insets } from '../lib/insets'
-import type { Mode, Roam } from '../lib/roam'
+import { farEnd, gateAhead, nearest, type Floor, type Mode, type Roam } from '../lib/roam'
 import type { Room } from '../lib/rooms'
-import corridorUrl from '../assets/lobby/corridor.glb?url'
-import Greeter from './Greeter'
+import Corridor from './Corridor'
+import Guard from './Guard'
 import Portal, { PORTAL_CENTER } from './Portal'
 import Roamer from './Roamer'
 
 export const LOBBY_FOV = 45
 /** Color of the air. The fog fades everything far away into it. */
 const SKY = '#e4e0ff'
-/** Bays behind the first door, which the camera stands in, and behind the last one. */
-const BEFORE = 3
-const AFTER = 2
+/** How many doors away a guard is still shown. */
+const REACH = 2
 
 type RigProps = {
   walk: RefObject<Walk>
@@ -110,40 +108,6 @@ function CameraRig({ walk, place, entering, insets, idle }: RigProps) {
   return null
 }
 
-/** The corridor itself, made by scripts/build-lobby.py. */
-function Corridor({ doors, carpet }: { doors: number; carpet: string }) {
-  // Draco is off (models use Meshopt), so no decoder is fetched from a CDN.
-  const { nodes } = useGLTF(corridorUrl, false, true)
-  const paint = useMemo(() => new MeshToonMaterial({ vertexColors: true, side: DoubleSide }), [])
-  const cloth = useMemo(() => new MeshToonMaterial({ vertexColors: true, side: DoubleSide }), [])
-  useEffect(() => () => paint.dispose(), [paint])
-  useEffect(() => () => cloth.dispose(), [cloth])
-  useEffect(() => {
-    cloth.color.set(carpet)
-  }, [cloth, carpet])
-
-  const { bay, runner, end } = nodes
-  if (!(bay instanceof Mesh && runner instanceof Mesh && end instanceof Mesh)) return null
-  const bays = Array.from({ length: BEFORE + doors + AFTER }, (_, index) => index - BEFORE)
-
-  return (
-    <group>
-      {bays.map((index) => (
-        <group key={index} position={[0, 0, -index * BAY]}>
-          <mesh geometry={bay.geometry} material={paint} raycast={() => null} />
-          <mesh geometry={runner.geometry} material={cloth} raycast={() => null} />
-        </group>
-      ))}
-      <mesh
-        geometry={end.geometry}
-        material={paint}
-        position={[0, 0, -(doors + AFTER - 0.5) * BAY]}
-        raycast={() => null}
-      />
-    </group>
-  )
-}
-
 type Props = {
   rooms: Room[]
   walk: RefObject<Walk>
@@ -152,15 +116,19 @@ type Props = {
   active?: string
   /** Path of the room being entered. */
   entering?: string
-  greeter?: Character
+  /** Everyone in the museum; the guards of the doors are among them. */
+  characters: Character[]
+  /** The door nearest along the corridor. */
+  stop: number
+  /** The door whose guard says hello. */
+  greeting?: number
   onHover: (name: string | undefined) => void
   onSelect: (path: string, pointer: { x: number; y: number }) => void
-  onArrive: () => void
   mode: Mode
   roam: RefObject<Roam>
   /** The Resonator who walks in the third-person view. */
   hero?: Character
-  onPlace: (stop: number, ahead: number | undefined) => void
+  onPlace: (stop: number, ahead: number | undefined, met: number | undefined) => void
   onEnter: (path: string) => void
 }
 
@@ -171,28 +139,49 @@ export default function LobbyScene({
   insets,
   active,
   entering,
-  greeter,
+  characters,
+  stop,
+  greeting,
   onHover,
   onSelect,
-  onArrive,
   mode,
   roam,
   hero,
   onPlace,
   onEnter,
 }: Props) {
-  const tall = useThree((state) => state.size.width < state.size.height)
   const place = useRef<number>(null)
-  // The greeter stands by the Resonator hall, and the carpet takes its color.
+  // The carpet takes the color of the Resonator hall.
   const main = rooms.findIndex((room) => room.path === '/resonator')
-  const home = door(Math.max(main, 0))
   const opening = rooms.findIndex((room) => entering && room.path === entering)
-  const greeterAt: [number, number, number] = [
-    home.side * (tall ? 1.5 : 1.25),
-    0,
-    home.position[2] + (tall ? 1.7 : 1.5),
-  ]
   const roaming = mode !== 'tour'
+  const floor = useMemo<Floor>(
+    () => ({
+      gates: rooms.map((room, index) => ({ ...door(index), open: Boolean(room.path) })),
+      circles: rooms.flatMap((room, index) => {
+        if (!room.guard) return []
+        const [x, , z] = guardSpot(index).position
+        return [{ x, z, radius: 0.5 }]
+      }),
+      far: farEnd(rooms.length),
+    }),
+    [rooms],
+  )
+  const told = useRef('')
+
+  /** Tells the page which door and guard the walker is at, and when a door is walked into. */
+  const onFrame = (pose: Roam, entered: number | undefined) => {
+    const at = Math.min(Math.max(Math.round(-pose.z / BAY), 0), rooms.length - 1)
+    const near = gateAhead(pose.x, pose.z, floor.gates)
+    const guards = rooms.map((_, index) => guardSpot(index).position)
+    const met = nearest(pose.x, pose.z, guards, 2.6)
+    if (told.current !== `${at} ${near} ${met}`) {
+      told.current = `${at} ${near} ${met}`
+      onPlace(at, near, met)
+    }
+    const path = entered === undefined ? undefined : rooms[entered].path
+    if (path) onEnter(path)
+  }
 
   return (
     <>
@@ -200,7 +189,7 @@ export default function LobbyScene({
       <fog attach="fog" args={[SKY, 14, 34]} />
       <ambientLight intensity={1.4} />
       <directionalLight position={[-3, 7, 5]} intensity={1.8} />
-      <Corridor doors={rooms.length} carpet={rooms[main]?.color ?? '#8f8df7'} />
+      <Corridor bays={rooms.length} carpet={rooms[main]?.color ?? '#8f8df7'} />
 
       {rooms.map((room, index) => {
         const { position, turn } = door(index)
@@ -224,15 +213,19 @@ export default function LobbyScene({
         )
       })}
 
-      {greeter && main >= 0 && (
-        <Greeter
-          key={greeter.id}
-          character={greeter}
-          position={greeterAt}
-          turn={-home.side * 0.25}
-          onArrive={onArrive}
-        />
-      )}
+      {rooms.map((room, index) => {
+        const character = characters.find((item) => item.id === room.guard?.id)
+        // Only the guards close by are loaded, so a visit does not download all of them.
+        if (!character || Math.abs(index - stop) > REACH) return null
+        return (
+          <Guard
+            key={character.id}
+            character={character}
+            {...guardSpot(index)}
+            active={greeting === index && opening < 0}
+          />
+        )
+      })}
 
       <CameraRig
         walk={walk}
@@ -244,21 +237,15 @@ export default function LobbyScene({
 
       {roaming && (
         <Roamer
-          rooms={rooms}
           roam={roam}
           third={mode === 'third'}
           hero={hero}
-          obstacles={
-            greeter && main >= 0 ? [{ x: greeterAt[0], z: greeterAt[2], radius: 0.7 }] : []
-          }
-          entering={opening >= 0}
+          floor={floor}
+          frozen={opening >= 0}
           insets={insets}
-          onPlace={onPlace}
-          onEnter={onEnter}
+          onFrame={onFrame}
         />
       )}
     </>
   )
 }
-
-useGLTF.preload(corridorUrl, false, true)

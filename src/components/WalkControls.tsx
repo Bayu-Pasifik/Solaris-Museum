@@ -14,11 +14,12 @@ const WALKING = new Set([
   'ShiftRight',
 ])
 
-/** Whether a key press belongs to a field or a dialog, so it does not walk. */
+/** Whether a key press belongs to a field, a dialog or the drawer, so it does not walk. */
 const busy = (target: EventTarget | undefined) =>
   Boolean(document.querySelector('dialog[open]')) ||
   (target instanceof HTMLElement &&
-    (target.isContentEditable || target.matches('input, textarea, select')))
+    // In the drawer the arrows scroll its text.
+    (target.isContentEditable || Boolean(target.closest('input, textarea, select, .drawer'))))
 
 /** Keeps the held walking keys in the pose, and calls "onUse" for the key E. */
 export function useWalkKeys(roam: RefObject<Roam>, active: boolean, onUse: () => void) {
@@ -55,6 +56,36 @@ export function useWalkKeys(roam: RefObject<Roam>, active: boolean, onUse: () =>
     const pose = roam.current
     return () => pose.keys.clear()
   }, [roam, active])
+}
+
+/** Radians of a turn for one pixel of a drag. */
+const LOOK = 0.005
+
+/** Starts a drag that turns the eyes of a walker. Behind a body they cannot look as far. */
+export function lookAround(event: ReactPointerEvent, roam: RefObject<Roam>, third: boolean) {
+  if (event.button !== 0) return
+  const { pointerId } = event
+  const [low, high] = third ? [-0.5, 0.35] : [-0.8, 0.8]
+  let x = event.clientX
+  let y = event.clientY
+  const drag = (next: PointerEvent) => {
+    // Another finger can be on the stick.
+    if (next.pointerId !== pointerId) return
+    const pose = roam.current
+    pose.yaw -= (next.clientX - x) * LOOK
+    pose.pitch = Math.min(Math.max(pose.pitch - (next.clientY - y) * LOOK, low), high)
+    x = next.clientX
+    y = next.clientY
+  }
+  const drop = (next: PointerEvent) => {
+    if (next.pointerId !== pointerId) return
+    window.removeEventListener('pointermove', drag)
+    window.removeEventListener('pointerup', drop)
+    window.removeEventListener('pointercancel', drop)
+  }
+  window.addEventListener('pointermove', drag)
+  window.addEventListener('pointerup', drop)
+  window.addEventListener('pointercancel', drop)
 }
 
 /** How far the knob of the stick travels, in pixels. */

@@ -16,6 +16,25 @@ export function door(index: number) {
   return { side, position, turn: -side * TURN }
 }
 
+/** How far a guard stands from the middle of the gate, and how far in front of it. */
+const BESIDE = 1.5
+const BEFORE = 0.3
+
+/**
+ * Where the guard of a door stands: beside the gate on the side of the carpet, so the way in
+ * stays free. The guard looks a little toward the carpet.
+ */
+export function guardSpot(index: number) {
+  const { side, position, turn } = door(index)
+  const across = -side * BESIDE
+  const at: [number, number, number] = [
+    position[0] + Math.cos(turn) * across + Math.sin(turn) * BEFORE,
+    0,
+    position[2] - Math.sin(turn) * across + Math.cos(turn) * BEFORE,
+  ]
+  return { position: at, turn: -side * 0.25 }
+}
+
 /**
  * Where the visitor is, counted in doors: 0 is at the first one. The page moves "target" and
  * the scene walks after it.

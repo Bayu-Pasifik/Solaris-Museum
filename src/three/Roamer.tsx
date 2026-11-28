@@ -2,18 +2,8 @@ import { Suspense, useCallback, useRef, useState, type RefObject } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { MathUtils, PerspectiveCamera, type Group } from 'three'
 import { assetUrl, type Character } from '../lib/characters'
-import { door } from '../lib/corridor'
 import type { Insets } from '../lib/insets'
-import {
-  advance,
-  doorAhead,
-  onStep,
-  SIDE,
-  STEP_HEIGHT,
-  type Circle,
-  type Roam,
-} from '../lib/roam'
-import type { Room } from '../lib/rooms'
+import { advance, onStep, SIDE, STEP_HEIGHT, type Floor, type Roam } from '../lib/roam'
 import CharacterModel from './CharacterModel'
 import Optional from './Optional'
 
@@ -53,40 +43,35 @@ function Body({ character, gait }: { character: Character; gait: Gait }) {
 }
 
 type Props = {
-  rooms: Room[]
   roam: RefObject<Roam>
   /** The body that is seen from behind; without one the camera is the walker. */
   third: boolean
   hero?: Character
-  obstacles: Circle[]
-  /** True while the visitor goes into a room; the lobby camera takes over then. */
-  entering: boolean
+  floor: Floor
+  /** True while something else moves the camera, such as the way into a room. */
+  frozen?: boolean
   insets: Insets
-  /** The door nearest along the corridor, and the one that can be entered. */
-  onPlace: (stop: number, ahead: number | undefined) => void
-  onEnter: (path: string) => void
+  /** Called after every step, with the index of the gate that was walked into. */
+  onFrame: (pose: Roam, entered: number | undefined) => void
 }
 
-/** A visitor who walks freely through the corridor. */
+/** A visitor who walks freely through a room. */
 export default function Roamer({
-  rooms,
   roam,
   third,
   hero,
-  obstacles,
-  entering,
+  floor,
+  frozen = false,
   insets,
-  onPlace,
-  onEnter,
+  onFrame,
 }: Props) {
   const body = useRef<Group>(null)
   const height = useRef(0)
-  const told = useRef('')
   const [gait, setGait] = useState<Gait>('stand')
 
   useFrame(({ camera, size }, delta) => {
-    if (body.current) body.current.visible = !entering
-    if (entering || !(camera instanceof PerspectiveCamera)) return
+    if (body.current) body.current.visible = !frozen
+    if (frozen || !(camera instanceof PerspectiveCamera)) return
     const pose = roam.current
     const step = Math.min(delta, 0.05)
     const held = (...codes: string[]) => (codes.some((code) => pose.keys.has(code)) ? 1 : 0)
@@ -110,9 +95,7 @@ export default function Roamer({
       const moved = advance(
         pose,
         { x: pose.x + x * speed * step, z: pose.z + z * speed * step },
-        rooms.length,
-        (index) => Boolean(rooms[index].path),
-        obstacles,
+        floor,
       )
       if (moved.x !== pose.x || moved.z !== pose.z) next = fast ? 'run' : 'walk'
       pose.x = moved.x
@@ -126,7 +109,7 @@ export default function Roamer({
 
     height.current = MathUtils.damp(
       height.current,
-      onStep(pose.x, pose.z, rooms.length) ? STEP_HEIGHT : 0,
+      onStep(pose.x, pose.z, floor.gates) ? STEP_HEIGHT : 0,
       14,
       step,
     )
@@ -151,32 +134,18 @@ export default function Roamer({
       camera.position.set(pose.x, height.current + 1.6, pose.z)
       camera.rotation.set(pose.pitch, pose.yaw, 0, 'YXZ')
     }
-    // The picture slides to the middle of the free part, between the bars.
+    // The picture slides to the middle of the free part, between the bars and the drawer.
     camera.setViewOffset(
       size.width,
       size.height,
-      0,
+      insets.right / 2,
       (insets.bottom - insets.top) / 2,
       size.width,
       size.height,
     )
 
-    const stop = rooms.reduce(
-      (best, _, index) =>
-        Math.abs(door(index).position[2] - pose.z) < Math.abs(door(best).position[2] - pose.z)
-          ? index
-          : best,
-      0,
-    )
-    const near = doorAhead(pose.x, pose.z, rooms.length)
-    if (told.current !== `${stop} ${near}`) {
-      told.current = `${stop} ${near}`
-      onPlace(stop, near)
-    }
-
-    // Last, because entering moves the pose to the place of the return.
-    const path = entered === undefined ? undefined : rooms[entered].path
-    if (path) onEnter(path)
+    // Last, because entering a room moves the pose to the place of the return.
+    onFrame(pose, entered)
   })
 
   if (!third || !hero) return null

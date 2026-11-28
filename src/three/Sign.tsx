@@ -50,18 +50,20 @@ type Props = {
   shadow: string
   ink?: string
   position: [number, number, number]
+  /** Hidden by what stands in front of it, and faded by the air, like any other thing. */
+  solid?: boolean
 }
 
-/** The name board above a portal. */
-export default function Sign({ title, note, shadow, ink = INK, position }: Props) {
+/** The name board above a portal or a stand. */
+export default function Sign({ title, note, shadow, ink = INK, position, solid = false }: Props) {
   const texture = useMemo(() => drawSign(title, note, shadow, ink), [title, note, shadow, ink])
   useEffect(() => () => texture.dispose(), [texture])
 
-  // Drawn over the orbiting shards, so the name stays readable.
+  // Above a portal it is drawn over the orbiting shards, so the name stays readable.
   return (
-    <mesh position={position} renderOrder={1}>
+    <mesh position={position} renderOrder={solid ? 0 : 1}>
       <planeGeometry args={[1.7, (1.7 * HEIGHT) / WIDTH]} />
-      <meshBasicMaterial map={texture} transparent depthTest={false} fog={false} />
+      <meshBasicMaterial map={texture} transparent depthTest={solid} fog={solid} />
     </mesh>
   )
 }
